@@ -1394,23 +1394,59 @@
             { name: 'Huel Hot & Savory',         cat: 'main',  desc: 'Zero-prep savory meal.',           cal: 400, protein: 25, carbs: 47, fat: 11 }
         ],
         prepRecipes: {
+            preworkout: [
+                { name: 'Banana + Mini Whey Shot', cal: 200, protein: 20, carbs: 30, fat: 2,
+                  desc: 'Fast-digesting carbs + light protein. Easy on the stomach pre-training.',
+                  ingredients: [{ item: 'Banana', qty: '1 medium' }, { item: 'Whey Protein', qty: '1 scoop (25g)' }, { item: 'Water', qty: '150ml' }],
+                  steps: ['Mix whey with cold water and shake', 'Eat banana alongside', 'Have 25–30 min before lifting'] },
+                { name: 'Rice Cakes + PB + Honey', cal: 210, protein: 6, carbs: 38, fat: 5,
+                  desc: 'Light, no-cook, fast carbs with a touch of healthy fat.',
+                  ingredients: [{ item: 'Rice Cakes', qty: '3 cakes' }, { item: 'Peanut Butter', qty: '1 tbsp' }, { item: 'Honey', qty: '1 tsp' }],
+                  steps: ['Spread PB on rice cakes', 'Drizzle honey', 'Eat 20–30 min before workout'] }
+            ],
+            postworkout: [
+                { name: 'Huel Black Recovery Shake', cal: 400, protein: 40, carbs: 17, fat: 18,
+                  desc: 'Immediate post-workout protein hit. Fast and complete.',
+                  ingredients: [{ item: 'Huel Black Powder', qty: '2 scoops (90g)' }, { item: 'Cold Water', qty: '500ml' }],
+                  steps: ['Shake vigorously with cold water', 'Drink within 30 min of finishing workout'] },
+                { name: 'Cosmic Shake + Banana', cal: 430, protein: 52, carbs: 30, fat: 6,
+                  desc: 'High protein + carbs to spike insulin and kickstart muscle repair.',
+                  ingredients: [{ item: 'Cosmic Protein', qty: '2 Scoops' }, { item: 'Almond Milk', qty: '300ml' }, { item: 'Banana', qty: '1 medium' }],
+                  steps: ['Blend all with ice', 'Drink immediately after workout'] }
+            ],
             breakfast: [
-                { name: 'High-Pro Oats', cal: 570, protein: 60, carbs: 60, fat: 10,
-                  ingredients: [{ item: 'Oats', qty: '400g' }, { item: 'Milk', qty: '1.5L' }, { item: 'Whey', qty: '300g' }, { item: 'Berries', qty: '500g' }],
-                  steps: ['Cook oats in milk', 'Mix in double scoop whey per serving', 'Top with berries'] }
+                { name: 'High-Pro Oats Bowl', cal: 420, protein: 42, carbs: 48, fat: 8,
+                  desc: 'Slow-release carbs + high protein. Keeps you full till lunch.',
+                  ingredients: [{ item: 'Oats', qty: '80g' }, { item: 'Milk (low-fat)', qty: '300ml' }, { item: 'Whey Protein', qty: '1 scoop' }, { item: 'Mixed Berries', qty: '100g' }],
+                  steps: ['Cook oats in milk on stove or microwave', 'Stir in whey once slightly cooled', 'Top with berries'] },
+                { name: 'Greek Yogurt Power Bowl', cal: 370, protein: 38, carbs: 32, fat: 7,
+                  desc: 'Light, digestive-friendly. Great when stomach is still waking up.',
+                  ingredients: [{ item: 'Greek Yogurt (0% fat)', qty: '400g' }, { item: 'Mixed Berries', qty: '150g' }, { item: 'Granola (low sugar)', qty: '40g' }, { item: 'Honey', qty: '1 tsp' }],
+                  steps: ['Layer yogurt in a bowl', 'Top with berries and granola', 'Drizzle honey'] }
             ],
             mains: [
-                { name: 'Bulk Paneer & Bean Tikka', cal: 575, protein: 60, carbs: 50, fat: 15,
-                  ingredients: [{ item: 'Paneer', qty: '1.5kg' }, { item: 'Black Beans', qty: '2 Cans' }, { item: 'Greek Yogurt', qty: '800g' }, { item: 'Tomato Sauce', qty: '1.2kg' }, { item: 'Brown Rice', qty: '800g' }],
+                { name: 'Bulk Paneer & Bean Tikka', cal: 520, protein: 55, carbs: 45, fat: 13,
+                  ingredients: [{ item: 'Paneer', qty: '1.5kg' }, { item: 'Black Beans', qty: '2 Cans' }, { item: 'Greek Yogurt', qty: '800g' }, { item: 'Tomato Sauce', qty: '1.2kg' }, { item: 'Brown Rice', qty: '600g' }],
                   steps: ['Sauté paneer', 'Add beans, sauce, yogurt, spices', 'Simmer 20m', 'Divide with rice'] },
-                { name: 'Double-Pro Chickpea Curry', cal: 560, protein: 55, carbs: 55, fat: 12,
+                { name: 'Double-Pro Chickpea Curry', cal: 500, protein: 50, carbs: 50, fat: 11,
                   ingredients: [{ item: 'Chickpeas', qty: '4 Cans' }, { item: 'Lentils', qty: '500g' }, { item: 'Spinach', qty: '1.5kg' }, { item: 'Coconut Milk', qty: '400ml' }],
-                  steps: ['Cook lentils', 'Add chickpeas and spices', 'Pour coconut milk', 'Fold in spinach'] }
+                  steps: ['Cook lentils', 'Add chickpeas and spices', 'Pour coconut milk', 'Fold in spinach'] },
+                { name: 'Egg White & Veggie Stir Fry + Rice', cal: 480, protein: 52, carbs: 42, fat: 9,
+                  ingredients: [{ item: 'Egg Whites', qty: '8 large' }, { item: 'Brown Rice', qty: '150g cooked' }, { item: 'Broccoli', qty: '200g' }, { item: 'Bell Peppers', qty: '1 large' }, { item: 'Soy Sauce', qty: '2 tbsp' }],
+                  steps: ['Cook rice', 'Stir-fry veggies in minimal oil', 'Add egg whites, scramble', 'Mix in rice and soy sauce'] }
             ],
             snacks: [
-                { name: 'Super Cosmic Shake', cal: 330, protein: 50, carbs: 20, fat: 6,
-                  ingredients: [{ item: 'Cosmic Protein', qty: '2 Scoops' }, { item: 'Almond Milk', qty: '300ml' }, { item: 'Banana', qty: '1/2' }],
-                  steps: ['Blend all ingredients with ice'] }
+                { name: 'Cottage Cheese + Almonds', cal: 250, protein: 32, carbs: 8, fat: 10,
+                  desc: 'Slow-digesting casein protein — great for afternoon satiety.',
+                  ingredients: [{ item: 'Low-fat Cottage Cheese', qty: '250g' }, { item: 'Almonds', qty: '20g' }, { item: 'Black pepper', qty: 'pinch' }],
+                  steps: ['Scoop cottage cheese into bowl', 'Top with almonds', 'Season with pepper'] },
+                { name: 'Super Cosmic Shake', cal: 280, protein: 42, carbs: 14, fat: 5,
+                  ingredients: [{ item: 'Cosmic Protein', qty: '1.5 Scoops' }, { item: 'Almond Milk', qty: '250ml' }, { item: 'Ice', qty: 'handful' }],
+                  steps: ['Shake or blend all ingredients'] },
+                { name: 'Tuna + Crackers', cal: 240, protein: 35, carbs: 18, fat: 4,
+                  desc: 'Ultra-lean protein hit. Easy to prep and carry.',
+                  ingredients: [{ item: 'Tuna in Water', qty: '1 can (185g)' }, { item: 'Rice Crackers', qty: '30g' }, { item: 'Lemon juice', qty: 'squeeze' }],
+                  steps: ['Drain tuna', 'Season with lemon, salt, pepper', 'Eat with crackers'] }
             ]
         }
     };
@@ -1496,9 +1532,11 @@
 
     function shuffleWeeklyPrep() {
         const getRandom = (arr, n) => [...arr].sort(() => 0.5 - Math.random()).slice(0, n);
-        activeWeeklyPrep.breakfast = getRandom(mealDatabase.prepRecipes.breakfast, 1);
-        activeWeeklyPrep.mains     = mealDatabase.prepRecipes.mains.slice(0, 2);
-        activeWeeklyPrep.snacks    = getRandom(mealDatabase.prepRecipes.snacks, 1);
+        activeWeeklyPrep.breakfast  = getRandom(mealDatabase.prepRecipes.breakfast, 1);
+        activeWeeklyPrep.mains      = mealDatabase.prepRecipes.mains.slice(0, 3);
+        activeWeeklyPrep.snacks     = getRandom(mealDatabase.prepRecipes.snacks, 1);
+        activeWeeklyPrep.preworkout = getRandom(mealDatabase.prepRecipes.preworkout, 1);
+        activeWeeklyPrep.postworkout= getRandom(mealDatabase.prepRecipes.postworkout, 1);
         renderWeeklyPrepUI();
         generateDailyShuffle();
     }
@@ -1525,34 +1563,82 @@
 
     function generateDailyShuffle() {
         const container = document.getElementById('daily-container');
-        const bPool = [...activeWeeklyPrep.breakfast];
-        const mPool = [...activeWeeklyPrep.mains, mealDatabase.staples.find(s => s.cat === 'main')];
-        const sPool = [...activeWeeklyPrep.snacks, mealDatabase.staples.find(s => s.cat === 'shake')];
+        const getRand = arr => arr[Math.floor(Math.random() * arr.length)];
+        const db = mealDatabase.prepRecipes;
 
+        // 6 time-based slots for a 5:45 AM workout day
         const todayMenu = [
-            { time: 'Breakfast',             item: bPool[Math.floor(Math.random() * bPool.length)] },
-            { time: 'Lunch',                 item: mPool[Math.floor(Math.random() * mPool.length)] },
-            { time: 'Dinner',                item: mPool[Math.floor(Math.random() * mPool.length)] },
-            { time: 'Post-Workout / Snack',  item: sPool[Math.floor(Math.random() * sPool.length)] }
+            { slot: '⚡ Pre-Workout',   time: '5:15 AM',  color: 'var(--steps)',   item: getRand(db.preworkout) },
+            { slot: '🥤 Post-Workout',  time: '7:00 AM',  color: 'var(--water)',   item: getRand(db.postworkout) },
+            { slot: '🍳 Breakfast',     time: '9:30 AM',  color: 'var(--primary)', item: getRand(db.breakfast) },
+            { slot: '🍛 Lunch',         time: '12:30 PM', color: 'var(--success)', item: getRand(db.mains) },
+            { slot: '🥜 Afternoon Snack', time: '4:00 PM', color: 'var(--purple)', item: getRand(db.snacks) },
+            { slot: '🍽️ Dinner',        time: '7:30 PM',  color: 'var(--success)', item: (() => { const pool = db.mains.filter(m => m.name !== todayMenu[3]?.item?.name); return getRand(pool.length ? pool : db.mains); })() }
         ];
 
-        let html = ''; let totalCal = 0; let totalPro = 0;
+        // Fix dinner after todayMenu is built (can't self-reference above)
+        const lunchName = todayMenu[3].item?.name;
+        const dinnerPool = db.mains.filter(m => m.name !== lunchName);
+        todayMenu[5].item = getRand(dinnerPool.length ? dinnerPool : db.mains);
+
+        let html = ''; let totalCal = 0; let totalPro = 0; let totalCarb = 0; let totalFat = 0;
         todayMenu.forEach(meal => {
             if (!meal.item) return;
             const safeName = meal.item.name.replace(/'/g, "\\'");
             totalCal += meal.item.cal; totalPro += meal.item.protein;
-            html += `<div class="guide-card" style="margin-bottom:10px;">
-                <div style="font-size:0.75rem; color:var(--primary); font-weight:800;">${meal.time}</div>
-                <div style="font-weight:bold; font-size:1.1rem; margin:4px 0;">${meal.item.name}</div>
-                <div style="font-size:0.8rem; color:var(--dim);">P: ${meal.item.protein}g | C: ${meal.item.carbs}g | F: ${meal.item.fat}g | Cal: ${meal.item.cal}</div>
-                <button class="add-meal-btn" onclick="addMealToTracking('${safeName}', ${meal.item.cal}, ${meal.item.protein}, ${meal.item.carbs}, ${meal.item.fat})">+ Add to Log</button>
+            totalCarb += meal.item.carbs; totalFat += meal.item.fat;
+            const desc = meal.item.desc ? `<div style="font-size:0.78rem; color:var(--dim); margin:4px 0 6px; font-style:italic;">${meal.item.desc}</div>` : '';
+            html += `<div class="guide-card" style="margin-bottom:10px; border-left:3px solid ${meal.color};">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div style="font-size:0.75rem; color:${meal.color}; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">${meal.slot}</div>
+                    <div style="font-size:0.78rem; color:var(--dim); font-weight:700;">${meal.time}</div>
+                </div>
+                <div style="font-weight:bold; font-size:1.05rem; margin:5px 0 2px;">${meal.item.name}</div>
+                ${desc}
+                <div style="font-size:0.78rem; color:var(--dim); background:var(--bg); padding:6px 8px; border-radius:6px; display:flex; gap:10px; flex-wrap:wrap;">
+                    <span>🔥 ${meal.item.cal} cal</span>
+                    <span style="color:var(--primary);">P: ${meal.item.protein}g</span>
+                    <span style="color:var(--water);">C: ${meal.item.carbs}g</span>
+                    <span style="color:var(--steps);">F: ${meal.item.fat}g</span>
+                </div>
+                <button class="add-meal-btn" style="margin-top:8px;" onclick="addMealToTracking('${safeName}', ${meal.item.cal}, ${meal.item.protein}, ${meal.item.carbs}, ${meal.item.fat})">+ Log This Meal</button>
             </div>`;
         });
 
-        container.innerHTML = `<div class="stats-card" style="border-left: 4px solid var(--success); padding: 15px; margin-bottom:15px;">
-            <div style="font-size:0.8rem; color:var(--dim); font-weight:bold;">DAILY TOTAL</div>
-            <div style="font-size:1.4rem; font-weight:800; color:var(--text); margin-top:5px;">~${totalCal} Cal | ${totalPro}g Protein</div>
-        </div>` + html;
+        const calPct  = Math.round((totalCal  / 2200) * 100);
+        const proPct  = Math.round((totalPro  / 210)  * 100);
+        const carbPct = Math.round((totalCarb / 180)  * 100);
+        const fatPct  = Math.round((totalFat  / 70)   * 100);
+        const calColor  = calPct  > 110 ? 'var(--danger)' : calPct  > 95 ? 'var(--success)' : 'var(--text)';
+        const proColor  = proPct  >= 95 ? 'var(--success)' : 'var(--primary)';
+
+        const summaryCard = `<div class="stats-card" style="margin-bottom:15px; padding:15px;">
+            <div style="font-size:0.7rem; color:var(--dim); font-weight:800; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">📊 Today's Projected Totals</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                <div style="background:var(--bg); padding:10px; border-radius:8px; text-align:center;">
+                    <div style="font-size:0.65rem; color:var(--dim); text-transform:uppercase; font-weight:700;">Calories</div>
+                    <div style="font-size:1.3rem; font-weight:900; color:${calColor};">${totalCal}</div>
+                    <div style="font-size:0.65rem; color:var(--dim);">/ 2200 · ${calPct}%</div>
+                </div>
+                <div style="background:var(--bg); padding:10px; border-radius:8px; text-align:center;">
+                    <div style="font-size:0.65rem; color:var(--dim); text-transform:uppercase; font-weight:700;">Protein</div>
+                    <div style="font-size:1.3rem; font-weight:900; color:${proColor};">${totalPro}g</div>
+                    <div style="font-size:0.65rem; color:var(--dim);">/ 210g · ${proPct}%</div>
+                </div>
+                <div style="background:var(--bg); padding:10px; border-radius:8px; text-align:center;">
+                    <div style="font-size:0.65rem; color:var(--dim); text-transform:uppercase; font-weight:700;">Carbs</div>
+                    <div style="font-size:1.3rem; font-weight:900; color:var(--water);">${totalCarb}g</div>
+                    <div style="font-size:0.65rem; color:var(--dim);">/ 180g · ${carbPct}%</div>
+                </div>
+                <div style="background:var(--bg); padding:10px; border-radius:8px; text-align:center;">
+                    <div style="font-size:0.65rem; color:var(--dim); text-transform:uppercase; font-weight:700;">Fat</div>
+                    <div style="font-size:1.3rem; font-weight:900; color:var(--steps);">${totalFat}g</div>
+                    <div style="font-size:0.65rem; color:var(--dim);">/ 70g · ${fatPct}%</div>
+                </div>
+            </div>
+        </div>`;
+
+        container.innerHTML = summaryCard + html;
     }
 
     // ============================================================
