@@ -1586,10 +1586,10 @@
             { slot: '🍳 Breakfast',     time: '9:30 AM',  color: 'var(--primary)', item: getRand(db.breakfast) },
             { slot: '🍛 Lunch',         time: '12:30 PM', color: 'var(--success)', item: getRand(db.mains) },
             { slot: '🥜 Afternoon Snack', time: '4:00 PM', color: 'var(--purple)', item: getRand(db.snacks) },
-            { slot: '🍽️ Dinner',        time: '7:30 PM',  color: 'var(--success)', item: (() => { const pool = db.mains.filter(m => m.name !== todayMenu[3]?.item?.name); return getRand(pool.length ? pool : db.mains); })() }
+            { slot: '🍽️ Dinner',        time: '7:30 PM',  color: 'var(--success)', item: getRand(db.mains) }
         ];
 
-        // Fix dinner after todayMenu is built (can't self-reference above)
+        // Ensure dinner differs from lunch
         const lunchName = todayMenu[3].item?.name;
         const dinnerPool = db.mains.filter(m => m.name !== lunchName);
         todayMenu[5].item = getRand(dinnerPool.length ? dinnerPool : db.mains);
