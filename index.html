@@ -765,7 +765,7 @@
             <h3>💾 Data Backup &amp; Restore</h3>
             <p style="color:var(--dim); font-size:0.85rem; margin-bottom:14px;">One browser cache clear wipes all your streak, weight, and workout data. Download a backup regularly.</p>
             <button class="action-btn btn-outline" style="margin-top:0;" onclick="downloadBackup()">⬇️ Download Backup JSON</button>
-            <label class="action-btn btn-outline" style="display:block; text-align:center; cursor:pointer; margin-top:8px; padding:15px; font-weight:bold; font-size:1rem; border-radius:8px;">
+            <label for="restoreFile" class="action-btn btn-outline" style="display:flex; align-items:center; justify-content:center; text-align:center; cursor:pointer; margin-top:8px; box-sizing:border-box; width:100%;">
                 ⬆️ Restore from Backup
                 <input type="file" id="restoreFile" accept=".json" style="display:none;" onchange="restoreBackup(this)">
             </label>
