@@ -1396,13 +1396,13 @@
         prepRecipes: {
             preworkout: [
                 { name: 'Banana + Mini Whey Shot', cal: 200, protein: 20, carbs: 30, fat: 2,
-                  desc: 'Fast-digesting carbs + light protein. Easy on the stomach pre-training.',
-                  ingredients: [{ item: 'Banana', qty: '1 medium' }, { item: 'Whey Protein', qty: '1 scoop (25g)' }, { item: 'Water', qty: '150ml' }],
-                  steps: ['Mix whey with cold water and shake', 'Eat banana alongside', 'Have 25–30 min before lifting'] },
+                  desc: '🧪 Take Kaged Pre-Workout Elite (Stim Free) now — creatine & beta-alanine included. Fast carbs + light protein on the side.',
+                  ingredients: [{ item: 'Kaged Pre-Workout Elite (Stim Free)', qty: '1 serving mixed in water' }, { item: 'Banana', qty: '1 medium' }, { item: 'Whey Protein', qty: '1 scoop (25g)' }, { item: 'Water', qty: '150ml' }],
+                  steps: ['Mix Kaged Pre-Workout in water and drink 20 min before training', 'Mix whey with cold water and shake', 'Eat banana alongside'] },
                 { name: 'Rice Cakes + PB + Honey', cal: 210, protein: 6, carbs: 38, fat: 5,
-                  desc: 'Light, no-cook, fast carbs with a touch of healthy fat.',
-                  ingredients: [{ item: 'Rice Cakes', qty: '3 cakes' }, { item: 'Peanut Butter', qty: '1 tbsp' }, { item: 'Honey', qty: '1 tsp' }],
-                  steps: ['Spread PB on rice cakes', 'Drizzle honey', 'Eat 20–30 min before workout'] }
+                  desc: '🧪 Take Kaged Pre-Workout Elite (Stim Free) now — creatine & beta-alanine included. Light, no-cook fast carbs on the side.',
+                  ingredients: [{ item: 'Kaged Pre-Workout Elite (Stim Free)', qty: '1 serving mixed in water' }, { item: 'Rice Cakes', qty: '3 cakes' }, { item: 'Peanut Butter', qty: '1 tbsp' }, { item: 'Honey', qty: '1 tsp' }],
+                  steps: ['Mix Kaged Pre-Workout in water and drink 20 min before training', 'Spread PB on rice cakes', 'Drizzle honey and eat'] }
             ],
             postworkout: [
                 { name: 'Huel Black Recovery Shake', cal: 400, protein: 40, carbs: 17, fat: 18,
@@ -1825,12 +1825,12 @@
         let html = `<div class="grocery-list"><div class="grocery-category">📦 HUEL & STAPLES</div><div class="grocery-item"><span>Huel Black Edition</span></div><div class="grocery-item"><span>Huel Hot & Savory</span></div><div class="grocery-item"><span>Cosmic Protein</span></div></div>
             <div class="grocery-list"><div class="grocery-category">🔪 PREP INGREDIENTS</div>`;
         [...new Set(combined)].forEach(item => html += `<div class="grocery-item"><span>${item}</span></div>`);
-        html += `</div><div class="grocery-list"><div class="grocery-category">💊 SUPPLEMENTS</div><div class="grocery-item"><span>Creatine Monohydrate</span></div><div class="grocery-item"><span>Pre-Workout</span></div><div class="grocery-item"><span>Multivitamin</span></div></div>`;
+        html += `</div><div class="grocery-list"><div class="grocery-category">💊 SUPPLEMENTS</div><div class="grocery-item"><span>Kaged Pre-Workout Elite (Stim Free)</span><span style="color:var(--dim); font-size:0.8rem;">incl. Creatine + Beta-Alanine</span></div><div class="grocery-item"><span>Multivitamin</span></div></div>`;
         container.innerHTML = html;
     }
 
     function exportGroceryCSV() {
-        let csv = 'data:text/csv;charset=utf-8,Category,Item\nStaples,Huel Black Edition\nStaples,Huel Hot & Savory\nStaples,Cosmic Protein\nSupplements,Creatine\nSupplements,Pre-Workout\n';
+        let csv = 'data:text/csv;charset=utf-8,Category,Item\nStaples,Huel Black Edition\nStaples,Huel Hot & Savory\nStaples,Cosmic Protein\nSupplements,Kaged Pre-Workout Elite (Stim Free)\nSupplements,Multivitamin\n';
         [...activeWeeklyPrep.breakfast, ...activeWeeklyPrep.mains, ...activeWeeklyPrep.snacks].forEach(meal => {
             if (meal.ingredients) meal.ingredients.forEach(ing => csv += `Prep Recipe (${meal.name}),${ing.item} - ${ing.qty}\n`);
         });
@@ -2164,7 +2164,7 @@
     // HABIT CHECKLIST
     // ============================================================
     const HABITS = [
-        { id: 'creatine', label: 'Creatine taken',          note: 'Tap to check',               auto: false },
+        { id: 'creatine', label: 'Kaged Pre-Workout taken',   note: 'Creatine + Beta-Alanine included · Tap to check', auto: false },
         { id: 'vitamin',  label: 'Multivitamin taken',       note: 'Tap to check',               auto: false },
         { id: 'protein',  label: 'Hit protein goal (200g+)', note: '⚡ Auto — from meal log',     auto: true,
           check: () => {
