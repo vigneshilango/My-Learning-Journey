@@ -226,11 +226,11 @@
       },
       {
         "name": "Masala Oats (Savoury)",
-        "cal": 330, "protein": 28, "carbs": 40, "fat": 6,
-        "desc": "🌶️ Oats don't have to be sweet. Masala oats taste like upma — comfort food that hits your macros.",
+        "cal": 320, "protein": 26, "carbs": 42, "fat": 5,
+        "desc": "🌶️ Oats don't have to be sweet. Masala oats taste like upma — comfort food that hits your macros. Zero soy.",
         "ingredients": [
           { "item": "Oats (rolled)", "qty": "65g" },
-          { "item": "Soy Chunks (dry, small/granule size)", "qty": "30g" },
+          { "item": "Chickpeas (cooked)", "qty": "60g" },
           { "item": "Onion + Tomato", "qty": "1 small each" },
           { "item": "Mustard seeds + cumin + turmeric + chilli", "qty": "1/4 tsp each" },
           { "item": "Green peas (frozen)", "qty": "40g" },
@@ -238,32 +238,33 @@
           { "item": "Lemon juice + salt", "qty": "to taste" }
         ],
         "steps": [
-          "Rehydrate soy granules in hot water 5 min, drain and set aside",
           "Heat pan, add mustard seeds — wait for them to pop",
           "Add cumin, onion and tomato — sauté 3 min",
-          "Add oats, soy, peas and water — stir everything together",
+          "Add chickpeas and peas, stir 1 min",
+          "Add oats and water — stir everything together",
           "Cook on medium heat stirring frequently until oats absorb water (4–5 min)",
           "Finish with turmeric, chilli, lemon juice and salt"
         ]
       },
       {
-        "name": "Soy Poha",
-        "cal": 340, "protein": 30, "carbs": 42, "fat": 5,
-        "desc": "🍚 Flattened rice with soy — the upgraded version of every Indian's favourite quick breakfast.",
+        "name": "Paneer Poha",
+        "cal": 330, "protein": 28, "carbs": 40, "fat": 8,
+        "desc": "🍚 Flattened rice with crumbled paneer — the protein-packed version of every Indian's favourite quick breakfast.",
         "ingredients": [
           { "item": "Poha (Flattened Rice)", "qty": "70g" },
-          { "item": "Soy Granules (dry)", "qty": "35g" },
+          { "item": "Paneer (low-fat, crumbled)", "qty": "80g" },
           { "item": "Onion", "qty": "1 small" },
           { "item": "Green peas (frozen)", "qty": "40g" },
           { "item": "Mustard seeds + curry leaves + turmeric", "qty": "pinch each" },
           { "item": "Lemon juice + coriander", "qty": "to taste" }
         ],
         "steps": [
-          "Rinse poha in water for 30 sec, drain and let sit — it will soften",
-          "Rehydrate soy granules in hot water 5 min, drain",
-          "Heat oil, add mustard seeds and curry leaves — let them splutter",
-          "Add onion and sauté 2 min, add soy and peas",
-          "Add poha, turmeric and salt — toss everything gently for 3 min",
+          "Rinse poha in water for 30 sec, drain and let sit — it softens in 2 min",
+          "Crumble paneer into small pieces with your hands",
+          "Heat a tiny drop of oil, add mustard seeds and curry leaves — let them splutter",
+          "Add onion, sauté 2 min until soft, add peas and cook 1 min",
+          "Add paneer crumbles and toss 2 min — they'll get slightly golden",
+          "Add poha, turmeric and salt — toss gently for 3 min",
           "Finish with lemon juice and fresh coriander"
         ]
       },
@@ -289,24 +290,25 @@
     ],
     "mains": [
       {
-        "name": "Chipotle Soy Taco Rice Bowl",
-        "cal": 450, "protein": 44, "carbs": 50, "fat": 5,
-        "desc": "🌮 Mexican-Indian fusion. Soy chunks get a chipotle taco glow-up. Rajma meets the border.",
+        "name": "Beyond Beef Chipotle Taco Bowl",
+        "cal": 480, "protein": 36, "carbs": 46, "fat": 16,
+        "desc": "🌮 Beyond Beef is pea-protein based (zero soy). Chipotle-spiced, genuinely tastes like taco night.",
         "ingredients": [
-          { "item": "Soy Chunks (dry)", "qty": "80g" },
-          { "item": "Black Beans (cooked)", "qty": "80g" },
-          { "item": "Brown Rice (cooked)", "qty": "130g" },
-          { "item": "Chipotle powder + smoked paprika + cumin", "qty": "1 tsp each" },
-          { "item": "Garlic + onion", "qty": "2 cloves + 1 small" },
-          { "item": "Salsa", "qty": "50g" },
+          { "item": "Beyond Beef ground (or Beyond Beef crumbles)", "qty": "120g" },
+          { "item": "Black Beans (cooked)", "qty": "100g" },
+          { "item": "Brown Rice (cooked)", "qty": "100g" },
+          { "item": "Chipotle powder + smoked paprika + cumin + garlic powder", "qty": "1 tsp each" },
+          { "item": "Onion", "qty": "1 small" },
+          { "item": "Salsa", "qty": "60g" },
+          { "item": "Greek Yogurt", "qty": "60g (as crema)" },
           { "item": "Jalapeño + lime juice + cilantro", "qty": "to taste" }
         ],
         "steps": [
-          "Rehydrate soy chunks in boiling water 10 min, then squeeze out all water",
-          "Sauté onion + garlic, add soy chunks and cook 5 min until slightly crispy",
-          "Season hard with chipotle, smoked paprika, cumin — cook like taco mince",
-          "Layer over brown rice with black beans",
-          "Finish with salsa, jalapeño, a big lime squeeze and cilantro"
+          "Cook Beyond Beef in a hot dry pan — break it apart like ground meat, cook 5–6 min",
+          "Season with chipotle, paprika, cumin, garlic powder — it should smell like a taco truck",
+          "Sauté onion separately, add to the beef once cooked",
+          "Build bowl: rice base, black beans, Beyond Beef on top",
+          "Finish with salsa, Greek yogurt crema, jalapeño, lime and cilantro"
         ]
       },
       {
@@ -351,25 +353,25 @@
         ]
       },
       {
-        "name": "Soy Mince Arrabiata Pasta",
-        "cal": 450, "protein": 42, "carbs": 52, "fat": 5,
-        "desc": "🍝 Italian fire meets plant protein. Soy mince in a spicy garlic-tomato arrabiata. Proper pasta night.",
+        "name": "Beyond Beef Arrabiata Pasta",
+        "cal": 455, "protein": 35, "carbs": 48, "fat": 16,
+        "desc": "🍝 Italian spicy arrabiata, but the 'beef' is pea protein. Rich, proper pasta night with zero soy.",
         "ingredients": [
-          { "item": "Soy Granules or fine Soy Chunks (dry)", "qty": "70g" },
-          { "item": "Whole Wheat Pasta", "qty": "60g dry" },
+          { "item": "Beyond Beef ground", "qty": "120g" },
+          { "item": "Whole Wheat Pasta", "qty": "55g dry" },
           { "item": "Passata (or crushed tomatoes)", "qty": "150g" },
           { "item": "Garlic", "qty": "3 cloves, minced" },
           { "item": "Chilli flakes + dried Italian herbs (basil, oregano)", "qty": "1 tsp each" },
           { "item": "Olive oil", "qty": "1 tsp" },
-          { "item": "Nutritional yeast or Parmesan alternative", "qty": "1 tbsp" }
+          { "item": "Nutritional yeast", "qty": "1 tbsp" }
         ],
         "steps": [
           "Cook pasta al dente — save 50ml pasta water",
-          "Rehydrate soy granules in hot water 5 min, drain and squeeze very dry",
-          "Heat olive oil, fry garlic until golden, add soy and cook 5 min until slightly crispy",
-          "Add passata, chilli flakes, Italian herbs — simmer 10 min",
-          "Toss with pasta using a splash of pasta water to loosen",
-          "Top with nutritional yeast and a crack of black pepper"
+          "Cook Beyond Beef in a hot pan, breaking it apart — 5 min until browned",
+          "Push beef to the side, add olive oil and garlic — fry 1 min until golden",
+          "Add passata, chilli flakes and Italian herbs — stir everything together, simmer 10 min",
+          "Toss with pasta using pasta water to loosen the sauce",
+          "Top with nutritional yeast and black pepper"
         ]
       },
       {
@@ -445,25 +447,24 @@
         ]
       },
       {
-        "name": "Saag Paneer + Soy + Brown Rice",
-        "cal": 445, "protein": 44, "carbs": 46, "fat": 8,
-        "desc": "🌿 Classic saag paneer levelled up with soy chunks for extra protein. Spinach never looked so serious.",
+        "name": "Saag Paneer + Chickpea + Brown Rice",
+        "cal": 445, "protein": 38, "carbs": 44, "fat": 12,
+        "desc": "🌿 Classic saag paneer with chickpeas adding body and protein. Spinach, paneer and chickpeas — zero soy.",
         "ingredients": [
-          { "item": "Paneer (low-fat)", "qty": "80g" },
-          { "item": "Soy Chunks (dry)", "qty": "40g" },
+          { "item": "Paneer (low-fat)", "qty": "120g" },
+          { "item": "Chickpeas (cooked)", "qty": "100g" },
           { "item": "Spinach (fresh or frozen)", "qty": "200g" },
           { "item": "Greek Yogurt", "qty": "60g (as cream substitute)" },
           { "item": "Onion + garlic + ginger", "qty": "1 small + 2 cloves + 1 inch" },
           { "item": "Garam masala + cumin + turmeric", "qty": "1 tsp each" },
-          { "item": "Brown Rice (cooked)", "qty": "110g" }
+          { "item": "Brown Rice (cooked)", "qty": "100g" }
         ],
         "steps": [
-          "Rehydrate soy chunks in hot water 10 min, squeeze dry, set aside",
-          "Blanch spinach 2 min, blend into smooth paste",
-          "Sauté onion, garlic, ginger until golden — add spices",
-          "Add spinach paste, cook 5 min",
-          "Add soy chunks and paneer cubes, stir in Greek yogurt",
-          "Simmer 8 min, serve with brown rice"
+          "Blanch spinach 2 min, blend into a smooth green paste",
+          "Sauté onion, garlic and ginger until deeply golden — add spices and cook 2 min",
+          "Add spinach paste, cook 5 min until colour deepens",
+          "Add chickpeas and paneer cubes, stir in Greek yogurt off the heat",
+          "Simmer 8 min on low, serve with brown rice"
         ]
       },
       {
@@ -510,25 +511,25 @@
         ]
       },
       {
-        "name": "Soy Chunk Burrito Bowl",
-        "cal": 450, "protein": 44, "carbs": 50, "fat": 6,
-        "desc": "🌯 The fully-loaded bowl. Everything a burrito has — minus the tortilla, plus the gains.",
+        "name": "Beyond Beef Burrito Bowl",
+        "cal": 475, "protein": 36, "carbs": 48, "fat": 17,
+        "desc": "🌯 The fully-loaded bowl. Beyond Beef (pea protein) seasoned like carnitas. Everything a burrito has, minus the tortilla.",
         "ingredients": [
-          { "item": "Soy Chunks (dry)", "qty": "80g" },
-          { "item": "Black Beans (cooked)", "qty": "80g" },
-          { "item": "Brown Rice (cooked)", "qty": "120g" },
+          { "item": "Beyond Beef ground", "qty": "120g" },
+          { "item": "Black Beans (cooked)", "qty": "100g" },
+          { "item": "Brown Rice (cooked)", "qty": "100g" },
           { "item": "Corn (frozen or canned)", "qty": "50g" },
           { "item": "Greek Yogurt", "qty": "60g (as sour cream)" },
           { "item": "Salsa", "qty": "60g" },
-          { "item": "Cumin + chipotle + garlic powder", "qty": "1 tsp each" },
+          { "item": "Cumin + chipotle + garlic powder + smoked paprika", "qty": "1 tsp each" },
           { "item": "Lime + cilantro + jalapeño", "qty": "to taste" }
         ],
         "steps": [
-          "Rehydrate and squeeze dry soy chunks, cook with cumin, chipotle and garlic powder",
-          "Build the bowl in layers: rice base, then beans, corn, soy mince",
-          "Add salsa and Greek yogurt side by side on top",
-          "Finish with jalapeño slices, lime squeeze and cilantro",
-          "Mix everything together before eating — the flavour combination is the point"
+          "Cook Beyond Beef in hot pan, breaking apart — season with cumin, chipotle, garlic, paprika",
+          "Cook 5–6 min until properly browned and slightly crispy at the edges",
+          "Build the bowl: rice base, then beans, corn, Beyond Beef on top",
+          "Add salsa and Greek yogurt side by side",
+          "Finish with jalapeño, a big lime squeeze and cilantro — mix before eating"
         ]
       },
       {
@@ -555,69 +556,69 @@
         ]
       },
       {
-        "name": "Soy Bolognese + Whole Wheat Pasta",
-        "cal": 440, "protein": 42, "carbs": 50, "fat": 5,
-        "desc": "🍝 Rich, slow-simmered Italian bolognese — just built with soy instead of beef. Genuinely great.",
+        "name": "Beyond Bolognese + Whole Wheat Pasta",
+        "cal": 450, "protein": 34, "carbs": 48, "fat": 17,
+        "desc": "🍝 Slow-simmered Italian bolognese with Beyond Beef. The soffritto is non-negotiable — it's what makes it taste real.",
         "ingredients": [
-          { "item": "Soy Granules (dry)", "qty": "70g" },
-          { "item": "Whole Wheat Pasta", "qty": "60g dry" },
+          { "item": "Beyond Beef ground", "qty": "120g" },
+          { "item": "Whole Wheat Pasta", "qty": "55g dry" },
           { "item": "Passata", "qty": "150g" },
-          { "item": "Carrot + celery + onion (soffritto)", "qty": "30g each" },
+          { "item": "Carrot + celery + onion (soffritto)", "qty": "30g each, finely diced" },
           { "item": "Garlic", "qty": "2 cloves" },
           { "item": "Dried basil + oregano + bay leaf", "qty": "1 tsp each" },
           { "item": "Olive oil", "qty": "1 tsp" },
           { "item": "Nutritional yeast", "qty": "1 tbsp" }
         ],
         "steps": [
-          "Rehydrate soy granules, drain and squeeze very dry",
-          "Finely dice carrot, celery, onion — the soffritto is what makes this taste real",
-          "Cook soffritto in olive oil on low heat 8 min until soft",
-          "Add garlic and soy, cook 5 min until lightly browned",
-          "Add passata, herbs and bay leaf — simmer 25 min on low",
+          "Finely dice carrot, celery and onion — don't skip this, it builds the flavour base",
+          "Cook soffritto in olive oil on low heat 8 min until completely soft and sweet",
+          "Add garlic, cook 1 min, add Beyond Beef — break apart and cook 5 min until browned",
+          "Add passata, herbs and bay leaf — simmer 25 min on lowest heat",
           "Cook pasta al dente, toss with bolognese, top with nutritional yeast"
         ]
       },
       {
-        "name": "Palak Soy Dal",
-        "cal": 420, "protein": 44, "carbs": 42, "fat": 4,
-        "desc": "🌿 The leanest meal in the database. Spinach + soy + lentils is basically a superfood triple threat.",
+        "name": "Palak Paneer Dal",
+        "cal": 420, "protein": 40, "carbs": 44, "fat": 10,
+        "desc": "🌿 The cleanest meal in the database. Spinach + paneer + double lentils. Zero soy, zero compromise.",
         "ingredients": [
-          { "item": "Soy Chunks (dry)", "qty": "70g" },
-          { "item": "Masoor Dal / Red Lentils (dry)", "qty": "60g" },
+          { "item": "Masoor Dal / Red Lentils (dry)", "qty": "70g" },
+          { "item": "Moong Dal (dry)", "qty": "30g" },
+          { "item": "Paneer (low-fat)", "qty": "80g" },
           { "item": "Spinach", "qty": "150g" },
           { "item": "Tomato + onion", "qty": "1 medium each" },
           { "item": "Turmeric + cumin + coriander + chilli", "qty": "1/2 tsp each" },
           { "item": "Lemon juice + salt", "qty": "to taste" }
         ],
         "steps": [
-          "Cook lentils until soft with turmeric and salt",
-          "Rehydrate soy chunks, squeeze dry, set aside",
+          "Cook both lentils together until completely soft with turmeric and salt",
+          "Cube paneer and pan-sear in a dry pan until golden — set aside",
           "Sauté onion and tomato with cumin, coriander and chilli",
-          "Add cooked dal, soy chunks and spinach to the pan",
-          "Simmer 10 min until spinach wilts and everything comes together",
-          "Finish with lemon juice — serve as a thick dal or over brown rice"
+          "Add cooked dal and spinach to the pan — simmer 8 min",
+          "Stir in seared paneer cubes gently so they don't break",
+          "Finish with lemon juice — thick enough to eat alone or serve over brown rice"
         ]
       },
       {
-        "name": "Soy Keema Roti Wrap",
-        "cal": 450, "protein": 44, "carbs": 46, "fat": 6,
-        "desc": "🫓 Indian street food energy. Soy keema wrapped in whole wheat roti — looks and tastes like the real deal.",
+        "name": "Beyond Keema Roti Wrap",
+        "cal": 460, "protein": 36, "carbs": 44, "fat": 18,
+        "desc": "🫓 Indian street food energy with Beyond Beef as the keema. Spiced with proper masala, wrapped in whole wheat roti.",
         "ingredients": [
-          { "item": "Soy Granules (dry)", "qty": "80g" },
+          { "item": "Beyond Beef ground", "qty": "120g" },
           { "item": "Whole Wheat Roti or Tortilla", "qty": "2 medium" },
           { "item": "Green peas (frozen)", "qty": "50g" },
-          { "item": "Onion + tomato + garlic + ginger", "qty": "1 small each + 1 clove + 1/2 inch" },
+          { "item": "Onion + tomato + garlic + ginger", "qty": "1 small each + 2 cloves + 1/2 inch" },
           { "item": "Keema masala (cumin, coriander, chilli, garam masala)", "qty": "1 tsp each" },
-          { "item": "Greek Yogurt", "qty": "60g (as mint raita side)" },
-          { "item": "Fresh mint + lemon", "qty": "few leaves + squeeze" }
+          { "item": "Greek Yogurt", "qty": "80g (as mint raita)" },
+          { "item": "Fresh mint + lemon", "qty": "handful + squeeze" }
         ],
         "steps": [
-          "Rehydrate soy granules in hot water, drain and squeeze thoroughly",
-          "Sauté onion, garlic, ginger until golden — add keema masala spices",
-          "Add soy granules and peas, cook 10 min — should look and smell like real keema",
+          "Sauté onion, garlic and ginger until deep golden — add all keema masala spices",
+          "Add Beyond Beef, break it apart and cook 5 min with the spices until fragrant",
+          "Add peas and tomato, cook 5 more min until thick and dry (not soupy)",
           "Mix Greek yogurt with chopped mint and lemon for raita",
           "Warm rotis on dry pan",
-          "Fill roti with keema, drizzle raita, roll up and eat"
+          "Load roti with keema, drizzle raita generously, roll tight and eat"
         ]
       },
       {
@@ -642,25 +643,26 @@
         ]
       },
       {
-        "name": "Sopa de Soy (Mexican Soy Soup Bowl)",
-        "cal": 430, "protein": 42, "carbs": 48, "fat": 5,
-        "desc": "🥣 Mexican-Indian fusion soup. Chipotle-tomato broth with soy chunks. Warm, filling and wildly underrated.",
+        "name": "Seitan Chipotle Stew Bowl",
+        "cal": 430, "protein": 40, "carbs": 50, "fat": 6,
+        "desc": "🥣 Seitan is wheat gluten — zero soy, high protein, holds up beautifully in stews. Chipotle broth makes it sing.",
         "ingredients": [
-          { "item": "Soy Chunks (dry)", "qty": "80g" },
+          { "item": "Seitan (store-bought chunks or strips)", "qty": "150g" },
+          { "item": "Black Beans (cooked)", "qty": "80g" },
           { "item": "Brown Rice (cooked)", "qty": "100g" },
           { "item": "Tomato passata", "qty": "150g" },
-          { "item": "Vegetable stock", "qty": "300ml" },
-          { "item": "Chipotle + cumin + dried oregano", "qty": "1 tsp each" },
+          { "item": "Vegetable stock", "qty": "250ml" },
+          { "item": "Chipotle + cumin + dried oregano + smoked paprika", "qty": "1 tsp each" },
           { "item": "Garlic + onion", "qty": "2 cloves + 1 small" },
           { "item": "Lime juice + cilantro", "qty": "to taste" }
         ],
         "steps": [
-          "Rehydrate soy chunks, squeeze dry",
-          "Sauté onion and garlic, add chipotle, cumin and oregano — cook 2 min",
-          "Add passata and stock — bring to simmer",
-          "Add soy chunks, cook 15 min in the broth until absorbed",
-          "Add cooked rice to thicken the soup",
-          "Finish with lime juice and cilantro — add jalapeño if you want heat"
+          "Tear seitan into rough chunks for better texture — don't cut too neat",
+          "Sauté onion and garlic, add chipotle, cumin, oregano and paprika — cook 2 min",
+          "Add passata and stock — bring to a simmer",
+          "Add seitan and black beans, cook 15 min in the broth — it absorbs the flavours deeply",
+          "Add cooked rice to thicken",
+          "Finish with lime and cilantro — optional jalapeño for heat"
         ]
       },
       {
@@ -683,7 +685,7 @@
       {
         "name": "Soy Chunk Masala + Brown Rice",
         "cal": 450, "protein": 44, "carbs": 50, "fat": 5,
-        "desc": "💪 The highest plant-based protein meal in the plan. Soy chunk masala is undefeated.",
+        "desc": "💪 The one soy recipe kept on purpose — highest plant protein in the database. Swap for seitan chunks if you want to go fully soy-free.",
         "ingredients": [
           { "item": "Soy Chunks (dry)", "qty": "80g" },
           { "item": "Tomato + Onion Masala", "qty": "180g" },
@@ -827,24 +829,24 @@
         ]
       },
       {
-        "name": "Soy Bhel",
-        "cal": 230, "protein": 26, "carbs": 22, "fat": 3,
-        "desc": "🌟 Indian street food snack, gym-edition. Puffed rice + soy — it sounds weird, it tastes incredible.",
+        "name": "Chickpea Bhel",
+        "cal": 235, "protein": 24, "carbs": 28, "fat": 4,
+        "desc": "🌟 Indian street food snack, gym-edition. Crispy chickpeas replace soy — better crunch, zero soy.",
         "ingredients": [
-          { "item": "Soy Granules (dry)", "qty": "35g" },
+          { "item": "Roasted Chickpeas (or canned, air-dried)", "qty": "60g" },
           { "item": "Puffed Rice (murmura)", "qty": "25g" },
-          { "item": "Roasted Chana", "qty": "20g" },
+          { "item": "Roasted Chana", "qty": "15g" },
           { "item": "Onion + tomato + cucumber", "qty": "2 tbsp each, diced small" },
           { "item": "Tamarind chutney + green chutney", "qty": "1 tsp each" },
           { "item": "Chaat masala + lemon juice", "qty": "pinch + squeeze" },
           { "item": "Fresh coriander", "qty": "handful" }
         ],
         "steps": [
-          "Rehydrate soy granules in hot water 5 min, squeeze very dry, cool completely",
-          "Mix soy granules with puffed rice and roasted chana",
-          "Add diced vegetables and chutneys",
-          "Sprinkle chaat masala, squeeze lemon, toss with coriander",
-          "Eat immediately — puffed rice goes soggy fast"
+          "If using canned chickpeas: drain, pat dry with paper towel and air-fry or oven-roast 15 min at 200°C until very crunchy",
+          "Combine chickpeas, puffed rice and roasted chana in a bowl",
+          "Add diced onion, tomato and cucumber",
+          "Drizzle chutneys, sprinkle chaat masala, squeeze lemon",
+          "Toss with coriander and eat immediately — it goes soggy fast"
         ]
       },
       {
