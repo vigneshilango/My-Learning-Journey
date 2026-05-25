@@ -1,0 +1,491 @@
+{
+  "1": {
+    "upperStrength": {
+      "name": "Upper Strength",
+      "details": "Compound push + pull · progressive overload",
+      "time": "55 min",
+      "exercises": [
+        "Band Shoulder Warm-up",
+        "Bench Press (4x6)",
+        "Rows (4x6)",
+        "OHP (3x8)",
+        "Face Pulls (3x15)",
+        "Core Planks (3x45s)"
+      ]
+    },
+    "lowerStrength": {
+      "name": "Lower Strength + Knee Prehab",
+      "details": "Squat · hinge · band finisher · no jump impact yet",
+      "time": "60 min",
+      "exercises": [
+        "Squats (4x6)",
+        "Deadlifts (3x5)",
+        "Leg Press (3x8)",
+        "Calf Raises (3x20)",
+        "TKE Band (3x15)",
+        "Lateral Band Walks (3x12)"
+      ]
+    },
+    "cardioA": {
+      "name": "Peloton: Low Impact Ride",
+      "details": "30 min · HR 60-70% · protect joints",
+      "time": "30 min",
+      "exercises": [
+        "Peloton Low Impact (30 min)",
+        "Cooldown Stretch (5 min)"
+      ]
+    },
+    "cardioB": {
+      "name": "Peloton: Endurance Ride",
+      "details": "45 min Zone 2 · fat-burn engine",
+      "time": "45 min",
+      "exercises": [
+        "Peloton Endurance (45 min)",
+        "Cooldown Stretch (5 min)"
+      ]
+    },
+    "cardioCore": {
+      "name": "Peloton + Core",
+      "details": "20 min easy ride · then abs circuit",
+      "time": "45 min",
+      "exercises": [
+        "Peloton Low Impact (20 min)",
+        "Hanging Leg Raise (3x10)",
+        "Ab Wheel (3x10)",
+        "Core Planks (3x45s)"
+      ]
+    },
+    "volleyball": {
+      "name": "Volleyball",
+      "details": "League match · stay light on feet · hydrate",
+      "time": "60+ min",
+      "exercises": [
+        "Dynamic Warmup",
+        "Volleyball Match",
+        "Volleyball Mobility Cool-down"
+      ]
+    },
+    "rest": {
+      "name": "REST + Meal Prep",
+      "details": "Full recovery · batch cook for the week",
+      "time": "—",
+      "exercises": [
+        "Complete rest",
+        "Meal Prep for the week",
+        "Stretching Routine"
+      ]
+    }
+  },
+  "2": {
+    "upperStrength": {
+      "name": "Upper Strength",
+      "details": "Heavier compound · track progressive overload",
+      "time": "60 min",
+      "exercises": [
+        "Band Shoulder Warm-up",
+        "Bench Press (5x5)",
+        "Rows (5x5)",
+        "OHP (4x6)",
+        "Incline DB Press (3x8)",
+        "Face Pulls (3x15)"
+      ]
+    },
+    "lowerStrength": {
+      "name": "Lower Strength + Jump Foundation",
+      "details": "Heavy lower · step-ups · wall sits · band prehab",
+      "time": "65 min",
+      "exercises": [
+        "Squats (4x6)",
+        "Deadlifts (3x5)",
+        "Leg Press (3x8)",
+        "Step-ups (4x12 each)",
+        "Wall Sit (4x45s)",
+        "Calf Raises (3x20)",
+        "TKE Band (3x15)",
+        "Lateral Band Walks (3x12)"
+      ]
+    },
+    "cardioA": {
+      "name": "Peloton: Power Zone Ride",
+      "details": "35 min FTP-based effort · structured intervals",
+      "time": "35 min",
+      "exercises": [
+        "Peloton Power Zone (35 min)",
+        "Cooldown Stretch (5 min)"
+      ]
+    },
+    "cardioB": {
+      "name": "Peloton: Endurance Ride",
+      "details": "45 min Zone 2 · fat-burn engine",
+      "time": "45 min",
+      "exercises": [
+        "Peloton Endurance (45 min)",
+        "Cooldown Stretch (5 min)"
+      ]
+    },
+    "cardioCore": {
+      "name": "Peloton + Core",
+      "details": "25 min Power Zone ride · then weighted abs",
+      "time": "50 min",
+      "exercises": [
+        "Peloton Power Zone (25 min)",
+        "Hanging Leg Raise (3x10)",
+        "Ab Wheel (3x10)",
+        "Core Planks (3x45s)",
+        "Decline Sit-ups (3x12)"
+      ]
+    },
+    "volleyball": {
+      "name": "Volleyball",
+      "details": "League match · step-up strength now showing in jumps",
+      "time": "60+ min",
+      "exercises": [
+        "Dynamic Warmup",
+        "Volleyball Match",
+        "Volleyball Mobility Cool-down"
+      ]
+    },
+    "rest": {
+      "name": "REST + Meal Prep",
+      "details": "Full recovery · batch cook for the week",
+      "time": "—",
+      "exercises": [
+        "Complete rest",
+        "Meal Prep for the week",
+        "Stretching Routine"
+      ]
+    }
+  },
+  "3": {
+    "upperStrength": {
+      "name": "Upper Strength + Band Stability",
+      "details": "Volume push/pull · band external rotation added",
+      "time": "60 min",
+      "exercises": [
+        "Band Shoulder Warm-up",
+        "Bench Press (4x8)",
+        "Rows (4x8)",
+        "OHP (3x8)",
+        "Pull-ups (3x6)",
+        "Face Pulls (3x15)",
+        "Band External Rotation (3x12)"
+      ]
+    },
+    "lowerStrength": {
+      "name": "Lower Strength + Light Plyos",
+      "details": "Squat · hinge · squat jumps · lateral hops · clamshells",
+      "time": "65 min",
+      "exercises": [
+        "Squats (4x8)",
+        "Deadlifts (3x5)",
+        "Leg Press (3x10)",
+        "Squat Jumps (3x8)",
+        "Lateral Hops (3x10 each)",
+        "Calf Raises (3x20)",
+        "TKE Band (3x15)",
+        "Lateral Band Walks (3x12)",
+        "Clamshells (3x15)"
+      ]
+    },
+    "cardioA": {
+      "name": "Walk/Run Intervals",
+      "details": "1 min run / 4 min walk × 8 rounds",
+      "time": "40 min",
+      "exercises": [
+        "Walk/Run Intervals (1 min run / 4 min walk × 8)"
+      ]
+    },
+    "cardioB": {
+      "name": "Peloton: Endurance Ride",
+      "details": "45 min Zone 2 · active recovery",
+      "time": "45 min",
+      "exercises": [
+        "Peloton Endurance (45 min)",
+        "Cooldown Stretch (5 min)"
+      ]
+    },
+    "cardioCore": {
+      "name": "Peloton + Heavy Core",
+      "details": "25 min Power Zone ride · then heavy abs",
+      "time": "50 min",
+      "exercises": [
+        "Peloton Power Zone (25 min)",
+        "Hanging Leg Raise (4x10)",
+        "Ab Wheel (4x10)",
+        "Core Planks (3x60s)",
+        "Decline Sit-ups (3x12)"
+      ]
+    },
+    "volleyball": {
+      "name": "Volleyball",
+      "details": "League match · squat-jump power starting to show",
+      "time": "60+ min",
+      "exercises": [
+        "Dynamic Warmup",
+        "Volleyball Match",
+        "Volleyball Mobility Cool-down"
+      ]
+    },
+    "rest": {
+      "name": "REST + Meal Prep",
+      "details": "Full recovery · batch cook for the week",
+      "time": "—",
+      "exercises": [
+        "Complete rest",
+        "Meal Prep for the week",
+        "Stretching Routine"
+      ]
+    }
+  },
+  "4": {
+    "upperStrength": {
+      "name": "Upper Strength",
+      "details": "Heavy compound · peak upper volume",
+      "time": "60 min",
+      "exercises": [
+        "Band Shoulder Warm-up",
+        "Bench Press (5x5)",
+        "Rows (5x5)",
+        "OHP (4x8)",
+        "Pull-ups (4x6)",
+        "Face Pulls (3x15)",
+        "Band External Rotation (3x12)"
+      ]
+    },
+    "lowerStrength": {
+      "name": "Lower Strength + Plyometrics",
+      "details": "Heavy lower · tuck jumps · broad jumps · lateral bounds",
+      "time": "70 min",
+      "exercises": [
+        "Squats (4x6)",
+        "Deadlifts (4x4)",
+        "Leg Press (3x10)",
+        "Tuck Jumps (3x8)",
+        "Broad Jumps (3x6)",
+        "Lateral Bounds (3x8 each)",
+        "Calf Raises (4x20)",
+        "TKE Band (3x15)",
+        "Band Hip Thrust (3x15)",
+        "Clamshells (3x15)"
+      ]
+    },
+    "cardioA": {
+      "name": "Walk/Run Intervals",
+      "details": "3 min run / 2 min walk × 6 rounds",
+      "time": "30 min",
+      "exercises": [
+        "Walk/Run Intervals (3 min run / 2 min walk × 6)"
+      ]
+    },
+    "cardioB": {
+      "name": "Peloton: Endurance Ride",
+      "details": "45 min Zone 2 · active recovery",
+      "time": "45 min",
+      "exercises": [
+        "Peloton Endurance (45 min)",
+        "Cooldown Stretch (5 min)"
+      ]
+    },
+    "cardioCore": {
+      "name": "Peloton + Heavy Core",
+      "details": "20 min Power Zone ride · then weighted abs",
+      "time": "50 min",
+      "exercises": [
+        "Peloton Power Zone (20 min)",
+        "Hanging Leg Raise (4x12)",
+        "Ab Wheel (4x10)",
+        "Weighted Planks (4x45s)",
+        "Decline Sit-ups (4x12)"
+      ]
+    },
+    "volleyball": {
+      "name": "Volleyball",
+      "details": "League match · tuck-jump power translating to blocks",
+      "time": "60+ min",
+      "exercises": [
+        "Dynamic Warmup",
+        "Volleyball Match",
+        "Volleyball Mobility Cool-down"
+      ]
+    },
+    "rest": {
+      "name": "REST + Meal Prep",
+      "details": "Full recovery · batch cook for the week",
+      "time": "—",
+      "exercises": [
+        "Complete rest",
+        "Meal Prep for the week",
+        "Stretching Routine"
+      ]
+    }
+  },
+  "5": {
+    "upperStrength": {
+      "name": "Upper Strength + Core",
+      "details": "Heavy upper compound · weighted abs finisher",
+      "time": "65 min",
+      "exercises": [
+        "Band Shoulder Warm-up",
+        "Bench Press (5x5)",
+        "Rows (5x5)",
+        "OHP (4x6)",
+        "Pull-ups (4x8)",
+        "Face Pulls (3x15)",
+        "Hanging Leg Raise (4x12)",
+        "Ab Wheel (4x10)"
+      ]
+    },
+    "lowerStrength": {
+      "name": "Lower Strength + Peak Plyos",
+      "details": "Heavy lower · vertical jumps · split squat jumps · approach jumps",
+      "time": "70 min",
+      "exercises": [
+        "Squats (4x6)",
+        "Deadlifts (4x4)",
+        "Leg Press (4x10)",
+        "Vertical Jumps (4x8)",
+        "Split Squat Jumps (3x8 each)",
+        "Approach Jumps (3x5)",
+        "Calf Raises (4x20)",
+        "Band Hip Thrust (4x15)",
+        "Lateral Band Walks (3x15)",
+        "TKE Band (3x15)"
+      ]
+    },
+    "cardioA": {
+      "name": "Run (25 min)",
+      "details": "Continuous · conversational pace · mid-foot strike",
+      "time": "25 min",
+      "exercises": [
+        "Run (25 min)"
+      ]
+    },
+    "cardioB": {
+      "name": "Peloton: HIIT Ride",
+      "details": "30 min HIIT intervals · max power output",
+      "time": "30 min",
+      "exercises": [
+        "Peloton HIIT (30 min)",
+        "Cooldown Stretch (5 min)"
+      ]
+    },
+    "cardioCore": {
+      "name": "Peloton + Heavy Core",
+      "details": "20 min HIIT ride · then peak abs session",
+      "time": "50 min",
+      "exercises": [
+        "Peloton HIIT (20 min)",
+        "Hanging Leg Raise (4x12)",
+        "Ab Wheel (4x12)",
+        "Weighted Planks (4x60s)",
+        "Decline Sit-ups (4x12)"
+      ]
+    },
+    "volleyball": {
+      "name": "Volleyball",
+      "details": "League match · approach jump power at its peak",
+      "time": "60+ min",
+      "exercises": [
+        "Dynamic Warmup",
+        "Volleyball Match",
+        "Volleyball Mobility Cool-down"
+      ]
+    },
+    "rest": {
+      "name": "REST + Meal Prep",
+      "details": "Full recovery · batch cook for the week",
+      "time": "—",
+      "exercises": [
+        "Complete rest",
+        "Meal Prep for the week",
+        "Stretching Routine"
+      ]
+    }
+  },
+  "6": {
+    "upperStrength": {
+      "name": "Upper Strength + Heavy Core",
+      "details": "Max strength upper · weighted core finisher",
+      "time": "65 min",
+      "exercises": [
+        "Band Shoulder Warm-up",
+        "Bench Press (5x5)",
+        "Rows (5x5)",
+        "OHP (4x6)",
+        "Pull-ups (4x10)",
+        "Face Pulls (3x15)",
+        "Hanging Leg Raise (4x12)",
+        "Weighted Crunches (4x12)",
+        "Weighted Planks (4x60s)"
+      ]
+    },
+    "lowerStrength": {
+      "name": "Lower Strength + Max Plyos",
+      "details": "Peak strength · max vertical · single-leg jumps · approach jumps",
+      "time": "70 min",
+      "exercises": [
+        "Squats (4x5)",
+        "Deadlifts (4x3)",
+        "Leg Press (4x10)",
+        "Max Vertical Jumps (4x8)",
+        "Single-Leg Vertical Jumps (3x6 each)",
+        "Approach Jumps (4x5)",
+        "Tuck Jumps (3x8)",
+        "Calf Raises (4x25)",
+        "Band Hip Thrust (4x15)",
+        "TKE Band (3x15)"
+      ]
+    },
+    "cardioA": {
+      "name": "Run (30 min) + Core",
+      "details": "30 min easy run · then core circuit",
+      "time": "45 min",
+      "exercises": [
+        "Run (30 min)",
+        "Ab Wheel (4x12)",
+        "Hanging Leg Raise (4x12)"
+      ]
+    },
+    "cardioB": {
+      "name": "Run 5K",
+      "details": "Goal: complete 5K without stopping · celebrate every minute",
+      "time": "30-40 min",
+      "exercises": [
+        "Run 5K"
+      ]
+    },
+    "cardioCore": {
+      "name": "Peloton + Max Core",
+      "details": "20 min endurance ride · then peak abs session",
+      "time": "50 min",
+      "exercises": [
+        "Peloton Endurance (20 min)",
+        "Hanging Leg Raise (4x15)",
+        "Ab Wheel (4x12)",
+        "Weighted Planks (4x60s)",
+        "Decline Sit-ups (4x15)",
+        "Weighted Crunches (4x15)"
+      ]
+    },
+    "volleyball": {
+      "name": "Volleyball",
+      "details": "League match · peak jump performance · single-leg landing control",
+      "time": "60+ min",
+      "exercises": [
+        "Dynamic Warmup",
+        "Volleyball Match",
+        "Volleyball Mobility Cool-down"
+      ]
+    },
+    "rest": {
+      "name": "REST + Meal Prep",
+      "details": "Full recovery · batch cook for the week",
+      "time": "—",
+      "exercises": [
+        "Complete rest",
+        "Meal Prep for the week",
+        "Stretching Routine"
+      ]
+    }
+  }
+}

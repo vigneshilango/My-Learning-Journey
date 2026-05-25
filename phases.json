@@ -1,0 +1,56 @@
+[
+  {
+    "num": 1,
+    "wks": "1-4",
+    "startWk": 0,
+    "endWk": 3,
+    "weight": 250,
+    "label": "~250",
+    "key": "1"
+  },
+  {
+    "num": 2,
+    "wks": "5-8",
+    "startWk": 4,
+    "endWk": 7,
+    "weight": 242,
+    "label": "~242",
+    "key": "2"
+  },
+  {
+    "num": 3,
+    "wks": "9-12",
+    "startWk": 8,
+    "endWk": 11,
+    "weight": 235,
+    "label": "~235",
+    "key": "3"
+  },
+  {
+    "num": 4,
+    "wks": "13-16",
+    "startWk": 12,
+    "endWk": 15,
+    "weight": 228,
+    "label": "~228",
+    "key": "4"
+  },
+  {
+    "num": 5,
+    "wks": "17-20",
+    "startWk": 16,
+    "endWk": 19,
+    "weight": 223,
+    "label": "~223",
+    "key": "5"
+  },
+  {
+    "num": 6,
+    "wks": "21-26",
+    "startWk": 20,
+    "endWk": 25,
+    "weight": 216,
+    "label": "~216",
+    "key": "6"
+  }
+]

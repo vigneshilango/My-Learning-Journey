@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">6-Pack Challenge</string>
+    <string name="title_activity_main">6-Pack Challenge</string>
+    <string name="package_name">com.sixpack.challenge</string>
+    <string name="custom_url_scheme">com.sixpack.challenge</string>
+</resources>

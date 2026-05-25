@@ -933,22 +933,276 @@
     // ============================================================
     // WORKOUT DATA & LOGIC
     // ============================================================
-    let workoutPlans = {};
-    let exerciseTips = {};
-    let PHASES = [];
-
-    async function loadWorkoutData() {
-        const [plans, tips, phases] = await Promise.all([
-            fetch('./workout-plans.json').then(r => { if (!r.ok) throw new Error('workout-plans.json'); return r.json(); }),
-            fetch('./exercise-tips.json').then(r => { if (!r.ok) throw new Error('exercise-tips.json'); return r.json(); }),
-            fetch('./phases.json').then(r => { if (!r.ok) throw new Error('phases.json'); return r.json(); }),
-        ]);
-        workoutPlans = plans;
-        exerciseTips = tips;
-        PHASES = phases;
-    }
-
     let currentSelectedDay = 'Monday';
+
+    // ── Workout plan templates keyed by phase (1-6).
+    // Each phase has named workout blocks. buildSchedule() assigns them to days dynamically.
+    const workoutPlans = {
+        1: { // Foundation — ~250 lbs. Peloton only. Band knee prehab starts.
+            upperStrength: {
+                name: 'Upper Strength',
+                details: 'Compound push + pull · progressive overload',
+                time: '55 min',
+                exercises: ['Band Shoulder Warm-up', 'Bench Press (4x6)', 'Rows (4x6)', 'OHP (3x8)', 'Face Pulls (3x15)', 'Core Planks (3x45s)']
+            },
+            lowerStrength: {
+                name: 'Lower Strength + Knee Prehab',
+                details: 'Squat · hinge · band finisher · no jump impact yet',
+                time: '60 min',
+                exercises: ['Squats (4x6)', 'Deadlifts (3x5)', 'Leg Press (3x8)', 'Calf Raises (3x20)', 'TKE Band (3x15)', 'Lateral Band Walks (3x12)']
+            },
+            cardioA: {
+                name: 'Peloton: Low Impact Ride',
+                details: '30 min · HR 60-70% · protect joints',
+                time: '30 min',
+                exercises: ['Peloton Low Impact (30 min)', 'Cooldown Stretch (5 min)']
+            },
+            cardioB: {
+                name: 'Peloton: Endurance Ride',
+                details: '45 min Zone 2 · fat-burn engine',
+                time: '45 min',
+                exercises: ['Peloton Endurance (45 min)', 'Cooldown Stretch (5 min)']
+            },
+            cardioCore: {
+                name: 'Peloton + Core',
+                details: '20 min easy ride · then abs circuit',
+                time: '45 min',
+                exercises: ['Peloton Low Impact (20 min)', 'Hanging Leg Raise (3x10)', 'Ab Wheel (3x10)', 'Core Planks (3x45s)']
+            },
+            volleyball: {
+                name: 'Volleyball',
+                details: 'League match · stay light on feet · hydrate',
+                time: '60+ min',
+                exercises: ['Dynamic Warmup', 'Volleyball Match', 'Volleyball Mobility Cool-down']
+            },
+            rest: {
+                name: 'REST + Meal Prep',
+                details: 'Full recovery · batch cook for the week',
+                time: '—',
+                exercises: ['Complete rest', 'Meal Prep for the week', 'Stretching Routine']
+            }
+        },
+        2: { // Build — ~242 lbs. Heavier lifts. Step-ups + wall sits as jump foundation.
+            upperStrength: {
+                name: 'Upper Strength',
+                details: 'Heavier compound · track progressive overload',
+                time: '60 min',
+                exercises: ['Band Shoulder Warm-up', 'Bench Press (5x5)', 'Rows (5x5)', 'OHP (4x6)', 'Incline DB Press (3x8)', 'Face Pulls (3x15)']
+            },
+            lowerStrength: {
+                name: 'Lower Strength + Jump Foundation',
+                details: 'Heavy lower · step-ups · wall sits · band prehab',
+                time: '65 min',
+                exercises: ['Squats (4x6)', 'Deadlifts (3x5)', 'Leg Press (3x8)', 'Step-ups (4x12 each)', 'Wall Sit (4x45s)', 'Calf Raises (3x20)', 'TKE Band (3x15)', 'Lateral Band Walks (3x12)']
+            },
+            cardioA: {
+                name: 'Peloton: Power Zone Ride',
+                details: '35 min FTP-based effort · structured intervals',
+                time: '35 min',
+                exercises: ['Peloton Power Zone (35 min)', 'Cooldown Stretch (5 min)']
+            },
+            cardioB: {
+                name: 'Peloton: Endurance Ride',
+                details: '45 min Zone 2 · fat-burn engine',
+                time: '45 min',
+                exercises: ['Peloton Endurance (45 min)', 'Cooldown Stretch (5 min)']
+            },
+            cardioCore: {
+                name: 'Peloton + Core',
+                details: '25 min Power Zone ride · then weighted abs',
+                time: '50 min',
+                exercises: ['Peloton Power Zone (25 min)', 'Hanging Leg Raise (3x10)', 'Ab Wheel (3x10)', 'Core Planks (3x45s)', 'Decline Sit-ups (3x12)']
+            },
+            volleyball: {
+                name: 'Volleyball',
+                details: 'League match · step-up strength now showing in jumps',
+                time: '60+ min',
+                exercises: ['Dynamic Warmup', 'Volleyball Match', 'Volleyball Mobility Cool-down']
+            },
+            rest: {
+                name: 'REST + Meal Prep',
+                details: 'Full recovery · batch cook for the week',
+                time: '—',
+                exercises: ['Complete rest', 'Meal Prep for the week', 'Stretching Routine']
+            }
+        },
+        3: { // Walk/Run Intro — ~235 lbs. First impact plyos: squat jumps + lateral hops (no boxes).
+            upperStrength: {
+                name: 'Upper Strength + Band Stability',
+                details: 'Volume push/pull · band external rotation added',
+                time: '60 min',
+                exercises: ['Band Shoulder Warm-up', 'Bench Press (4x8)', 'Rows (4x8)', 'OHP (3x8)', 'Pull-ups (3x6)', 'Face Pulls (3x15)', 'Band External Rotation (3x12)']
+            },
+            lowerStrength: {
+                name: 'Lower Strength + Light Plyos',
+                details: 'Squat · hinge · squat jumps · lateral hops · clamshells',
+                time: '65 min',
+                exercises: ['Squats (4x8)', 'Deadlifts (3x5)', 'Leg Press (3x10)', 'Squat Jumps (3x8)', 'Lateral Hops (3x10 each)', 'Calf Raises (3x20)', 'TKE Band (3x15)', 'Lateral Band Walks (3x12)', 'Clamshells (3x15)']
+            },
+            cardioA: {
+                name: 'Walk/Run Intervals',
+                details: '1 min run / 4 min walk × 8 rounds',
+                time: '40 min',
+                exercises: ['Walk/Run Intervals (1 min run / 4 min walk × 8)']
+            },
+            cardioB: {
+                name: 'Peloton: Endurance Ride',
+                details: '45 min Zone 2 · active recovery',
+                time: '45 min',
+                exercises: ['Peloton Endurance (45 min)', 'Cooldown Stretch (5 min)']
+            },
+            cardioCore: {
+                name: 'Peloton + Heavy Core',
+                details: '25 min Power Zone ride · then heavy abs',
+                time: '50 min',
+                exercises: ['Peloton Power Zone (25 min)', 'Hanging Leg Raise (4x10)', 'Ab Wheel (4x10)', 'Core Planks (3x60s)', 'Decline Sit-ups (3x12)']
+            },
+            volleyball: {
+                name: 'Volleyball',
+                details: 'League match · squat-jump power starting to show',
+                time: '60+ min',
+                exercises: ['Dynamic Warmup', 'Volleyball Match', 'Volleyball Mobility Cool-down']
+            },
+            rest: {
+                name: 'REST + Meal Prep',
+                details: 'Full recovery · batch cook for the week',
+                time: '—',
+                exercises: ['Complete rest', 'Meal Prep for the week', 'Stretching Routine']
+            }
+        },
+        4: { // Run/Walk — ~228 lbs. 3:2 run/walk. Tuck jumps + broad jumps + lateral bounds.
+            upperStrength: {
+                name: 'Upper Strength',
+                details: 'Heavy compound · peak upper volume',
+                time: '60 min',
+                exercises: ['Band Shoulder Warm-up', 'Bench Press (5x5)', 'Rows (5x5)', 'OHP (4x8)', 'Pull-ups (4x6)', 'Face Pulls (3x15)', 'Band External Rotation (3x12)']
+            },
+            lowerStrength: {
+                name: 'Lower Strength + Plyometrics',
+                details: 'Heavy lower · tuck jumps · broad jumps · lateral bounds',
+                time: '70 min',
+                exercises: ['Squats (4x6)', 'Deadlifts (4x4)', 'Leg Press (3x10)', 'Tuck Jumps (3x8)', 'Broad Jumps (3x6)', 'Lateral Bounds (3x8 each)', 'Calf Raises (4x20)', 'TKE Band (3x15)', 'Band Hip Thrust (3x15)', 'Clamshells (3x15)']
+            },
+            cardioA: {
+                name: 'Walk/Run Intervals',
+                details: '3 min run / 2 min walk × 6 rounds',
+                time: '30 min',
+                exercises: ['Walk/Run Intervals (3 min run / 2 min walk × 6)']
+            },
+            cardioB: {
+                name: 'Peloton: Endurance Ride',
+                details: '45 min Zone 2 · active recovery',
+                time: '45 min',
+                exercises: ['Peloton Endurance (45 min)', 'Cooldown Stretch (5 min)']
+            },
+            cardioCore: {
+                name: 'Peloton + Heavy Core',
+                details: '20 min Power Zone ride · then weighted abs',
+                time: '50 min',
+                exercises: ['Peloton Power Zone (20 min)', 'Hanging Leg Raise (4x12)', 'Ab Wheel (4x10)', 'Weighted Planks (4x45s)', 'Decline Sit-ups (4x12)']
+            },
+            volleyball: {
+                name: 'Volleyball',
+                details: 'League match · tuck-jump power translating to blocks',
+                time: '60+ min',
+                exercises: ['Dynamic Warmup', 'Volleyball Match', 'Volleyball Mobility Cool-down']
+            },
+            rest: {
+                name: 'REST + Meal Prep',
+                details: 'Full recovery · batch cook for the week',
+                time: '—',
+                exercises: ['Complete rest', 'Meal Prep for the week', 'Stretching Routine']
+            }
+        },
+        5: { // Running — ~223 lbs. 25-min continuous run. Vertical jumps + approach jumps.
+            upperStrength: {
+                name: 'Upper Strength + Core',
+                details: 'Heavy upper compound · weighted abs finisher',
+                time: '65 min',
+                exercises: ['Band Shoulder Warm-up', 'Bench Press (5x5)', 'Rows (5x5)', 'OHP (4x6)', 'Pull-ups (4x8)', 'Face Pulls (3x15)', 'Hanging Leg Raise (4x12)', 'Ab Wheel (4x10)']
+            },
+            lowerStrength: {
+                name: 'Lower Strength + Peak Plyos',
+                details: 'Heavy lower · vertical jumps · split squat jumps · approach jumps',
+                time: '70 min',
+                exercises: ['Squats (4x6)', 'Deadlifts (4x4)', 'Leg Press (4x10)', 'Vertical Jumps (4x8)', 'Split Squat Jumps (3x8 each)', 'Approach Jumps (3x5)', 'Calf Raises (4x20)', 'Band Hip Thrust (4x15)', 'Lateral Band Walks (3x15)', 'TKE Band (3x15)']
+            },
+            cardioA: {
+                name: 'Run (25 min)',
+                details: 'Continuous · conversational pace · mid-foot strike',
+                time: '25 min',
+                exercises: ['Run (25 min)']
+            },
+            cardioB: {
+                name: 'Peloton: HIIT Ride',
+                details: '30 min HIIT intervals · max power output',
+                time: '30 min',
+                exercises: ['Peloton HIIT (30 min)', 'Cooldown Stretch (5 min)']
+            },
+            cardioCore: {
+                name: 'Peloton + Heavy Core',
+                details: '20 min HIIT ride · then peak abs session',
+                time: '50 min',
+                exercises: ['Peloton HIIT (20 min)', 'Hanging Leg Raise (4x12)', 'Ab Wheel (4x12)', 'Weighted Planks (4x60s)', 'Decline Sit-ups (4x12)']
+            },
+            volleyball: {
+                name: 'Volleyball',
+                details: 'League match · approach jump power at its peak',
+                time: '60+ min',
+                exercises: ['Dynamic Warmup', 'Volleyball Match', 'Volleyball Mobility Cool-down']
+            },
+            rest: {
+                name: 'REST + Meal Prep',
+                details: 'Full recovery · batch cook for the week',
+                time: '—',
+                exercises: ['Complete rest', 'Meal Prep for the week', 'Stretching Routine']
+            }
+        },
+        6: { // Peak — ~216 lbs. 5K goal. Single-leg vertical jumps. Max strength.
+            upperStrength: {
+                name: 'Upper Strength + Heavy Core',
+                details: 'Max strength upper · weighted core finisher',
+                time: '65 min',
+                exercises: ['Band Shoulder Warm-up', 'Bench Press (5x5)', 'Rows (5x5)', 'OHP (4x6)', 'Pull-ups (4x10)', 'Face Pulls (3x15)', 'Hanging Leg Raise (4x12)', 'Weighted Crunches (4x12)', 'Weighted Planks (4x60s)']
+            },
+            lowerStrength: {
+                name: 'Lower Strength + Max Plyos',
+                details: 'Peak strength · max vertical · single-leg jumps · approach jumps',
+                time: '70 min',
+                exercises: ['Squats (4x5)', 'Deadlifts (4x3)', 'Leg Press (4x10)', 'Max Vertical Jumps (4x8)', 'Single-Leg Vertical Jumps (3x6 each)', 'Approach Jumps (4x5)', 'Tuck Jumps (3x8)', 'Calf Raises (4x25)', 'Band Hip Thrust (4x15)', 'TKE Band (3x15)']
+            },
+            cardioA: {
+                name: 'Run (30 min) + Core',
+                details: '30 min easy run · then core circuit',
+                time: '45 min',
+                exercises: ['Run (30 min)', 'Ab Wheel (4x12)', 'Hanging Leg Raise (4x12)']
+            },
+            cardioB: {
+                name: 'Run 5K',
+                details: 'Goal: complete 5K without stopping · celebrate every minute',
+                time: '30-40 min',
+                exercises: ['Run 5K']
+            },
+            cardioCore: {
+                name: 'Peloton + Max Core',
+                details: '20 min endurance ride · then peak abs session',
+                time: '50 min',
+                exercises: ['Peloton Endurance (20 min)', 'Hanging Leg Raise (4x15)', 'Ab Wheel (4x12)', 'Weighted Planks (4x60s)', 'Decline Sit-ups (4x15)', 'Weighted Crunches (4x15)']
+            },
+            volleyball: {
+                name: 'Volleyball',
+                details: 'League match · peak jump performance · single-leg landing control',
+                time: '60+ min',
+                exercises: ['Dynamic Warmup', 'Volleyball Match', 'Volleyball Mobility Cool-down']
+            },
+            rest: {
+                name: 'REST + Meal Prep',
+                details: 'Full recovery · batch cook for the week',
+                time: '—',
+                exercises: ['Complete rest', 'Meal Prep for the week', 'Stretching Routine']
+            }
+        }
+    };
 
     // Dynamically assigns named workout templates to Mon-Sat based on volleyball day.
     // Rules: day-before VB = light cardio, day-after VB = active recovery, 2-days-after = lower.
@@ -991,6 +1245,155 @@
 
         return schedule;
     }
+
+    const exerciseTips = {
+        // --- CARDIO & WARMUP ---
+        'Warmup Jog': 'Easy 5-min jog at a conversational pace to raise core temp and lubricate joints.\n\nIf you can\'t talk in full sentences, you\'re going too hard. This primes your nervous system — skipping it increases injury risk on the heavy sets that follow.',
+
+        'Sprints x20': 'Drive your knees HIGH and pump your arms hard — your arms set the pace of your legs.\n\nPush off the BALLS of your feet, not your heels. Each sprint is max effort. Full recovery between reps: quality > quantity. If your 15th sprint looks like your 1st, you\'re doing it right.',
+
+        'Sprints x10': 'Same cues as sprints x20 but you have fewer reps — go even harder on each one.\n\nFocus on acceleration in the first 10 steps. Keep your torso tall, don\'t hunch forward. Breathe out sharply on each drive step.',
+
+        'Cooldown Walk': 'Drop to a brisk walk immediately after sprints — don\'t sit or lie down.\n\nThis flushes lactic acid from your muscles and brings heart rate down safely. Take the full 5 minutes. Pair with light dynamic movements: leg swings, arm circles. Start hydrating now.',
+
+        'Cooldown': 'Easy walking for 5 minutes post-workout to let your heart rate drop below 100 bpm before stopping.\n\nFollow with 2-3 static stretches (quads, hamstrings, hip flexors, 30s each). Skipping cooldown increases DOMS significantly.',
+
+        'Incline Walk 12%': 'Set treadmill to exactly 12% incline, 3.0–3.5 mph. DO NOT hold the handrails — it eliminates 30% of the calorie burn.\n\nPump your arms naturally. This hits glutes, hamstrings, and calves while burning fat at Zone 2 intensity. 10 minutes feels longer than it sounds — push through.',
+
+        'Zone 2 Cardio': 'Target 60–70% of max heart rate (approx. 220 minus your age × 0.65). Simple test: you should be able to speak in full sentences without gasping.\n\nZone 2 is the fat-burning zone — your body uses fat as primary fuel here. It also builds aerobic base that helps EVERYTHING. 45–60 min straight.',
+
+        '20 min HIIT': 'Structure: 20s max effort / 10s rest (Tabata) or 30s on / 30s off. Use bike, row, jumping jacks, burpees, or sprints.\n\nThe work intervals MUST be max effort — if you\'re not out of breath, increase intensity. HIIT creates an "afterburn" (EPOC) that burns calories for hours post-session.',
+
+        '30 min steady cardio': 'Zone 2 pace — conversational, sustainable. Treadmill, bike, elliptical, or walk at 3–4% incline.\n\nOn a fat-loss phase, this is your daily calorie accelerator without tapping into recovery resources. Do it AFTER weights, never before heavy lifts.',
+
+        'Bike or Treadmill': 'Moderate intensity — 65–75% max HR. This is active recovery after a heavy lower body week.\n\nBike: moderate resistance, 80–90 rpm. Treadmill: 3% incline at comfortable pace. 30 minutes is enough. Don\'t max out — save energy for next session.',
+
+        'Dynamic Warmup': 'Sequence: leg swings (forward/side) → hip circles → arm circles → high knees (20s) → butt kicks (20s) → lateral shuffles (20s) → 3 bodyweight squats.\n\nNever skip this before volleyball — explosive direction changes on cold joints = ankle and knee injuries. Takes only 4–5 minutes.',
+
+        // --- UPPER BODY COMPOUNDS ---
+        'Bench Press': 'Set up: plant feet flat, retract shoulder blades hard into the bench (creates a shelf), slight arch in lower back.\n\nGrip: just outside shoulder width. Lower the bar slowly to your lower chest (below nipple line), 1-second pause, then PRESS explosively. Elbows at ~75° — not flared to 90°. Think "bend the bar" to engage triceps.',
+
+        'Rows': 'Hinge at the hips to ~45°, back flat, chest up. Pull the bar to your LOWER ribcage — not your belly, not your upper chest.\n\nAt the top, squeeze shoulder blades together for a hard 1-second hold. Lower SLOWLY (3 seconds). Avoid shrugging — this is a horizontal pull, not vertical. Heavy rows build the thickness that makes your upper body look powerful.',
+
+        'OHP': 'Standing or seated. Bar starts at collarbone level, hands just outside shoulders. Brace core and squeeze glutes BEFORE you press — this protects your lower back.\n\nPress straight up, push your head through the "window" at lockout. Lower under control (2–3s). The OHP is the best shoulder-building movement — heavier than you think possible once you nail the technique.',
+
+        'Face Pulls': 'Cable set at face height, rope attachment. Grab with thumbs facing you. Pull TOWARD your face while simultaneously rotating your hands outward (external rotation) — rope ends should end up beside your ears.\n\nLight weight only — this is corrective work for shoulder health and posture. 15–20 reps per set. Neglect this and your shoulders will eventually fail.',
+
+        'Incline DB Press': 'Set bench to 30–45° (not 60° — that becomes a front delt exercise). Lower DBs to outer chest with elbows at ~75°.\n\nPress up and slightly together at the top — stop just before DBs touch. The incline targets your UPPER chest, which is the muscle that gives the chest its full, rounded look from the front.',
+
+        'Dips': 'Use parallel bars or a bench. Lean your torso slightly FORWARD for chest emphasis. Lower until elbows reach 90° — no deeper if you feel shoulder impingement.\n\nPress back up strongly, elbows tracking backward (not flaring). At bodyweight, aim for 3×12+. Once that\'s easy, add weight via a dip belt. One of the best mass-building exercises there is.',
+
+        'Pull-ups': 'Start from a dead hang — full arm extension. Lead with your CHEST, not your chin. Think "drive elbows to hip pockets."\n\nLower SLOWLY (3 full seconds) — the eccentric (lowering) phase builds the most muscle. Can\'t do 8? Use an assistance band. Can do 12+? Add a weight plate via belt. This exercise builds the V-taper that makes your waist look smaller.',
+
+        'Lat Pull': 'Sit with thighs secured under the pad. Lean back 10–15°. Pull the bar to your UPPER chest — not your chin.\n\nDrive your elbows straight DOWN and squeeze your lats at the bottom for 1 full second. Lower with control (3s). Never use momentum or swing. Think of your hands as hooks — your lats do the pulling, not your arms.',
+
+        'Curls': 'Stand tall, elbows pinned to your sides — they must NOT swing forward during the curl. Curl to full contraction (forearms vertical or slightly past).\n\nSqueeze hard at the top, then lower SLOWLY over 3 seconds. The slow lowering phase is where the growth happens. Don\'t go heavy at the cost of this tempo.',
+
+        // --- LOWER BODY ---
+        'Squats': 'Feet shoulder-width, toes 15–30° outward. Break at BOTH hips and knees simultaneously — don\'t hinge like a deadlift.\n\nChest up, knees tracking over toes, hit parallel or below. Drive through your WHOLE foot on the way up — don\'t let heels rise. Brace your core before each rep like you\'re about to take a punch.',
+
+        'Deadlifts': 'Bar over mid-foot (1 inch from shins). Hinge down, grip just outside your legs. Flatten your back (chest up, hips down).\n\nInitiate by pushing the FLOOR away from you (leg press), then extend hips at the top. Brace your core HARD before the pull — treat it like a leg exercise, not a back exercise. Never round the lower back.',
+
+        'Leg Press': 'Feet shoulder-width at mid-to-high position on the plate. Lower until knees reach 90° — stop there, do NOT let hips curl off the seat.\n\nPress through your heels. Do NOT lock knees at the top — keep constant tension on quads. Foot position changes emphasis: high = hamstrings/glutes, low = quads.',
+
+        'Leg Ext': 'Adjust the pad so it sits just ABOVE your ankle (not the shin). Extend fully and squeeze HARD at the top for 1 full second.\n\nLower slowly (3s). This is isolation — moderate weight and constant tension beats heavy weight with momentum. Avoid going extremely heavy as it stresses the patellar tendon.',
+
+        'Leg Curl': 'Lie face down with the pad just ABOVE your heels. Keep hips pressed firmly into the pad throughout — don\'t let them rise.\n\nCurl heels toward your glutes, squeeze hard at the top, lower slowly (3s). Hamstrings are crucial for knee health and help fill out your legs from behind.',
+
+        'Calf Raises': 'Stand on the EDGE of a step for full range of motion. Lower your heel as far down as possible, then raise as HIGH as possible — maximum peak contraction.\n\nSlow tempo (2s up, 2s down, 1s pause at top). Calves are stubborn because they\'re conditioned by daily walking — they need full ROM and high reps to respond.',
+
+        'Calf Raise': 'Same as above: full range of motion on a step edge is key. Lower all the way down, drive up to a full peak contraction, hold 1 second.\n\nCalves respond to volume and full ROM — partial reps at heavy weight are a waste of time. 12–15 reps per set minimum.',
+
+        // --- CORE ---
+        'Core Planks': 'Forearms on floor, elbows under shoulders. Body forms a perfectly straight line from head to heels.\n\nSqueeze your glutes and brace your abs as hard as possible — imagine you\'re about to be punched. No sagging hips, no piked butt. Breathe steadily. Build toward 60-second holds before progressing to weighted planks.',
+
+        'Weighted Planks': 'Same setup as regular plank, but have a partner place a weight plate on your upper back.\n\nThe added load trains the DEEP transverse abdominis — the muscle that compresses your waist inward and is responsible for that tight, flat look. Brace even harder than unweighted. Start with 25 lbs, progress to 45+.',
+
+        'Weighted Crunches': 'Lie on your back holding a plate at your chest. Feet flat on floor or elevated.\n\nOnly your upper back lifts — lower back stays on the floor throughout. Crunch up slowly, exhale FULLY and SQUEEZE abs hard at the top for 1 second. Lower in 3s. Short range of motion is correct here — that\'s where max tension sits.',
+
+        'Hanging Leg Raise': 'Dead hang from a pull-up bar, legs together. Raise straight legs to at least horizontal — aim for bar level over time.\n\nCRITICAL: at the top, tilt your PELVIS BACKWARD (posteriorly tilt). This is what contracts the lower abs. Without this cue you\'re just doing a hip flexor exercise. Lower in 3 full seconds.',
+
+        'Decline Sit-ups': 'Feet secured on decline bench. Hands at your temples — DO NOT put hands behind neck (strains the cervical spine).\n\nCurl your upper body up until torso is vertical, exhale fully, squeeze abs hard at the top. Lower under full control. The decline angle increases time under tension vs. flat. Increase incline as you get stronger.',
+
+        'Ab wheel': 'Kneel on a pad with the wheel directly under your shoulders. Brace your abs BEFORE rolling out.\n\nRoll out SLOWLY — stop just before your hips drop (that\'s your current range of control). Then contract your abs HARD to pull back in. Start with a short range and increase over weeks. This is the most effective ab exercise there is when done correctly.',
+
+        'Abs': 'Choose your hardest variation: cable crunches, hanging leg raises, or weighted decline sit-ups.\n\nAbs are a muscle just like any other — they respond to PROGRESSIVE OVERLOAD. Add weight over time. The 6-pack is 80% diet, but training abs builds the foundation so they POP once the fat is gone. 4 sets, full contraction every rep.',
+
+        // --- RECOVERY ---
+        'Volleyball Match': 'Stay on the balls of your feet in a ready stance — flat-footed players are always late.\n\nJump aggressively, change direction explosively — this is your active cardio for the day. Communicate loudly. Hydrate every timeout. This counts as 400–600 cal burned easily.',
+
+        'Hydration Focus': 'Target at least 32oz of water during and after the match. Muscle cramps, early fatigue, and slow reaction time are almost always dehydration.\n\nIf you\'re sweating heavily, add electrolytes (sodium + potassium). Weigh yourself before and after — every pound lost is ~16oz of water to replenish.',
+
+        'Stretching Routine': 'Hold each stretch 45 seconds — never bounce. Priority order: hip flexors (kneeling lunge), hamstrings (standing forward fold), quads (standing pull), chest (doorway), lats (overhead side bend).\n\nSunday stretching is your weekly recovery investment that determines how well Monday\'s heavy lifts go. Do it properly.',
+
+        'Stretching': 'Static stretches held 30–45s each. Hip flexors, hamstrings, quads, calves, chest, lats.\n\nShoulders and thoracic spine are especially important for bench press and overhead work. A foam roller on the upper back for 2 minutes dramatically improves posture and pressing mechanics.',
+
+        'Mobility Work': 'Hip 90/90 (2 min per side), World\'s Greatest Stretch (5 reps per side), pigeon pose (60s per side), thoracic rotations, cat-cow.\n\nThis is not optional — it\'s what allows you to hit full depth on squats and deadlifts next week. Consistent Sunday mobility is the difference between staying healthy and getting hurt at 30 lbs heavier.',
+
+        'Meal Prep': 'Batch cook your weekly mains today. Divide into individual portions IMMEDIATELY — pre-portioned meals prevent impulse eating and decision fatigue.\n\nWEIGH your protein with a scale (at least until you have it dialed in — eyeballing is consistently 20–30% inaccurate). Your abs are built in the kitchen on Sunday.',
+
+        // --- PELOTON RIDES ---
+        'Peloton Low Impact': 'Select a "Low Impact Ride" class on the Peloton. Resistance 30–40, cadence 80–90 rpm. Keep heart rate at 60–70% max (roughly 220 minus age × 0.65).\n\nThis protects your joints while still burning fat and building aerobic base. Ideal on days before or after volleyball — keeps blood flowing without stressing already-loaded legs.',
+
+        'Peloton Power Zone': 'Power Zone rides use your FTP (Functional Threshold Power) to set zones. If you haven\'t done the FTP test yet, take one — it takes 20 minutes and makes every ride far more effective.\n\nTarget Zone 3–4 during the working intervals. These rides build a powerful aerobic engine and are what bridges Peloton fitness to outdoor running.',
+
+        'Peloton Endurance': 'Select an "Endurance" ride, 45 min. Keep resistance moderate, cadence 85–95. The goal is Zone 2: you can hold a conversation without gasping.\n\nThis is your primary fat-burning session. Studies show Zone 2 stimulates more mitochondrial growth than harder sessions. Long, consistent, and almost meditative — the gains compound over weeks.',
+
+        'Peloton HIIT': 'Select a "HIIT" class — intervals of 20–40s all-out effort followed by rest periods. During work intervals, hit 90%+ max HR (breathe too hard to talk).\n\nThe power output here creates a 24-48 hour afterburn (EPOC). As your weight drops, you\'ll hit higher peak watts each phase — screenshot your PR output and track the progress.',
+
+        // --- WALK / RUN ---
+        'Walk/Run Intervals': 'Phase 3: 1 min run / 4 min walk × 8 rounds (40 min total). Phase 4: 3 min run / 2 min walk × 6 rounds (30 min). This is the safest possible way to introduce running at higher body weight.\n\nRun form: mid-foot strike (not heel-strike), short stride, 170–180 steps/minute, slight forward lean from the ankles. Land softly — if your footsteps are loud, you\'re braking with every step, which hammers your knees.',
+
+        // --- RUNNING ---
+        'Run': 'Continuous run at a conversational pace — if you can\'t speak a sentence, slow down. Mid-foot or forefoot strike, NOT heel strike. Cadence target: 170–180 spm.\n\nListen to your knees on the first few runs. Minor achiness is normal; sharp or persistent pain is not. Run on a softer surface (grass or rubberized track) when possible for the first 4 weeks of continuous running.',
+
+        'Run 5K': 'This is the Phase 6 milestone. Goal: finish 3.1 miles without stopping — time does not matter.\n\nStrategy: start at the SLOWEST pace you think is too slow. Most people blow up in the first mile by going out too fast. Hold a pace where you\'re breathing hard but controlled. Miles 1-2 you should feel like you have too much left — that reserve is what gets you through Mile 3.',
+
+        // --- VOLLEYBALL SPECIFIC ---
+        'Volleyball Mobility Cool-down': 'Post-match routine (5–7 min): 90/90 hip stretch (60s each side) → pigeon pose (60s each side) → standing quad pull (30s each) → ankle circles (20s each) → shoulder cross-body stretch (30s each) → wrist circles.\n\nYour ankles and knees took the most loading today. Get them moving through full range while they\'re still warm — skipping this is the difference between waking up stiff vs. waking up fresh.',
+
+        // --- BAND EXERCISES ---
+        'Band Shoulder Warm-up': 'Loop band around a fixed point at chest height. Sequence: Band Pull-Aparts × 15 → Face Pulls × 12 → External Rotation × 10 each side → Dislocates × 8 (pass band overhead).\n\nThis fires up the rotator cuff and rear delts before pressing. Every shoulder injury in gym training comes from pressing on cold, inactive external rotators. 4 minutes now saves months of rehab.',
+
+        'TKE Band': 'Terminal Knee Extension — your #1 knee prehab movement. Loop a resistance band around a fixed point at knee height. Stand facing it, band behind your knee. Slight hinge forward, then SQUEEZE your quad to fully extend the knee against the band\'s resistance. Hold 1 second at full extension.\n\nThis strengthens the VMO (teardrop quad) which supports the kneecap. Do this before and after any heavy leg day. Non-negotiable at 250 lbs.',
+
+        'Lateral Band Walks': 'Place loop band just above the knees (not ankles — too hard on ligaments). Take 12 steps left, 12 steps right, keeping constant tension. Toes forward, slight squat position.\n\nThis activates the glute medius — the hip abductor that prevents knee cave during squats and landings. Weak glute medius = knees collapsing inward = patellar pain. Fix it here, not in physio.',
+
+        'Clamshells': 'Lie on your side, knees bent 45°, loop band just above knees. Keep feet together and rotate your top knee upward like a clamshell opening — drive from your glute, not your hip flexor. Pause 1 second at the top.\n\nClamshells are the gentlest glute medius activation exercise — perfect for early phases or after volleyball when the joint needs work without load. Progress by moving the band lower toward the ankles over weeks.',
+
+        'Band External Rotation': 'Band attached to a fixed point. Stand sideways, elbow bent 90° and pinned to your ribs. Rotate your forearm outward against the band — your hand moves away from your body while the elbow stays fixed.\n\nThis is corrective work for the external rotators. The ratio of internal to external rotation strength is the strongest predictor of shoulder injury. Train this twice a week and your pressing will never be held back by shoulder pain.',
+
+        'Band Hip Thrust': 'Place the loop band just above your knees. Sit with your upper back against a bench, feet flat, band resisting your knees from caving. Drive hips up explosively until your body forms a straight line from knees to shoulders. Squeeze your glutes HARD at the top for 1 full second.\n\nThe band component trains glute activation AND lateral stability simultaneously. This is the ground-level strength that makes your jump takeoff powerful from both legs evenly.',
+
+        // --- STEP-UPS & WALL SIT ---
+        'Step-ups': 'Use a sturdy bench or step 12–18 inches high. Step up with your RIGHT foot, drive through your heel to stand fully upright on top, then lower slowly. 12 reps RIGHT, 12 reps LEFT = 1 set.\n\nStep-ups build single-leg strength and balance — exactly what volleyball landings require. Keep your torso upright, don\'t lean into the bench. Over time, hold dumbbells for added resistance. These build your jumping foundation without any impact.',
+
+        'Wall Sit': 'Back flat against a smooth wall, feet 2 feet out, thighs parallel to the floor. Hold. Time it.\n\nTarget 45s in Phase 2, building to 90s by Phase 4. This isometric quad contraction builds the muscular endurance your legs need to stay explosive in the second and third sets of volleyball. It also reinforces the knee angle you want in a jump landing — knees over toes, not collapsed inward.',
+
+        // --- PLYOMETRICS (NO BOXES) ---
+        'Squat Jumps': 'Stand shoulder-width. Drop into a quarter-squat (not full depth), then EXPLODE upward, driving your arms overhead. Land SOFTLY on the balls of your feet with knees bent — the landing is as important as the jump.\n\nFocus on landing control in Phase 3: absorb the impact through quads, glutes, and ankles over 0.3–0.5 seconds. Loud thumpy landings = bad mechanics. Whisper-quiet landings = good mechanics. These build the foundation your approach jump runs on.',
+
+        'Tuck Jumps': 'Jump straight up and drive your KNEES toward your chest at the peak — aim to get thighs horizontal. Land softly and immediately spring into the next rep.\n\nTuck jumps build explosive hip flexor strength and vertical height. In volleyball terms, this is what creates that extra inch of hang time at the peak of your jump. Rest fully between sets — each rep must be maximal.',
+
+        'Broad Jumps': 'Stand with feet shoulder-width. Hinge back, swing arms, then explode FORWARD as far as possible. Land on both feet with deep knee bend to absorb the force, hold the landing for 2 seconds.\n\nBroad jumps build horizontal power — the ability to cover court ground quickly. They also train single-movement max power output which transfers directly to first-step quickness at the net.',
+
+        'Lateral Hops': 'Stand on your RIGHT foot. Hop sideways to the LEFT, land on your LEFT foot with a soft knee bend, hold 1 second, then hop back. That\'s 1 rep per side.\n\nLateral hops build proprioception (balance + landing control) and the ankle stability that prevents roll injuries during direction-change movements. In volleyball, most ankle sprains happen on lateral cuts — this directly reduces that risk.',
+
+        'Lateral Bounds': 'Like lateral hops but with more explosive power — push off with your full leg and travel 3–4 feet laterally per bound. Land on a single foot, absorb softly, hold 1 second before the next bound.\n\nLateral bounds are sport-specific for volleyball: they mimic the explosive lateral shuffle to get under an offline pass. Train this and you\'ll notice you\'re getting to balls you used to be a step late on.',
+
+        'Vertical Jumps': 'Stand under an imaginary target as high as possible. Dip into a quarter-squat, swing arms back, then EXPLODE upward reaching your arms overhead. Jump for maximal height every rep.\n\nTrack your improvement: stick a small piece of tape on a wall and see how high you can touch each Phase. From Phase 5 onward you should be gaining 1–2 inches per phase from the combined effect of weight loss + strength + plyo training.',
+
+        'Max Vertical Jumps': 'Same technique as vertical jumps but with full intent — every single rep is your absolute maximum effort. Take 45–60 seconds of complete rest between each set.\n\nBy Phase 6 your body has the strength base to express maximal power. The key is nervous system activation: think "attack the ceiling" before each jump. Approach these like sprint efforts, not strength sets.',
+
+        'Split Squat Jumps': 'Start in a lunge position (right foot forward). Explosively jump straight up and SWITCH your legs in the air, landing in a lunge with the left foot forward. That\'s 1 rep per side.\n\nThis builds explosive single-leg power under hip extension — exactly the force pattern of a jump serve or attack approach where your last step plants hard and converts horizontal momentum into vertical height.',
+
+        'Single-Leg Vertical Jumps': 'Stand on your RIGHT foot. Take 1-2 small approach steps, plant on your RIGHT foot, and jump as high as possible. Land on your right foot with a soft deep knee bend and hold for 2 seconds before stepping down.\n\nSingle-leg vertical jumps train the landing mechanics that prevent ACL injuries. At 34, this is especially important — the ACL tears most often during unexpected single-leg landings on a slightly bent knee. Train the landing and you bulletproof the joint.',
+
+        'Approach Jumps': 'Volleyball approach: 4-step pattern (right → left-right → left-right, last two steps are a quick-plant). Swing both arms back on the penultimate step, then EXPLODE up swinging arms forward and overhead.\n\nThis converts horizontal run-up energy into vertical jump height — the approach jump can add 6–10 inches vs. a standing jump. Practice the footwork slowly first, then add speed and height. The timing of the arm swing is everything.',
+
+        // --- ACTIVE RECOVERY ---
+        'Complete rest': 'Today is a genuine rest day. No "just a quick workout." No extra steps to compensate.\n\nRecovery is where you grow stronger. Your muscles rebuild during sleep and rest, not during the workout itself. Eat your protein targets, hydrate (target 0.5 oz × your body weight in oz), and sleep 7–9 hours. This session is as important as any squat or sprint.'
+    };
 
     function selectDay(dayName) {
         currentSelectedDay = dayName;
@@ -1232,6 +1635,15 @@
     // ============================================================
     // PHASE PROGRESS TRACKER
     // ============================================================
+    const PHASES = [
+        { num: 1, wks: '1-4',   startWk: 0,  endWk: 3,  weight: 250, label: '~250', key: '1' },
+        { num: 2, wks: '5-8',   startWk: 4,  endWk: 7,  weight: 242, label: '~242', key: '2' },
+        { num: 3, wks: '9-12',  startWk: 8,  endWk: 11, weight: 235, label: '~235', key: '3' },
+        { num: 4, wks: '13-16', startWk: 12, endWk: 15, weight: 228, label: '~228', key: '4' },
+        { num: 5, wks: '17-20', startWk: 16, endWk: 19, weight: 223, label: '~223', key: '5' },
+        { num: 6, wks: '21-26', startWk: 20, endWk: 25, weight: 216, label: '~216', key: '6' },
+    ];
+
     function renderPhaseProgress() {
         const container = document.getElementById('phaseProgressCard');
         if (!container) return;
@@ -1583,7 +1995,6 @@
     // INITIALIZATION
     // ============================================================
     async function init() {
-        await loadWorkoutData();
         await loadRecipes();
         updateStreak();
 

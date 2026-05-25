@@ -1,0 +1,9 @@
+.DS_Store
+
+# Archived Android build artifacts (keep source, skip binaries)
+archive/app-build/node_modules/
+archive/app-build/android/.gradle/
+archive/app-build/android/build/
+archive/app-build/android/app/build/
+archive/app-build/android/local.properties
+archive/app-build/**/*.apk
