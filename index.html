@@ -244,6 +244,34 @@
         .trend-dot { width: 8px; height: 8px; border-radius: 50%; }
 
         /* ============================================================
+           PHASE PROGRESS TRACKER
+        ============================================================ */
+        .phase-tracker { background: var(--card); border-radius: var(--border-radius); padding: 16px; margin-bottom: 20px; border: 1px solid rgba(167,139,250,0.12); box-shadow: 0 4px 24px rgba(0,0,0,0.25); }
+        .phase-tracker-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; gap: 8px; }
+        .phase-tracker-header strong { color: var(--text); font-size: 0.92rem; display: block; margin-bottom: 2px; }
+        .phase-tracker-header small { color: var(--dim); font-size: 0.72rem; }
+        .phase-steps { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; position: relative; margin-bottom: 4px; }
+        .phase-step { text-align: center; position: relative; cursor: pointer; }
+        .phase-step-connector { position: absolute; top: 13px; left: 50%; right: -50%; height: 2px; background: #2a2a3a; z-index: 0; transition: background 0.3s; }
+        .phase-step.done  .phase-step-connector,
+        .phase-step.active .phase-step-connector { background: var(--primary); }
+        .phase-dot { width: 28px; height: 28px; border-radius: 50%; background: #1e1e2c; border: 2px solid #2a2a3a; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px; font-size: 0.68rem; font-weight: 800; color: var(--dim); position: relative; z-index: 1; transition: all 0.3s; }
+        .phase-step.done  .phase-dot { background: var(--primary); border-color: var(--primary); color: #000; }
+        .phase-step.active .phase-dot { background: var(--primary); border-color: var(--primary); color: #000; box-shadow: 0 0 14px rgba(167,139,250,0.55); }
+        .phase-step-label { font-size: 0.58rem; color: var(--dim); line-height: 1.35; }
+        .phase-step.done  .phase-step-label { color: var(--primary); opacity: 0.7; }
+        .phase-step.active .phase-step-label { color: var(--primary); font-weight: 700; }
+        .phase-bar-wrap { background: #1a1a26; border-radius: 6px; height: 6px; overflow: hidden; margin-top: 12px; }
+        .phase-bar-fill { height: 100%; border-radius: 6px; background: linear-gradient(90deg, #a78bfa, #c084fc); transition: width 0.6s ease; }
+        .phase-bar-meta { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--dim); margin-top: 6px; }
+        .phase-suggest-banner { margin-top: 10px; background: rgba(167,139,250,0.08); border: 1px solid rgba(167,139,250,0.25); border-radius: 8px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+        .phase-suggest-text { font-size: 0.76rem; color: var(--primary); line-height: 1.4; }
+        .phase-switch-btn { background: var(--primary); color: #000; border: none; border-radius: 6px; padding: 5px 12px; font-weight: 800; font-size: 0.72rem; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+        .start-challenge-btn { display: block; width: 100%; padding: 14px; background: linear-gradient(135deg, rgba(167,139,250,0.18), rgba(192,132,252,0.08)); border: 1px solid rgba(167,139,250,0.4); color: var(--primary); border-radius: 10px; font-weight: 700; font-size: 0.9rem; cursor: pointer; text-align: center; letter-spacing: 0.5px; transition: all 0.2s; }
+        .start-challenge-btn:hover { background: rgba(167,139,250,0.28); }
+        .start-challenge-note { font-size: 0.75rem; color: var(--dim); text-align: center; margin-top: 8px; }
+
+        /* ============================================================
            BODY FAT ESTIMATOR
         ============================================================ */
         .bf-card { background: #0f0f1a; padding: 14px 16px; border-radius: 10px; margin-top: 0; border-left: 3px solid var(--primary); }
@@ -500,11 +528,12 @@
 
             <!-- Trend Chart -->
             <div class="trend-wrap">
-                <div class="trend-wrap-label">Weight &amp; Waist History (last 30 logs)</div>
-                <canvas id="trendCanvas" height="90"></canvas>
+                <div class="trend-wrap-label">Weight &amp; Waist History · Phase Target Lines</div>
+                <canvas id="trendCanvas" height="160"></canvas>
                 <div class="trend-legend">
                     <div class="trend-legend-item"><div class="trend-dot" style="background:var(--primary)"></div> Weight (lbs)</div>
                     <div class="trend-legend-item"><div class="trend-dot" style="background:var(--water); border: 2px dashed var(--water); background: none; width:12px; border-radius:0; height:2px;"></div> Waist (in)</div>
+                    <div class="trend-legend-item"><div class="trend-dot" style="background:var(--success); width:12px; border-radius:0; height:2px;"></div> Goal 210</div>
                 </div>
             </div>
         </div>
@@ -542,6 +571,9 @@
             <div class="deficit-header">📉 Deficit &amp; Goal Projection</div>
             <div id="deficitContent"><span style="color:var(--dim); font-size:0.85rem;">Log meals for 2+ days to see your projected goal date.</span></div>
         </div>
+
+        <!-- Phase Progress Tracker -->
+        <div id="phaseProgressCard" class="phase-tracker"></div>
 
         <!-- Phase + Volleyball Selectors -->
         <div class="controls" style="grid-template-columns: 1fr 1fr; gap: 10px;">
@@ -1596,8 +1628,121 @@
         const entry = { date: today, weight: parseFloat(weight) || 0, waist: parseFloat(waist) || 0 };
         if (idx >= 0) history[idx] = entry;
         else history.push(entry);
-        if (history.length > 30) history = history.slice(-30);
+        if (history.length > 180) history = history.slice(-180);
         localStorage.setItem('weight_history', JSON.stringify(history));
+    }
+
+    // ============================================================
+    // PHASE PROGRESS TRACKER
+    // ============================================================
+    const PHASES = [
+        { num: 1, wks: '1-4',   startWk: 0,  endWk: 3,  weight: 250, label: '~250', key: '1' },
+        { num: 2, wks: '5-8',   startWk: 4,  endWk: 7,  weight: 242, label: '~242', key: '2' },
+        { num: 3, wks: '9-12',  startWk: 8,  endWk: 11, weight: 235, label: '~235', key: '3' },
+        { num: 4, wks: '13-16', startWk: 12, endWk: 15, weight: 228, label: '~228', key: '4' },
+        { num: 5, wks: '17-20', startWk: 16, endWk: 19, weight: 223, label: '~223', key: '5' },
+        { num: 6, wks: '21-26', startWk: 20, endWk: 25, weight: 216, label: '~216', key: '6' },
+    ];
+
+    function renderPhaseProgress() {
+        const container = document.getElementById('phaseProgressCard');
+        if (!container) return;
+
+        const startStr = localStorage.getItem('challenge_start');
+
+        if (!startStr) {
+            container.innerHTML = `
+                <div style="text-align:center; padding:4px 0 6px;">
+                    <div style="font-size:0.85rem; color:var(--primary); font-weight:700; margin-bottom:6px;">📅 6-Month Challenge Tracker</div>
+                    <div style="font-size:0.78rem; color:var(--dim); margin-bottom:14px; line-height:1.5;">Set your start date once and the app will track which phase you're in, how many weeks have passed, and when you'll hit your 210 lb goal.</div>
+                    <button class="start-challenge-btn" onclick="startChallenge()">🚀 Start Challenge — Day 1 Today</button>
+                    <div class="start-challenge-note">Saves to your device · won't reset unless you clear browser data</div>
+                </div>`;
+            return;
+        }
+
+        const start = new Date(startStr);
+        const today = new Date();
+        const daysSince  = Math.max(0, Math.floor((today - start) / 86400000));
+        const weeksSince = Math.floor(daysSince / 7);
+        const weekNum    = Math.min(weeksSince + 1, 26);
+
+        // Find current phase
+        let curIdx = PHASES.findIndex(p => weeksSince >= p.startWk && weeksSince <= p.endWk);
+        if (curIdx === -1) curIdx = weeksSince > 25 ? 5 : 0;
+        const curPhase = PHASES[curIdx];
+
+        // Within-phase progress
+        const weeksIntoPhase = Math.min(weeksSince - curPhase.startWk, curPhase.endWk - curPhase.startWk);
+        const phaseDuration  = curPhase.endWk - curPhase.startWk + 1;
+        const phasePct       = Math.round((weeksIntoPhase / phaseDuration) * 100);
+
+        // Format dates
+        const fmt = d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const endDate = new Date(start);
+        endDate.setDate(start.getDate() + 26 * 7);
+
+        // Days remaining in challenge
+        const daysLeft = Math.max(0, Math.ceil((endDate - today) / 86400000));
+
+        // Phase step dots
+        let stepsHtml = '';
+        PHASES.forEach((p, i) => {
+            const isDone   = i < curIdx;
+            const isActive = i === curIdx;
+            const cls      = isDone ? 'done' : isActive ? 'active' : '';
+            const connector = i < 5 ? `<div class="phase-step-connector"></div>` : '';
+            stepsHtml += `
+                <div class="phase-step ${cls}" onclick="jumpToPhase('${p.key}')">
+                    ${connector}
+                    <div class="phase-dot">${isDone ? '✓' : p.num}</div>
+                    <div class="phase-step-label">Wk${p.wks}<br>${p.label}</div>
+                </div>`;
+        });
+
+        // Smart phase-switch nudge
+        const selectedPhase = document.getElementById('weekSelect') ? document.getElementById('weekSelect').value : '1';
+        const suggestBanner = (selectedPhase !== curPhase.key) ? `
+            <div class="phase-suggest-banner">
+                <div class="phase-suggest-text">💡 Week ${weekNum} → <strong>Phase ${curPhase.num}</strong> recommended for you</div>
+                <button class="phase-switch-btn" onclick="jumpToPhase('${curPhase.key}')">Switch</button>
+            </div>` : '';
+
+        container.innerHTML = `
+            <div class="phase-tracker-header">
+                <div>
+                    <strong>📅 Week ${weekNum} of 26 · Phase ${curPhase.num}</strong>
+                    <small>Started ${fmt(start)}</small>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-size:0.78rem; color:var(--dim);">${daysLeft} days left</div>
+                    <div style="font-size:0.68rem; color:var(--dim); margin-top:2px;">Goal: ${fmt(endDate)}</div>
+                </div>
+            </div>
+            <div class="phase-steps">${stepsHtml}</div>
+            <div class="phase-bar-wrap">
+                <div class="phase-bar-fill" style="width:${phasePct}%"></div>
+            </div>
+            <div class="phase-bar-meta">
+                <span>Phase ${curPhase.num} · ${phasePct}% complete</span>
+                <span>Wk ${weeksIntoPhase + 1} of ${phaseDuration}</span>
+            </div>
+            ${suggestBanner}`;
+    }
+
+    function startChallenge() {
+        const today = new Date().toISOString().split('T')[0];
+        localStorage.setItem('challenge_start', today);
+        renderPhaseProgress();
+        // Auto-switch workout selector to Phase 1
+        const ws = document.getElementById('weekSelect');
+        if (ws) { ws.value = '1'; localStorage.setItem('sm_week', '1'); renderWorkoutDay(); }
+    }
+
+    function jumpToPhase(phaseKey) {
+        const ws = document.getElementById('weekSelect');
+        if (ws) { ws.value = phaseKey; localStorage.setItem('sm_week', phaseKey); renderWorkoutDay(); }
+        renderPhaseProgress();
     }
 
     function renderTrendChart() {
@@ -1607,10 +1752,10 @@
         const history = JSON.parse(localStorage.getItem('weight_history') || '[]');
         const dpr = window.devicePixelRatio || 1;
         const w = canvas.offsetWidth;
-        const h = 90;
-        canvas.width = w * dpr;
+        const h = 160;
+        canvas.width  = w * dpr;
         canvas.height = h * dpr;
-        canvas.style.width = w + 'px';
+        canvas.style.width  = w + 'px';
         canvas.style.height = h + 'px';
 
         const ctx = canvas.getContext('2d');
@@ -1621,83 +1766,150 @@
             ctx.fillStyle = '#2e2e3e';
             ctx.font = '11px -apple-system, sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText('Log weight & waist to build your trend chart', w / 2, h / 2);
+            ctx.fillText('Log weight to build your trend chart', w / 2, h / 2 - 8);
+            ctx.font = '10px -apple-system, sans-serif';
+            ctx.fillStyle = '#1e1e2c';
+            ctx.fillText('Phase target lines will appear once you have 2+ logs', w / 2, h / 2 + 10);
             return;
         }
 
-        const pad = { t: 14, r: 10, b: 18, l: 10 };
+        // Phase targets and the goal — used for scale calculation
+        const PHASE_TARGETS = [250, 242, 235, 228, 223, 216, 210];
+        const GOAL = 210;
+
+        // Weight scale: span across all logged + target + goal weights so lines make sense
+        const wEntries = history.filter(e => e.weight > 0);
+        if (wEntries.length < 2) return;
+        const allWeights = wEntries.map(e => e.weight).concat(PHASE_TARGETS);
+        const dataMin = Math.min(...allWeights) - 2;
+        const dataMax = Math.max(...allWeights) + 4;
+        const dataRange = dataMax - dataMin || 1;
+
+        const pad = { t: 14, r: 44, b: 22, l: 10 };
         const cw = w - pad.l - pad.r;
         const ch = h - pad.t - pad.b;
-        const n = history.length;
+        const n  = history.length;
 
-        const xOf = i => pad.l + (i / (n - 1)) * cw;
+        const xOf = i => pad.l + (i / Math.max(n - 1, 1)) * cw;
+        const yOf = v => pad.t + (1 - (v - dataMin) / dataRange) * ch;
 
-        // Draw weight line (amber)
-        const wEntries = history.filter(h => h.weight > 0);
-        if (wEntries.length >= 2) {
-            const vals = wEntries.map(e => e.weight);
-            const wMin = Math.min(...vals) - 3;
-            const wMax = Math.max(...vals) + 3;
-            const wRange = wMax - wMin || 1;
-            const yOf = v => pad.t + (1 - (v - wMin) / wRange) * ch;
-
+        // Phase target lines (subtle, labeled)
+        const phaseLabels = ['Ph1·250', 'Ph2·242', 'Ph3·235', 'Ph4·228', 'Ph5·223', 'Ph6·216'];
+        const phaseColors = ['rgba(167,139,250,0.18)', 'rgba(167,139,250,0.18)', 'rgba(167,139,250,0.18)',
+                             'rgba(167,139,250,0.18)', 'rgba(167,139,250,0.18)', 'rgba(167,139,250,0.18)'];
+        PHASE_TARGETS.slice(0, 6).forEach((target, i) => {
+            const y = yOf(target);
+            if (y < pad.t || y > pad.t + ch) return; // off-chart, skip
             ctx.beginPath();
-            ctx.strokeStyle = '#a78bfa';
-            ctx.lineWidth = 2;
-            ctx.lineJoin = 'round';
-            history.forEach((entry, i) => {
-                if (!entry.weight) return;
-                i === history.indexOf(wEntries[0]) ? ctx.moveTo(xOf(i), yOf(entry.weight)) : ctx.lineTo(xOf(i), yOf(entry.weight));
-            });
+            ctx.strokeStyle = 'rgba(167,139,250,0.22)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([3, 5]);
+            ctx.moveTo(pad.l, y);
+            ctx.lineTo(pad.l + cw, y);
             ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = 'rgba(167,139,250,0.5)';
+            ctx.font = '7.5px sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText(phaseLabels[i], pad.l + cw + 3, y + 3);
+        });
 
-            // End-point dot + label
-            const last = history[history.length - 1];
-            if (last.weight) {
-                const lx = xOf(n - 1), ly = yOf(last.weight);
-                ctx.beginPath(); ctx.arc(lx, ly, 4, 0, Math.PI * 2); ctx.fillStyle = '#a78bfa'; ctx.fill();
-                ctx.fillStyle = '#a78bfa'; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'right';
-                ctx.fillText(last.weight + ' lb', w - pad.r, ly - 5);
-            }
+        // Goal line at 210 (green, prominent dashed)
+        const goalY = yOf(GOAL);
+        if (goalY >= pad.t && goalY <= pad.t + ch) {
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(74,222,128,0.7)';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([6, 4]);
+            ctx.moveTo(pad.l, goalY);
+            ctx.lineTo(pad.l + cw, goalY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = '#4ade80';
+            ctx.font = 'bold 8px sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText('🏁 210', pad.l + cw + 3, goalY + 3);
         }
 
-        // Draw waist line (blue, dashed)
+        // Weight area fill under the line
+        ctx.beginPath();
+        ctx.moveTo(xOf(history.indexOf(wEntries[0])), yOf(wEntries[0].weight));
+        history.forEach((entry, i) => {
+            if (!entry.weight) return;
+            ctx.lineTo(xOf(i), yOf(entry.weight));
+        });
+        const lastWIdx = history.lastIndexOf(wEntries[wEntries.length - 1]);
+        ctx.lineTo(xOf(lastWIdx), pad.t + ch);
+        ctx.lineTo(xOf(history.indexOf(wEntries[0])), pad.t + ch);
+        ctx.closePath();
+        const grad = ctx.createLinearGradient(0, pad.t, 0, pad.t + ch);
+        grad.addColorStop(0, 'rgba(167,139,250,0.18)');
+        grad.addColorStop(1, 'rgba(167,139,250,0.0)');
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        // Weight line (purple, solid)
+        ctx.beginPath();
+        ctx.strokeStyle = '#a78bfa';
+        ctx.lineWidth = 2.5;
+        ctx.lineJoin = 'round';
+        let wStarted = false;
+        history.forEach((entry, i) => {
+            if (!entry.weight) return;
+            if (!wStarted) { ctx.moveTo(xOf(i), yOf(entry.weight)); wStarted = true; }
+            else ctx.lineTo(xOf(i), yOf(entry.weight));
+        });
+        ctx.stroke();
+
+        // End-point dot + label (weight)
+        const lastW = wEntries[wEntries.length - 1];
+        const lwi = history.lastIndexOf(lastW);
+        const lx = xOf(lwi), ly = yOf(lastW.weight);
+        ctx.beginPath(); ctx.arc(lx, ly, 4.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#a78bfa'; ctx.fill();
+        ctx.fillStyle = '#a78bfa'; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'right';
+        ctx.fillText(lastW.weight + ' lb', lx - 7, ly - 6);
+
+        // Waist line (blue dashed)
         const qEntries = history.filter(e => e.waist > 0);
         if (qEntries.length >= 2) {
-            const vals = qEntries.map(e => e.waist);
-            const qMin = Math.min(...vals) - 1;
-            const qMax = Math.max(...vals) + 1;
+            const qVals = qEntries.map(e => e.waist);
+            const qMin = Math.min(...qVals) - 1;
+            const qMax = Math.max(...qVals) + 1;
             const qRange = qMax - qMin || 1;
-            const yOf = v => pad.t + (1 - (v - qMin) / qRange) * ch;
+            const yQ = v => pad.t + (1 - (v - qMin) / qRange) * ch;
 
             ctx.beginPath();
             ctx.strokeStyle = '#38bdf8';
             ctx.lineWidth = 1.5;
             ctx.setLineDash([5, 4]);
             ctx.lineJoin = 'round';
-            let started = false;
+            let qStarted = false;
             history.forEach((entry, i) => {
                 if (!entry.waist) return;
-                const x = xOf(i), y = yOf(entry.waist);
-                if (!started) { ctx.moveTo(x, y); started = true; } else ctx.lineTo(x, y);
+                if (!qStarted) { ctx.moveTo(xOf(i), yQ(entry.waist)); qStarted = true; }
+                else ctx.lineTo(xOf(i), yQ(entry.waist));
             });
             ctx.stroke();
             ctx.setLineDash([]);
 
-            const last = qEntries[qEntries.length - 1];
-            const li = history.indexOf(last);
-            const lx = xOf(li), ly = yOf(last.waist);
-            ctx.beginPath(); ctx.arc(lx, ly, 3, 0, Math.PI * 2); ctx.fillStyle = '#38bdf8'; ctx.fill();
-            ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'left';
-            ctx.fillText(last.waist + '"', pad.l, ly - 4);
+            const lastQ = qEntries[qEntries.length - 1];
+            const lqi = history.lastIndexOf(lastQ);
+            ctx.beginPath(); ctx.arc(xOf(lqi), yQ(lastQ.waist), 3, 0, Math.PI * 2);
+            ctx.fillStyle = '#38bdf8'; ctx.fill();
         }
 
-        // Date labels
-        ctx.fillStyle = '#2e2e3e'; ctx.font = '8px sans-serif';
+        // Date axis labels
+        ctx.fillStyle = '#3a3a50'; ctx.font = '8px sans-serif';
         ctx.textAlign = 'left';
-        ctx.fillText(history[0].date.slice(5), pad.l, h - 3);
+        ctx.fillText(history[0].date.slice(5), pad.l, h - 5);
+        if (n > 4) {
+            const midIdx = Math.floor(n / 2);
+            ctx.textAlign = 'center';
+            ctx.fillText(history[midIdx].date.slice(5), xOf(midIdx), h - 5);
+        }
         ctx.textAlign = 'right';
-        ctx.fillText(history[n - 1].date.slice(5), w - pad.r, h - 3);
+        ctx.fillText(history[n - 1].date.slice(5), pad.l + cw, h - 5);
     }
 
     // ============================================================
@@ -1825,7 +2037,8 @@
         loadSleepForToday();
         setTimeout(renderSleepChart, 80);
 
-        // Trend chart
+        // Phase progress tracker + trend chart
+        setTimeout(renderPhaseProgress, 60);
         setTimeout(renderTrendChart, 80);
 
         // Deficit card
@@ -1845,7 +2058,7 @@
         const idx = ['workout', 'nutrition', 'grocery', 'guide'].indexOf(tabId);
         document.querySelectorAll('.nav-item')[idx].classList.add('active');
         if (tabId === 'grocery')   renderGroceryList();
-        if (tabId === 'workout')   { setTimeout(renderTrendChart, 50); setTimeout(updateDeficitCard, 60); }
+        if (tabId === 'workout')   { setTimeout(renderPhaseProgress, 40); setTimeout(renderTrendChart, 50); setTimeout(updateDeficitCard, 60); }
         if (tabId === 'guide')     { setTimeout(renderSleepChart, 50); setTimeout(renderHeatmap, 60); setTimeout(renderHabitChecklist, 70); }
     }
 
