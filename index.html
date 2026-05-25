@@ -543,12 +543,24 @@
             <div id="deficitContent"><span style="color:var(--dim); font-size:0.85rem;">Log meals for 2+ days to see your projected goal date.</span></div>
         </div>
 
-        <!-- Week Selector -->
-        <div class="controls" style="grid-template-columns: 1fr;">
+        <!-- Phase + Volleyball Selectors -->
+        <div class="controls" style="grid-template-columns: 1fr 1fr; gap: 10px;">
             <select id="weekSelect" onchange="renderWorkoutDay()">
-                <option value="1">Week 1-2: Cardio</option>
-                <option value="2">Week 3-4: Strength</option>
-                <option value="5">Week 5-6: Core</option>
+                <option value="1">Phase 1 · Wks 1-4 · Foundation (~250 lbs)</option>
+                <option value="2">Phase 2 · Wks 5-8 · Build (~242 lbs)</option>
+                <option value="3">Phase 3 · Wks 9-12 · Walk/Run Intro (~235 lbs)</option>
+                <option value="4">Phase 4 · Wks 13-16 · Run/Walk (~228 lbs)</option>
+                <option value="5">Phase 5 · Wks 17-20 · Running (~223 lbs)</option>
+                <option value="6">Phase 6 · Wks 21-26 · Peak · 5K (~216 lbs)</option>
+            </select>
+            <select id="volleyballDay" onchange="renderWorkoutDay()" style="font-size:0.78rem;">
+                <option value="">🏐 No Volleyball This Week</option>
+                <option value="Monday">🏐 Volleyball: Monday</option>
+                <option value="Tuesday">🏐 Volleyball: Tuesday</option>
+                <option value="Wednesday">🏐 Volleyball: Wednesday</option>
+                <option value="Thursday">🏐 Volleyball: Thursday</option>
+                <option value="Friday">🏐 Volleyball: Friday</option>
+                <option value="Saturday">🏐 Volleyball: Saturday</option>
             </select>
         </div>
 
@@ -810,7 +822,7 @@
         const hash = await hashString(password);
 
         if (hash === PASS_HASH) {
-            sessionStorage.setItem('app_unlocked', '1');
+            localStorage.setItem('app_unlocked', '1');
             const gate = document.getElementById('password-gate');
             gate.classList.add('fade-out');
             setTimeout(() => {
@@ -835,7 +847,7 @@
     }
 
     function checkSession() {
-        if (sessionStorage.getItem('app_unlocked') === '1') {
+        if (localStorage.getItem('app_unlocked') === '1') {
             document.getElementById('password-gate').classList.add('hidden');
             init();
             return true;
@@ -891,35 +903,316 @@
     // ============================================================
     let currentSelectedDay = 'Monday';
 
+    // ── Workout plan templates keyed by phase (1-6).
+    // Each phase has named workout blocks. buildSchedule() assigns them to days dynamically.
     const workoutPlans = {
-        1: {
-            Monday:    { name: 'HIIT Sprint',      details: '30 sec sprint / 30 sec rest', time: '20 min',  exercises: ['Warmup Jog (5m)', 'Sprints x20', 'Cooldown Walk (5m)'] },
-            Tuesday:   { name: 'Strength A',        details: 'Upper + Lower Compound',      time: '45 min',  exercises: ['Bench Press (4x6)', 'Rows (4x6)', 'Squats (3x8)', 'Core Planks'] },
-            Wednesday: { name: 'Coed Volleyball',   details: 'League Match / Active Cardio', time: '60+ min', exercises: ['Dynamic Warmup', 'Volleyball Match', 'Hydration Focus'] },
-            Thursday:  { name: 'Strength B',        details: 'Posterior Chain Focus',       time: '45 min',  exercises: ['Deadlifts (3x5)', 'Lat Pull (3x8)', 'Dips (3x8)', 'Calf Raises'] },
-            Friday:    { name: 'HIIT Treadmill',    details: 'Incline walk/sprint intervals', time: '30 min', exercises: ['Incline Walk 12% (10m)', 'Sprints x10', 'Cooldown (5m)'] },
-            Saturday:  { name: 'Steady Cardio',     details: 'Jog/walk at conversational pace', time: '45-60 min', exercises: ['Zone 2 Cardio'] },
-            Sunday:    { name: 'REST',              details: 'Recovery, stretching',         time: '—',      exercises: ['Stretching Routine', 'Meal Prep'] }
+        1: { // Foundation — ~250 lbs. Peloton only. Band knee prehab starts.
+            upperStrength: {
+                name: 'Upper Strength',
+                details: 'Compound push + pull · progressive overload',
+                time: '55 min',
+                exercises: ['Band Shoulder Warm-up', 'Bench Press (4x6)', 'Rows (4x6)', 'OHP (3x8)', 'Face Pulls (3x15)', 'Core Planks (3x45s)']
+            },
+            lowerStrength: {
+                name: 'Lower Strength + Knee Prehab',
+                details: 'Squat · hinge · band finisher · no jump impact yet',
+                time: '60 min',
+                exercises: ['Squats (4x6)', 'Deadlifts (3x5)', 'Leg Press (3x8)', 'Calf Raises (3x20)', 'TKE Band (3x15)', 'Lateral Band Walks (3x12)']
+            },
+            cardioA: {
+                name: 'Peloton: Low Impact Ride',
+                details: '30 min · HR 60-70% · protect joints',
+                time: '30 min',
+                exercises: ['Peloton Low Impact (30 min)', 'Cooldown Stretch (5 min)']
+            },
+            cardioB: {
+                name: 'Peloton: Endurance Ride',
+                details: '45 min Zone 2 · fat-burn engine',
+                time: '45 min',
+                exercises: ['Peloton Endurance (45 min)', 'Cooldown Stretch (5 min)']
+            },
+            cardioCore: {
+                name: 'Peloton + Core',
+                details: '20 min easy ride · then abs circuit',
+                time: '45 min',
+                exercises: ['Peloton Low Impact (20 min)', 'Hanging Leg Raise (3x10)', 'Ab Wheel (3x10)', 'Core Planks (3x45s)']
+            },
+            volleyball: {
+                name: 'Volleyball',
+                details: 'League match · stay light on feet · hydrate',
+                time: '60+ min',
+                exercises: ['Dynamic Warmup', 'Volleyball Match', 'Volleyball Mobility Cool-down']
+            },
+            rest: {
+                name: 'REST + Meal Prep',
+                details: 'Full recovery · batch cook for the week',
+                time: '—',
+                exercises: ['Complete rest', 'Meal Prep for the week', 'Stretching Routine']
+            }
         },
-        2: {
-            Monday:    { name: 'Upper Power',       details: 'Heavy Upper Lifts',           time: '60 min',  exercises: ['Bench Press (5x5)', 'Rows (5x5)', 'OHP (4x6)', 'Face Pulls'] },
-            Tuesday:   { name: 'Lower Power',       details: 'Heavy Lower Lifts',           time: '60 min',  exercises: ['Squats (5x5)', 'Deadlifts (3x3)', 'Leg Press (3x8)'] },
-            Wednesday: { name: 'Coed Volleyball',   details: 'League Match / Active Cardio', time: '60+ min', exercises: ['Dynamic Warmup', 'Volleyball Match'] },
-            Thursday:  { name: 'Upper Hyper',       details: 'Volume Upper',                time: '50 min',  exercises: ['Incline DB Press (4x8)', 'Pull-ups (4x8)', 'Curls (3x10)'] },
-            Friday:    { name: 'Lower Hyper',       details: 'Volume Lower',                time: '50 min',  exercises: ['Leg Ext (4x10)', 'Leg Curl (4x10)', 'Calf Raise (3x12)'] },
-            Saturday:  { name: 'Cardio',            details: 'Moderate intensity',          time: '30 min',  exercises: ['Bike or Treadmill (30m)'] },
-            Sunday:    { name: 'REST',              details: 'Complete rest',               time: '—',      exercises: ['Stretching', 'Meal Prep'] }
+        2: { // Build — ~242 lbs. Heavier lifts. Step-ups + wall sits as jump foundation.
+            upperStrength: {
+                name: 'Upper Strength',
+                details: 'Heavier compound · track progressive overload',
+                time: '60 min',
+                exercises: ['Band Shoulder Warm-up', 'Bench Press (5x5)', 'Rows (5x5)', 'OHP (4x6)', 'Incline DB Press (3x8)', 'Face Pulls (3x15)']
+            },
+            lowerStrength: {
+                name: 'Lower Strength + Jump Foundation',
+                details: 'Heavy lower · step-ups · wall sits · band prehab',
+                time: '65 min',
+                exercises: ['Squats (4x6)', 'Deadlifts (3x5)', 'Leg Press (3x8)', 'Step-ups (4x12 each)', 'Wall Sit (4x45s)', 'Calf Raises (3x20)', 'TKE Band (3x15)', 'Lateral Band Walks (3x12)']
+            },
+            cardioA: {
+                name: 'Peloton: Power Zone Ride',
+                details: '35 min FTP-based effort · structured intervals',
+                time: '35 min',
+                exercises: ['Peloton Power Zone (35 min)', 'Cooldown Stretch (5 min)']
+            },
+            cardioB: {
+                name: 'Peloton: Endurance Ride',
+                details: '45 min Zone 2 · fat-burn engine',
+                time: '45 min',
+                exercises: ['Peloton Endurance (45 min)', 'Cooldown Stretch (5 min)']
+            },
+            cardioCore: {
+                name: 'Peloton + Core',
+                details: '25 min Power Zone ride · then weighted abs',
+                time: '50 min',
+                exercises: ['Peloton Power Zone (25 min)', 'Hanging Leg Raise (3x10)', 'Ab Wheel (3x10)', 'Core Planks (3x45s)', 'Decline Sit-ups (3x12)']
+            },
+            volleyball: {
+                name: 'Volleyball',
+                details: 'League match · step-up strength now showing in jumps',
+                time: '60+ min',
+                exercises: ['Dynamic Warmup', 'Volleyball Match', 'Volleyball Mobility Cool-down']
+            },
+            rest: {
+                name: 'REST + Meal Prep',
+                details: 'Full recovery · batch cook for the week',
+                time: '—',
+                exercises: ['Complete rest', 'Meal Prep for the week', 'Stretching Routine']
+            }
         },
-        5: {
-            Monday:    { name: 'Core + Upper',      details: 'Weighted core focus',         time: '50 min',  exercises: ['Weighted Planks (4x45s)', 'Weighted Crunches (4x12)', 'Bench Press (4x6)'] },
-            Tuesday:   { name: 'HIIT + Legs',       details: 'Intervals + Squats',          time: '50 min',  exercises: ['20 min HIIT', 'Squats (4x8)', 'Leg Press (3x10)'] },
-            Wednesday: { name: 'Coed Volleyball',   details: 'League Match / Active Cardio', time: '60+ min', exercises: ['Volleyball Match'] },
-            Thursday:  { name: 'Core + Lower',      details: 'Abs + Deadlifts',             time: '50 min',  exercises: ['Hanging Leg Raise (4x10)', 'Decline Sit-ups (4x12)', 'Deadlifts (3x5)'] },
-            Friday:    { name: 'Cardio + Core',     details: 'Steady State + Rollouts',     time: '45 min',  exercises: ['30 min steady cardio', 'Ab wheel (4x10)'] },
-            Saturday:  { name: 'Full Body',         details: 'Compound hits',               time: '60 min',  exercises: ['Bench Press', 'Rows', 'Squats', 'Abs'] },
-            Sunday:    { name: 'REST',              details: 'Complete rest',               time: '—',      exercises: ['Mobility Work'] }
+        3: { // Walk/Run Intro — ~235 lbs. First impact plyos: squat jumps + lateral hops (no boxes).
+            upperStrength: {
+                name: 'Upper Strength + Band Stability',
+                details: 'Volume push/pull · band external rotation added',
+                time: '60 min',
+                exercises: ['Band Shoulder Warm-up', 'Bench Press (4x8)', 'Rows (4x8)', 'OHP (3x8)', 'Pull-ups (3x6)', 'Face Pulls (3x15)', 'Band External Rotation (3x12)']
+            },
+            lowerStrength: {
+                name: 'Lower Strength + Light Plyos',
+                details: 'Squat · hinge · squat jumps · lateral hops · clamshells',
+                time: '65 min',
+                exercises: ['Squats (4x8)', 'Deadlifts (3x5)', 'Leg Press (3x10)', 'Squat Jumps (3x8)', 'Lateral Hops (3x10 each)', 'Calf Raises (3x20)', 'TKE Band (3x15)', 'Lateral Band Walks (3x12)', 'Clamshells (3x15)']
+            },
+            cardioA: {
+                name: 'Walk/Run Intervals',
+                details: '1 min run / 4 min walk × 8 rounds',
+                time: '40 min',
+                exercises: ['Walk/Run Intervals (1 min run / 4 min walk × 8)']
+            },
+            cardioB: {
+                name: 'Peloton: Endurance Ride',
+                details: '45 min Zone 2 · active recovery',
+                time: '45 min',
+                exercises: ['Peloton Endurance (45 min)', 'Cooldown Stretch (5 min)']
+            },
+            cardioCore: {
+                name: 'Peloton + Heavy Core',
+                details: '25 min Power Zone ride · then heavy abs',
+                time: '50 min',
+                exercises: ['Peloton Power Zone (25 min)', 'Hanging Leg Raise (4x10)', 'Ab Wheel (4x10)', 'Core Planks (3x60s)', 'Decline Sit-ups (3x12)']
+            },
+            volleyball: {
+                name: 'Volleyball',
+                details: 'League match · squat-jump power starting to show',
+                time: '60+ min',
+                exercises: ['Dynamic Warmup', 'Volleyball Match', 'Volleyball Mobility Cool-down']
+            },
+            rest: {
+                name: 'REST + Meal Prep',
+                details: 'Full recovery · batch cook for the week',
+                time: '—',
+                exercises: ['Complete rest', 'Meal Prep for the week', 'Stretching Routine']
+            }
+        },
+        4: { // Run/Walk — ~228 lbs. 3:2 run/walk. Tuck jumps + broad jumps + lateral bounds.
+            upperStrength: {
+                name: 'Upper Strength',
+                details: 'Heavy compound · peak upper volume',
+                time: '60 min',
+                exercises: ['Band Shoulder Warm-up', 'Bench Press (5x5)', 'Rows (5x5)', 'OHP (4x8)', 'Pull-ups (4x6)', 'Face Pulls (3x15)', 'Band External Rotation (3x12)']
+            },
+            lowerStrength: {
+                name: 'Lower Strength + Plyometrics',
+                details: 'Heavy lower · tuck jumps · broad jumps · lateral bounds',
+                time: '70 min',
+                exercises: ['Squats (4x6)', 'Deadlifts (4x4)', 'Leg Press (3x10)', 'Tuck Jumps (3x8)', 'Broad Jumps (3x6)', 'Lateral Bounds (3x8 each)', 'Calf Raises (4x20)', 'TKE Band (3x15)', 'Band Hip Thrust (3x15)', 'Clamshells (3x15)']
+            },
+            cardioA: {
+                name: 'Walk/Run Intervals',
+                details: '3 min run / 2 min walk × 6 rounds',
+                time: '30 min',
+                exercises: ['Walk/Run Intervals (3 min run / 2 min walk × 6)']
+            },
+            cardioB: {
+                name: 'Peloton: Endurance Ride',
+                details: '45 min Zone 2 · active recovery',
+                time: '45 min',
+                exercises: ['Peloton Endurance (45 min)', 'Cooldown Stretch (5 min)']
+            },
+            cardioCore: {
+                name: 'Peloton + Heavy Core',
+                details: '20 min Power Zone ride · then weighted abs',
+                time: '50 min',
+                exercises: ['Peloton Power Zone (20 min)', 'Hanging Leg Raise (4x12)', 'Ab Wheel (4x10)', 'Weighted Planks (4x45s)', 'Decline Sit-ups (4x12)']
+            },
+            volleyball: {
+                name: 'Volleyball',
+                details: 'League match · tuck-jump power translating to blocks',
+                time: '60+ min',
+                exercises: ['Dynamic Warmup', 'Volleyball Match', 'Volleyball Mobility Cool-down']
+            },
+            rest: {
+                name: 'REST + Meal Prep',
+                details: 'Full recovery · batch cook for the week',
+                time: '—',
+                exercises: ['Complete rest', 'Meal Prep for the week', 'Stretching Routine']
+            }
+        },
+        5: { // Running — ~223 lbs. 25-min continuous run. Vertical jumps + approach jumps.
+            upperStrength: {
+                name: 'Upper Strength + Core',
+                details: 'Heavy upper compound · weighted abs finisher',
+                time: '65 min',
+                exercises: ['Band Shoulder Warm-up', 'Bench Press (5x5)', 'Rows (5x5)', 'OHP (4x6)', 'Pull-ups (4x8)', 'Face Pulls (3x15)', 'Hanging Leg Raise (4x12)', 'Ab Wheel (4x10)']
+            },
+            lowerStrength: {
+                name: 'Lower Strength + Peak Plyos',
+                details: 'Heavy lower · vertical jumps · split squat jumps · approach jumps',
+                time: '70 min',
+                exercises: ['Squats (4x6)', 'Deadlifts (4x4)', 'Leg Press (4x10)', 'Vertical Jumps (4x8)', 'Split Squat Jumps (3x8 each)', 'Approach Jumps (3x5)', 'Calf Raises (4x20)', 'Band Hip Thrust (4x15)', 'Lateral Band Walks (3x15)', 'TKE Band (3x15)']
+            },
+            cardioA: {
+                name: 'Run (25 min)',
+                details: 'Continuous · conversational pace · mid-foot strike',
+                time: '25 min',
+                exercises: ['Run (25 min)']
+            },
+            cardioB: {
+                name: 'Peloton: HIIT Ride',
+                details: '30 min HIIT intervals · max power output',
+                time: '30 min',
+                exercises: ['Peloton HIIT (30 min)', 'Cooldown Stretch (5 min)']
+            },
+            cardioCore: {
+                name: 'Peloton + Heavy Core',
+                details: '20 min HIIT ride · then peak abs session',
+                time: '50 min',
+                exercises: ['Peloton HIIT (20 min)', 'Hanging Leg Raise (4x12)', 'Ab Wheel (4x12)', 'Weighted Planks (4x60s)', 'Decline Sit-ups (4x12)']
+            },
+            volleyball: {
+                name: 'Volleyball',
+                details: 'League match · approach jump power at its peak',
+                time: '60+ min',
+                exercises: ['Dynamic Warmup', 'Volleyball Match', 'Volleyball Mobility Cool-down']
+            },
+            rest: {
+                name: 'REST + Meal Prep',
+                details: 'Full recovery · batch cook for the week',
+                time: '—',
+                exercises: ['Complete rest', 'Meal Prep for the week', 'Stretching Routine']
+            }
+        },
+        6: { // Peak — ~216 lbs. 5K goal. Single-leg vertical jumps. Max strength.
+            upperStrength: {
+                name: 'Upper Strength + Heavy Core',
+                details: 'Max strength upper · weighted core finisher',
+                time: '65 min',
+                exercises: ['Band Shoulder Warm-up', 'Bench Press (5x5)', 'Rows (5x5)', 'OHP (4x6)', 'Pull-ups (4x10)', 'Face Pulls (3x15)', 'Hanging Leg Raise (4x12)', 'Weighted Crunches (4x12)', 'Weighted Planks (4x60s)']
+            },
+            lowerStrength: {
+                name: 'Lower Strength + Max Plyos',
+                details: 'Peak strength · max vertical · single-leg jumps · approach jumps',
+                time: '70 min',
+                exercises: ['Squats (4x5)', 'Deadlifts (4x3)', 'Leg Press (4x10)', 'Max Vertical Jumps (4x8)', 'Single-Leg Vertical Jumps (3x6 each)', 'Approach Jumps (4x5)', 'Tuck Jumps (3x8)', 'Calf Raises (4x25)', 'Band Hip Thrust (4x15)', 'TKE Band (3x15)']
+            },
+            cardioA: {
+                name: 'Run (30 min) + Core',
+                details: '30 min easy run · then core circuit',
+                time: '45 min',
+                exercises: ['Run (30 min)', 'Ab Wheel (4x12)', 'Hanging Leg Raise (4x12)']
+            },
+            cardioB: {
+                name: 'Run 5K',
+                details: 'Goal: complete 5K without stopping · celebrate every minute',
+                time: '30-40 min',
+                exercises: ['Run 5K']
+            },
+            cardioCore: {
+                name: 'Peloton + Max Core',
+                details: '20 min endurance ride · then peak abs session',
+                time: '50 min',
+                exercises: ['Peloton Endurance (20 min)', 'Hanging Leg Raise (4x15)', 'Ab Wheel (4x12)', 'Weighted Planks (4x60s)', 'Decline Sit-ups (4x15)', 'Weighted Crunches (4x15)']
+            },
+            volleyball: {
+                name: 'Volleyball',
+                details: 'League match · peak jump performance · single-leg landing control',
+                time: '60+ min',
+                exercises: ['Dynamic Warmup', 'Volleyball Match', 'Volleyball Mobility Cool-down']
+            },
+            rest: {
+                name: 'REST + Meal Prep',
+                details: 'Full recovery · batch cook for the week',
+                time: '—',
+                exercises: ['Complete rest', 'Meal Prep for the week', 'Stretching Routine']
+            }
         }
     };
+
+    // Dynamically assigns named workout templates to Mon-Sat based on volleyball day.
+    // Rules: day-before VB = light cardio, day-after VB = active recovery, 2-days-after = lower.
+    function buildSchedule(vbDay, phase) {
+        const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+        const p = workoutPlans[phase];
+        const schedule = { Sunday: p.rest };
+
+        if (!vbDay || !days.includes(vbDay)) {
+            // Default no-VB week: balanced strength + cardio distribution
+            schedule.Monday    = p.upperStrength;
+            schedule.Tuesday   = p.cardioA;
+            schedule.Wednesday = p.lowerStrength;
+            schedule.Thursday  = p.cardioCore;
+            schedule.Friday    = p.upperStrength;
+            schedule.Saturday  = p.cardioB;
+            return schedule;
+        }
+
+        const vbIdx = days.indexOf(vbDay);
+        // Volleyball day
+        schedule[vbDay] = p.volleyball;
+        // Day before: light Peloton/cardio — protect legs
+        const beforeDay = days[(vbIdx - 1 + 6) % 6];
+        schedule[beforeDay] = Object.assign({}, p.cardioCore, {
+            _note: '⚡ Light day — protecting legs for tomorrow\'s volleyball'
+        });
+        // Day after: active recovery — legs still fatigued
+        const afterDay = days[(vbIdx + 1) % 6];
+        schedule[afterDay] = Object.assign({}, p.cardioA, {
+            _note: '🔄 Active recovery — legs still tired from volleyball'
+        });
+        // 2 days after: Lower Strength — enough recovery gap
+        const lowerDay = days[(vbIdx + 2) % 6];
+        schedule[lowerDay] = p.lowerStrength;
+        // Remaining 2 days: Upper Strength + Endurance cardio
+        const remaining = days.filter(d => !schedule[d]);
+        schedule[remaining[0]] = p.upperStrength;
+        schedule[remaining[1]] = p.cardioB;
+
+        return schedule;
+    }
 
     const exerciseTips = {
         // --- CARDIO & WARMUP ---
@@ -1005,7 +1298,69 @@
 
         'Mobility Work': 'Hip 90/90 (2 min per side), World\'s Greatest Stretch (5 reps per side), pigeon pose (60s per side), thoracic rotations, cat-cow.\n\nThis is not optional — it\'s what allows you to hit full depth on squats and deadlifts next week. Consistent Sunday mobility is the difference between staying healthy and getting hurt at 30 lbs heavier.',
 
-        'Meal Prep': 'Batch cook your weekly mains today. Divide into individual portions IMMEDIATELY — pre-portioned meals prevent impulse eating and decision fatigue.\n\nWEIGH your protein with a scale (at least until you have it dialed in — eyeballing is consistently 20–30% inaccurate). Your abs are built in the kitchen on Sunday.'
+        'Meal Prep': 'Batch cook your weekly mains today. Divide into individual portions IMMEDIATELY — pre-portioned meals prevent impulse eating and decision fatigue.\n\nWEIGH your protein with a scale (at least until you have it dialed in — eyeballing is consistently 20–30% inaccurate). Your abs are built in the kitchen on Sunday.',
+
+        // --- PELOTON RIDES ---
+        'Peloton Low Impact': 'Select a "Low Impact Ride" class on the Peloton. Resistance 30–40, cadence 80–90 rpm. Keep heart rate at 60–70% max (roughly 220 minus age × 0.65).\n\nThis protects your joints while still burning fat and building aerobic base. Ideal on days before or after volleyball — keeps blood flowing without stressing already-loaded legs.',
+
+        'Peloton Power Zone': 'Power Zone rides use your FTP (Functional Threshold Power) to set zones. If you haven\'t done the FTP test yet, take one — it takes 20 minutes and makes every ride far more effective.\n\nTarget Zone 3–4 during the working intervals. These rides build a powerful aerobic engine and are what bridges Peloton fitness to outdoor running.',
+
+        'Peloton Endurance': 'Select an "Endurance" ride, 45 min. Keep resistance moderate, cadence 85–95. The goal is Zone 2: you can hold a conversation without gasping.\n\nThis is your primary fat-burning session. Studies show Zone 2 stimulates more mitochondrial growth than harder sessions. Long, consistent, and almost meditative — the gains compound over weeks.',
+
+        'Peloton HIIT': 'Select a "HIIT" class — intervals of 20–40s all-out effort followed by rest periods. During work intervals, hit 90%+ max HR (breathe too hard to talk).\n\nThe power output here creates a 24-48 hour afterburn (EPOC). As your weight drops, you\'ll hit higher peak watts each phase — screenshot your PR output and track the progress.',
+
+        // --- WALK / RUN ---
+        'Walk/Run Intervals': 'Phase 3: 1 min run / 4 min walk × 8 rounds (40 min total). Phase 4: 3 min run / 2 min walk × 6 rounds (30 min). This is the safest possible way to introduce running at higher body weight.\n\nRun form: mid-foot strike (not heel-strike), short stride, 170–180 steps/minute, slight forward lean from the ankles. Land softly — if your footsteps are loud, you\'re braking with every step, which hammers your knees.',
+
+        // --- RUNNING ---
+        'Run': 'Continuous run at a conversational pace — if you can\'t speak a sentence, slow down. Mid-foot or forefoot strike, NOT heel strike. Cadence target: 170–180 spm.\n\nListen to your knees on the first few runs. Minor achiness is normal; sharp or persistent pain is not. Run on a softer surface (grass or rubberized track) when possible for the first 4 weeks of continuous running.',
+
+        'Run 5K': 'This is the Phase 6 milestone. Goal: finish 3.1 miles without stopping — time does not matter.\n\nStrategy: start at the SLOWEST pace you think is too slow. Most people blow up in the first mile by going out too fast. Hold a pace where you\'re breathing hard but controlled. Miles 1-2 you should feel like you have too much left — that reserve is what gets you through Mile 3.',
+
+        // --- VOLLEYBALL SPECIFIC ---
+        'Volleyball Mobility Cool-down': 'Post-match routine (5–7 min): 90/90 hip stretch (60s each side) → pigeon pose (60s each side) → standing quad pull (30s each) → ankle circles (20s each) → shoulder cross-body stretch (30s each) → wrist circles.\n\nYour ankles and knees took the most loading today. Get them moving through full range while they\'re still warm — skipping this is the difference between waking up stiff vs. waking up fresh.',
+
+        // --- BAND EXERCISES ---
+        'Band Shoulder Warm-up': 'Loop band around a fixed point at chest height. Sequence: Band Pull-Aparts × 15 → Face Pulls × 12 → External Rotation × 10 each side → Dislocates × 8 (pass band overhead).\n\nThis fires up the rotator cuff and rear delts before pressing. Every shoulder injury in gym training comes from pressing on cold, inactive external rotators. 4 minutes now saves months of rehab.',
+
+        'TKE Band': 'Terminal Knee Extension — your #1 knee prehab movement. Loop a resistance band around a fixed point at knee height. Stand facing it, band behind your knee. Slight hinge forward, then SQUEEZE your quad to fully extend the knee against the band\'s resistance. Hold 1 second at full extension.\n\nThis strengthens the VMO (teardrop quad) which supports the kneecap. Do this before and after any heavy leg day. Non-negotiable at 250 lbs.',
+
+        'Lateral Band Walks': 'Place loop band just above the knees (not ankles — too hard on ligaments). Take 12 steps left, 12 steps right, keeping constant tension. Toes forward, slight squat position.\n\nThis activates the glute medius — the hip abductor that prevents knee cave during squats and landings. Weak glute medius = knees collapsing inward = patellar pain. Fix it here, not in physio.',
+
+        'Clamshells': 'Lie on your side, knees bent 45°, loop band just above knees. Keep feet together and rotate your top knee upward like a clamshell opening — drive from your glute, not your hip flexor. Pause 1 second at the top.\n\nClamshells are the gentlest glute medius activation exercise — perfect for early phases or after volleyball when the joint needs work without load. Progress by moving the band lower toward the ankles over weeks.',
+
+        'Band External Rotation': 'Band attached to a fixed point. Stand sideways, elbow bent 90° and pinned to your ribs. Rotate your forearm outward against the band — your hand moves away from your body while the elbow stays fixed.\n\nThis is corrective work for the external rotators. The ratio of internal to external rotation strength is the strongest predictor of shoulder injury. Train this twice a week and your pressing will never be held back by shoulder pain.',
+
+        'Band Hip Thrust': 'Place the loop band just above your knees. Sit with your upper back against a bench, feet flat, band resisting your knees from caving. Drive hips up explosively until your body forms a straight line from knees to shoulders. Squeeze your glutes HARD at the top for 1 full second.\n\nThe band component trains glute activation AND lateral stability simultaneously. This is the ground-level strength that makes your jump takeoff powerful from both legs evenly.',
+
+        // --- STEP-UPS & WALL SIT ---
+        'Step-ups': 'Use a sturdy bench or step 12–18 inches high. Step up with your RIGHT foot, drive through your heel to stand fully upright on top, then lower slowly. 12 reps RIGHT, 12 reps LEFT = 1 set.\n\nStep-ups build single-leg strength and balance — exactly what volleyball landings require. Keep your torso upright, don\'t lean into the bench. Over time, hold dumbbells for added resistance. These build your jumping foundation without any impact.',
+
+        'Wall Sit': 'Back flat against a smooth wall, feet 2 feet out, thighs parallel to the floor. Hold. Time it.\n\nTarget 45s in Phase 2, building to 90s by Phase 4. This isometric quad contraction builds the muscular endurance your legs need to stay explosive in the second and third sets of volleyball. It also reinforces the knee angle you want in a jump landing — knees over toes, not collapsed inward.',
+
+        // --- PLYOMETRICS (NO BOXES) ---
+        'Squat Jumps': 'Stand shoulder-width. Drop into a quarter-squat (not full depth), then EXPLODE upward, driving your arms overhead. Land SOFTLY on the balls of your feet with knees bent — the landing is as important as the jump.\n\nFocus on landing control in Phase 3: absorb the impact through quads, glutes, and ankles over 0.3–0.5 seconds. Loud thumpy landings = bad mechanics. Whisper-quiet landings = good mechanics. These build the foundation your approach jump runs on.',
+
+        'Tuck Jumps': 'Jump straight up and drive your KNEES toward your chest at the peak — aim to get thighs horizontal. Land softly and immediately spring into the next rep.\n\nTuck jumps build explosive hip flexor strength and vertical height. In volleyball terms, this is what creates that extra inch of hang time at the peak of your jump. Rest fully between sets — each rep must be maximal.',
+
+        'Broad Jumps': 'Stand with feet shoulder-width. Hinge back, swing arms, then explode FORWARD as far as possible. Land on both feet with deep knee bend to absorb the force, hold the landing for 2 seconds.\n\nBroad jumps build horizontal power — the ability to cover court ground quickly. They also train single-movement max power output which transfers directly to first-step quickness at the net.',
+
+        'Lateral Hops': 'Stand on your RIGHT foot. Hop sideways to the LEFT, land on your LEFT foot with a soft knee bend, hold 1 second, then hop back. That\'s 1 rep per side.\n\nLateral hops build proprioception (balance + landing control) and the ankle stability that prevents roll injuries during direction-change movements. In volleyball, most ankle sprains happen on lateral cuts — this directly reduces that risk.',
+
+        'Lateral Bounds': 'Like lateral hops but with more explosive power — push off with your full leg and travel 3–4 feet laterally per bound. Land on a single foot, absorb softly, hold 1 second before the next bound.\n\nLateral bounds are sport-specific for volleyball: they mimic the explosive lateral shuffle to get under an offline pass. Train this and you\'ll notice you\'re getting to balls you used to be a step late on.',
+
+        'Vertical Jumps': 'Stand under an imaginary target as high as possible. Dip into a quarter-squat, swing arms back, then EXPLODE upward reaching your arms overhead. Jump for maximal height every rep.\n\nTrack your improvement: stick a small piece of tape on a wall and see how high you can touch each Phase. From Phase 5 onward you should be gaining 1–2 inches per phase from the combined effect of weight loss + strength + plyo training.',
+
+        'Max Vertical Jumps': 'Same technique as vertical jumps but with full intent — every single rep is your absolute maximum effort. Take 45–60 seconds of complete rest between each set.\n\nBy Phase 6 your body has the strength base to express maximal power. The key is nervous system activation: think "attack the ceiling" before each jump. Approach these like sprint efforts, not strength sets.',
+
+        'Split Squat Jumps': 'Start in a lunge position (right foot forward). Explosively jump straight up and SWITCH your legs in the air, landing in a lunge with the left foot forward. That\'s 1 rep per side.\n\nThis builds explosive single-leg power under hip extension — exactly the force pattern of a jump serve or attack approach where your last step plants hard and converts horizontal momentum into vertical height.',
+
+        'Single-Leg Vertical Jumps': 'Stand on your RIGHT foot. Take 1-2 small approach steps, plant on your RIGHT foot, and jump as high as possible. Land on your right foot with a soft deep knee bend and hold for 2 seconds before stepping down.\n\nSingle-leg vertical jumps train the landing mechanics that prevent ACL injuries. At 34, this is especially important — the ACL tears most often during unexpected single-leg landings on a slightly bent knee. Train the landing and you bulletproof the joint.',
+
+        'Approach Jumps': 'Volleyball approach: 4-step pattern (right → left-right → left-right, last two steps are a quick-plant). Swing both arms back on the penultimate step, then EXPLODE up swinging arms forward and overhead.\n\nThis converts horizontal run-up energy into vertical jump height — the approach jump can add 6–10 inches vs. a standing jump. Practice the footwork slowly first, then add speed and height. The timing of the arm swing is everything.',
+
+        // --- ACTIVE RECOVERY ---
+        'Complete rest': 'Today is a genuine rest day. No "just a quick workout." No extra steps to compensate.\n\nRecovery is where you grow stronger. Your muscles rebuild during sleep and rest, not during the workout itself. Eat your protein targets, hydrate (target 0.5 oz × your body weight in oz), and sleep 7–9 hours. This session is as important as any squat or sprint.'
     };
 
     function selectDay(dayName) {
@@ -1017,11 +1372,14 @@
     }
 
     function renderWorkoutDay() {
-        const week = document.getElementById('weekSelect').value;
+        const week = parseInt(document.getElementById('weekSelect').value, 10);
+        const vbDay = document.getElementById('volleyballDay').value;
         localStorage.setItem('sm_week', week);
+        localStorage.setItem('vb_day', vbDay);
         const container = document.getElementById('workout-content');
-        const dayData = workoutPlans[week][currentSelectedDay];
-        const isRest = currentSelectedDay === 'Sunday';
+        const schedule = buildSchedule(vbDay, week);
+        const dayData = schedule[currentSelectedDay] || workoutPlans[week].rest;
+        const isRest = dayData.name && dayData.name.startsWith('REST');
 
         let html = `
             <div class="workout-hero" style="${isRest ? 'border-color: var(--dim); background: #0f0f1a;' : ''}">
@@ -1032,6 +1390,10 @@
                     <span>📝 ${dayData.details}</span>
                 </div>
             </div>`;
+
+        if (dayData._note) {
+            html += `<div style="background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.3);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:0.82rem;color:var(--primary);">${dayData._note}</div>`;
+        }
 
         const todayDateStr = new Date().toISOString().split('T')[0];
         const savedState = JSON.parse(localStorage.getItem(`wo_${todayDateStr}_${week}_${currentSelectedDay}`) || '{}');
@@ -1429,6 +1791,9 @@
 
         const savedWeek = localStorage.getItem('sm_week') || 1;
         document.getElementById('weekSelect').value = savedWeek;
+
+        const savedVbDay = localStorage.getItem('vb_day') || '';
+        document.getElementById('volleyballDay').value = savedVbDay;
 
         if (!activeWeeklyPrep.mains.length) shuffleWeeklyPrep();
 
