@@ -403,6 +403,55 @@
         .meal-week-select { width: 100%; margin-bottom: 8px; padding: 10px; border-radius: 8px; border: 1px solid rgba(167,139,250,0.3); background: var(--input-bg); color: var(--text); font-size: 0.9rem; }
         .action-btn:disabled { opacity: 0.45; cursor: not-allowed; }
         .start-challenge-row { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+
+        /* Profile FAB + sheets */
+        #profile-setup-gate:not(.hidden) + .profile-fab { display: none; }
+        .profile-fab {
+            position: fixed; top: 12px; right: 12px; z-index: 900;
+            width: 44px; height: 44px; border-radius: 50%;
+            background: rgba(19, 19, 28, 0.95); border: 1px solid rgba(167,139,250,0.35);
+            color: var(--primary); font-size: 1.2rem; cursor: pointer;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+        }
+        .profile-fab:active { transform: scale(0.95); }
+        #profile-setup-gate {
+            position: fixed; inset: 0; z-index: 9500;
+            background: rgba(0,0,0,0.92); backdrop-filter: blur(6px);
+            display: flex; align-items: center; justify-content: center; padding: 20px;
+        }
+        #profile-setup-gate.hidden { display: none; }
+        .profile-setup-card {
+            background: var(--card); border: 1px solid rgba(167,139,250,0.25);
+            border-radius: 16px; padding: 24px; width: 100%; max-width: 420px;
+            max-height: 90vh; overflow-y: auto;
+        }
+        .profile-sheet {
+            position: fixed; inset: 0; z-index: 2100; align-items: flex-end; justify-content: center;
+        }
+        .profile-sheet .sheet-panel {
+            background: var(--card); border-radius: 16px 16px 0 0; width: 100%; max-width: 480px;
+            max-height: 85vh; overflow-y: auto; padding: 20px 20px 40px;
+            border-top: 2px solid rgba(167,139,250,0.3); transform: translateY(100%); transition: transform 0.3s ease;
+        }
+        .profile-sheet.show .sheet-panel { transform: translateY(0); }
+
+        /* Workout complete + rest bar */
+        .workout-hero.workout-complete-state { opacity: 0.55; border-color: var(--dim); }
+        .workout-complete-banner { background: rgba(74,222,128,0.12); border: 1px solid rgba(74,222,128,0.35); border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: 0.82rem; color: var(--success); font-weight: 700; }
+        .rest-hero-bar { margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(167,139,250,0.15); }
+        .rest-hero-label { font-size: 0.68rem; color: var(--dim); text-transform: uppercase; font-weight: 800; letter-spacing: 1px; margin-bottom: 6px; }
+        .rest-hero-presets { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+        .rest-hero-countdown { font-size: 1.4rem; font-weight: 900; color: var(--primary); min-width: 48px; text-align: center; font-variant-numeric: tabular-nums; }
+        .rest-after-btn { background: #1e1e2c; border: 1px solid #3a3a3a; color: var(--dim); padding: 5px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; cursor: pointer; margin-top: 8px; }
+        .hold-timer-btn { background: rgba(167,139,250,0.15); border: 1px solid rgba(167,139,250,0.35); color: var(--primary); padding: 6px 12px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; cursor: pointer; margin-top: 8px; }
+        .btn-complete-done { background: #2a2a3a !important; color: var(--dim) !important; border: 1px solid #3a3a3a !important; }
+
+        /* Meal cards */
+        .meal-slot-card { cursor: pointer; transition: transform 0.15s, border-color 0.15s; }
+        .meal-slot-card:active { transform: scale(0.98); }
+        .meal-portion-badge { display: inline-block; background: rgba(167,139,250,0.15); color: var(--primary); font-size: 0.72rem; font-weight: 800; padding: 3px 8px; border-radius: 12px; margin-top: 6px; }
+        .cheat-day-card { border-left: 4px solid var(--steps) !important; text-align: center; padding: 24px 16px; }
+        .daily-view-label { font-size: 0.82rem; color: var(--primary); font-weight: 700; margin: 10px 0; }
     </style>
 </head>
 <body>
@@ -441,7 +490,8 @@
             <div style="margin-top:10px;">
                 <input type="text" id="newProfName" class="cf-text-input" placeholder="Name">
                 <input type="password" id="newProfPin" class="cf-text-input" placeholder="Optional PIN">
-                <input type="number" id="newProfGoal" class="cf-text-input" placeholder="Goal weight (lbs)" value="210">
+                <input type="number" id="newProfStart" class="cf-text-input" placeholder="Start weight (lbs)" step="0.1">
+                <input type="number" id="newProfGoal" class="cf-text-input" placeholder="Goal weight (lbs)" step="0.1">
                 <select id="newProfCardio" class="cf-text-input">
                     <option value="peloton">Peloton / spin bike app</option>
                     <option value="generic_bike">Stationary bike</option>
@@ -503,6 +553,38 @@
                 <button class="rest-preset" onclick="startRestTimer(180, this)">3m</button>
             </div>
             <button class="rest-cancel" onclick="cancelRestTimer()">✕ Cancel</button>
+        </div>
+    </div>
+
+    <!-- PROFILE SETUP (first run) -->
+    <div id="profile-setup-gate" class="hidden">
+        <div class="profile-setup-card">
+            <h3 style="color:var(--primary); margin-bottom:4px;">👤 Set Up Your Profile</h3>
+            <div id="profileSetupBody"></div>
+            <button class="action-btn btn-primary" style="margin-top:16px;" onclick="saveProfileSetup()">Save &amp; Start</button>
+        </div>
+    </div>
+
+    <!-- PROFILE SHEET (top-right icon) -->
+    <button type="button" class="profile-fab" id="profileFab" onclick="openProfileSheet()" title="Profile settings" aria-label="Profile settings">👤</button>
+    <div id="profileSheetBackdrop" class="modal-backdrop profile-sheet" onclick="closeProfileSheetEvent(event)">
+        <div class="sheet-panel" onclick="event.stopPropagation()">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <h3 style="color:var(--primary); margin:0;">Profile &amp; Goals</h3>
+                <button class="close-btn" onclick="closeProfileSheet()" style="position:static;">&times;</button>
+            </div>
+            <div id="profileSheetBody"></div>
+        </div>
+    </div>
+
+    <!-- MEAL PREVIEW MODAL -->
+    <div id="mealPreviewModal" class="modal-backdrop" onclick="closeMealPreview(event)">
+        <div class="modal" style="max-width:420px; max-height:85vh; overflow-y:auto;">
+            <button class="close-btn" onclick="closeMealPreview(event, true)">&times;</button>
+            <h3 id="mealPreviewTitle">Recipe</h3>
+            <div id="mealPreviewPortion" class="meal-portion-badge" style="margin-bottom:12px;"></div>
+            <div id="mealPreviewBody"></div>
+            <button class="action-btn btn-primary" id="mealPreviewLogBtn" style="margin-top:12px;">+ Log This Meal</button>
         </div>
     </div>
 
@@ -653,7 +735,7 @@
 
         <div class="stats-card">
             <div class="rep-range">~2200 Cal/Day</div>
-            <div style="color:var(--dim); font-size:0.85rem; margin-top: 4px;">Macronutrients (Aggressive Cut to 210 lbs)</div>
+            <div style="color:var(--dim); font-size:0.85rem; margin-top: 4px;" id="nutritionMacroSubtitle">Macronutrients</div>
             <div style="margin-top:15px;">
                 <div class="macro-box"><div class="macro-label">Protein</div><div class="macro-value">210g</div></div>
                 <div class="macro-box"><div class="macro-label">Carbs</div><div class="macro-value">180g</div></div>
@@ -676,8 +758,10 @@
 
         <!-- DAILY MENU -->
         <div id="daily-view">
-            <p style="color:var(--dim); font-size:0.85rem;">Today's menu from your locked weekly bulk prep (+ Huel staples).</p>
-            <button class="action-btn btn-primary" onclick="generateDailyShuffle()">🎲 Shuffle Today's Meals</button>
+            <p style="color:var(--dim); font-size:0.85rem;">Mon–Sat meal plan from your locked weekly bulk prep. Sunday is flexible/cheat day.</p>
+            <div id="daily-day-pills" class="day-selector"></div>
+            <div id="daily-view-label" class="daily-view-label"></div>
+            <button class="action-btn btn-outline" id="btnShuffleWeekMenu" onclick="shuffleWeekMenu()">🔀 Shuffle Week Menu</button>
             <div id="daily-container" style="margin-top: 20px;"></div>
         </div>
 
@@ -881,6 +965,7 @@
     </div>
 
 <script src="js/app-core.js"></script>
+<script src="js/meal-planner.js"></script>
 <script>
     // ============================================================
     // PASSWORD GATE
@@ -1065,26 +1150,47 @@
         dayData = resolveWorkoutDay(dayData);
         const isRest = dayData.name && dayData.name.startsWith('REST');
 
+        const todayDateStr = new Date().toISOString().split('T')[0];
+        const savedState = JSON.parse(pGet(`wo_${todayDateStr}_${week}_${currentSelectedDay}`) || '{}');
+        const isWorkoutComplete = pGet(`wo_complete_${todayDateStr}_${week}_${currentSelectedDay}`) === '1';
+
         let html = `
-            <div class="workout-hero" style="${isRest ? 'border-color: var(--dim); background: #0f0f1a;' : ''}">
+            <div class="workout-hero ${isWorkoutComplete ? 'workout-complete-state' : ''}" id="workoutHero" style="${isRest ? 'border-color: var(--dim); background: #0f0f1a;' : ''}">
                 <div style="color:var(--primary); font-size:0.8rem; font-weight:bold; text-transform:uppercase; margin-bottom:5px;">${currentSelectedDay}</div>
                 <div class="workout-hero-title" style="${isRest ? 'color: var(--dim);' : ''}">${dayData.name}</div>
                 <div class="workout-hero-meta">
                     <span>⏱ ${dayData.time}</span>
                     <span>📝 ${dayData.details}</span>
-                </div>
-            </div>`;
+                </div>`;
+
+        if (!isRest) {
+            html += `
+                <div class="rest-hero-bar">
+                    <div class="rest-hero-label">Rest Timer · Compounds 2–3m · Accessories 60–90s · Core 45–60s</div>
+                    <div class="rest-hero-presets">
+                        <span class="rest-hero-countdown" id="restHeroCountdown">—</span>
+                        <button class="rest-preset" onclick="startRestTimer(30, this)">30s</button>
+                        <button class="rest-preset" onclick="startRestTimer(60, this)">1m</button>
+                        <button class="rest-preset" onclick="startRestTimer(90, this)">90s</button>
+                        <button class="rest-preset" onclick="startRestTimer(120, this)">2m</button>
+                        <button class="rest-preset" onclick="startRestTimer(180, this)">3m</button>
+                        <button class="rest-cancel" onclick="cancelRestTimer()" style="margin-top:0; width:auto; display:inline;">✕</button>
+                    </div>
+                </div>`;
+        }
+        html += `</div>`;
+
+        if (isWorkoutComplete && !isRest) {
+            html += `<div class="workout-complete-banner">✓ Workout marked complete — tap Complete again after logging changes to sync.</div>`;
+        }
 
         if (dayData._note) {
             html += `<div style="background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.3);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:0.82rem;color:var(--primary);">${dayData._note}</div>`;
         }
 
-        const todayDateStr = new Date().toISOString().split('T')[0];
-        const savedState = JSON.parse(pGet(`wo_${todayDateStr}_${week}_${currentSelectedDay}`) || '{}');
-
         dayData.exercises.forEach((ex, idx) => {
             const isCompleted = savedState[idx];
-            const resolved = resolveCardioExercise(ex);
+            const resolved = resolveExercise(ex);
             const cleanExName = resolved.tipKey;
             const displayEx = resolved.label;
             const safeExName  = cleanExName.replace(/'/g, "\\'");
@@ -1094,6 +1200,23 @@
             const prData = JSON.parse(pGet('pr_' + cleanExName) || 'null');
             const prText = prData ? `🏆 PR: ${prData.sets}x${prData.reps} @ ${prData.weight}lbs` : '';
             const histCount = JSON.parse(pGet('ol_hist_' + cleanExName) || '[]').length;
+            const timed = parseTimedExercise(displayEx);
+            const recRest = getRecommendedRest(displayEx);
+            const overloadHtml = timed ? `
+                        <div class="overload-row" onclick="event.stopPropagation()">
+                            <span class="overload-label">${timed.sets} sets × ${timed.holdSeconds}s hold</span>
+                        </div>
+                        <button type="button" class="hold-timer-btn" id="hold-btn-${idx}" onclick="startHoldTimer(${idx}, ${timed.holdSeconds}, ${timed.sets}, '${safeExName}')">⏱ Start Hold Timer</button>
+                        <div id="hold-status-${idx}" style="font-size:0.75rem; color:var(--primary); margin-top:4px;"></div>` : `
+                        <div class="overload-row" onclick="event.stopPropagation()">
+                            <span class="overload-label">S:</span>
+                            <input type="number" id="s_${idx}" class="mini-input" placeholder="0" value="${olData.sets}" onchange="saveOverload('${safeExName}', ${idx})">
+                            <span class="overload-label">R:</span>
+                            <input type="number" id="r_${idx}" class="mini-input" placeholder="0" value="${olData.reps}" onchange="saveOverload('${safeExName}', ${idx})">
+                            <span class="overload-label">W:</span>
+                            <input type="number" id="w_${idx}" class="mini-input wt" placeholder="lbs" value="${olData.weight}" onchange="saveOverload('${safeExName}', ${idx})">
+                        </div>
+                        ${recRest > 0 ? `<button type="button" class="rest-after-btn" onclick="startRestTimer(${recRest}, null)">Rest ${recRest >= 120 ? Math.round(recRest/60) + 'm' : recRest + 's'}</button>` : ''}`;
 
             html += `
                 <div class="exercise-item ${isCompleted ? 'completed' : ''}" id="ex-item-${idx}">
@@ -1105,14 +1228,7 @@
                             <div class="ex-name" onclick="toggleExercise(${idx}, '${week}', '${currentSelectedDay}')">${displayEx}</div>
                             <button class="info-btn" onclick="showExerciseTip('${safeExName}')">ⓘ</button>
                         </div>
-                        <div class="overload-row" onclick="event.stopPropagation()">
-                            <span class="overload-label">S:</span>
-                            <input type="number" id="s_${idx}" class="mini-input" placeholder="0" value="${olData.sets}" onchange="saveOverload('${safeExName}', ${idx})">
-                            <span class="overload-label">R:</span>
-                            <input type="number" id="r_${idx}" class="mini-input" placeholder="0" value="${olData.reps}" onchange="saveOverload('${safeExName}', ${idx})">
-                            <span class="overload-label">W:</span>
-                            <input type="number" id="w_${idx}" class="mini-input wt" placeholder="lbs" value="${olData.weight}" onchange="saveOverload('${safeExName}', ${idx})">
-                        </div>
+                        ${overloadHtml}
                         <div class="last-logged">${lastLogText}</div>
                         <div class="pr-record" id="pr-info-${idx}">${prText}</div>
                         <div class="pr-banner" id="pr-banner-${idx}">🔥 New PR!</div>
@@ -1123,12 +1239,13 @@
         });
 
         if (!isRest) {
-            html += `
-                <button class="action-btn btn-outline" style="margin-top:10px;" onclick="document.getElementById('restTimerFloat').classList.toggle('show')">⏱ Rest Timer</button>
-                <button class="action-btn btn-primary" style="margin-top:10px;" onclick="finishWorkout()">🎉 Complete Workout</button>`;
+            const btnClass = isWorkoutComplete ? 'action-btn btn-complete-done' : 'action-btn btn-primary';
+            const btnLabel = isWorkoutComplete ? '✓ Workout Complete (tap to sync)' : '🎉 Complete Workout';
+            html += `<button class="${btnClass}" id="finishWorkoutBtn" style="margin-top:10px;" onclick="finishWorkout()">${btnLabel}</button>`;
         }
 
         container.innerHTML = html;
+        syncRestDisplay();
     }
 
     function toggleExercise(idx, week, day) {
@@ -1140,6 +1257,13 @@
         const el = document.getElementById(`ex-item-${idx}`);
         if (state[idx]) el.classList.add('completed');
         else el.classList.remove('completed');
+        pRemove(`wo_complete_${todayDateStr}_${week}_${day}`);
+    }
+
+    function getWorkoutCompleteKey() {
+        const week = document.getElementById('weekSelect').value;
+        const todayDateStr = new Date().toISOString().split('T')[0];
+        return `wo_complete_${todayDateStr}_${week}_${currentSelectedDay}`;
     }
 
     function saveOverload(exerciseName, idx) {
@@ -1203,7 +1327,28 @@
     }
 
     function finishWorkout() {
-        alert('Workout Complete! Keep that fire burning. Make sure your logs are filled out.');
+        const week = document.getElementById('weekSelect').value;
+        const todayDateStr = new Date().toISOString().split('T')[0];
+        const stateKey = `wo_${todayDateStr}_${week}_${currentSelectedDay}`;
+        const completeKey = getWorkoutCompleteKey();
+        const wasComplete = pGet(completeKey) === '1';
+        const schedule = buildSchedule(document.getElementById('volleyballDay').value, parseInt(week, 10));
+        let dayData = resolveWorkoutDay(schedule[currentSelectedDay] || workoutPlans[week].rest);
+        const exCount = (dayData.exercises || []).length;
+
+        let state = JSON.parse(pGet(stateKey) || '{}');
+        if (wasComplete) {
+            const checkedCount = Object.keys(state).filter(k => state[k]).length;
+            if (exCount > 0 && checkedCount < exCount) {
+                if (!confirm('Not all exercises are checked. Mark workout complete anyway?')) return;
+            }
+        } else {
+            for (let i = 0; i < exCount; i++) state[i] = true;
+            pSet(stateKey, JSON.stringify(state));
+        }
+        pSet(completeKey, '1');
+        renderWorkoutDay();
+        renderHeatmap();
     }
 
     // ============================================================
@@ -1211,48 +1356,113 @@
     // ============================================================
     let restTimerInterval = null;
     let restTimerSecs = 0;
+    let holdTimerState = null;
+
+    function syncRestDisplay() {
+        const secs = restTimerSecs;
+        const label = holdTimerState && holdTimerState.active
+            ? (secs > 0 ? `Hold ${secs}s · Set ${holdTimerState.set}/${holdTimerState.totalSets}` : '—')
+            : (secs > 0 ? formatRestTime(secs) : '—');
+        const hero = document.getElementById('restHeroCountdown');
+        const float = document.getElementById('restCountdown');
+        if (hero) hero.textContent = label;
+        if (float) float.textContent = label;
+    }
+
+    function formatRestTime(secs) {
+        if (secs >= 60) return Math.floor(secs / 60) + 'm ' + (secs % 60) + 's';
+        return secs + 's';
+    }
 
     function startRestTimer(seconds, btnEl) {
+        holdTimerState = null;
         document.querySelectorAll('.rest-preset').forEach(b => b.classList.remove('active'));
         if (btnEl) btnEl.classList.add('active');
         if (restTimerInterval) clearInterval(restTimerInterval);
         restTimerSecs = seconds;
+        const floatEl = document.getElementById('restTimerFloat');
+        if (floatEl) floatEl.classList.add('show');
         const countEl = document.getElementById('restCountdown');
-        countEl.classList.remove('go');
-        updateRestDisplay();
+        if (countEl) countEl.classList.remove('go');
+        syncRestDisplay();
 
         restTimerInterval = setInterval(() => {
             restTimerSecs--;
-            updateRestDisplay();
+            syncRestDisplay();
             if (restTimerSecs <= 0) {
                 clearInterval(restTimerInterval);
                 restTimerInterval = null;
                 document.querySelectorAll('.rest-preset').forEach(b => b.classList.remove('active'));
-                countEl.innerText = 'GO!';
-                countEl.classList.add('go');
+                if (countEl) {
+                    countEl.innerText = 'GO!';
+                    countEl.classList.add('go');
+                }
+                syncRestDisplay();
                 playTimerBeep();
                 setTimeout(() => {
-                    countEl.innerText = '—';
-                    countEl.classList.remove('go');
+                    if (countEl) {
+                        countEl.innerText = '—';
+                        countEl.classList.remove('go');
+                    }
+                    syncRestDisplay();
                 }, 3000);
             }
         }, 1000);
     }
 
-    function updateRestDisplay() {
-        const m = Math.floor(restTimerSecs / 60);
-        const s = restTimerSecs % 60;
-        document.getElementById('restCountdown').innerText = m > 0
-            ? `${m}:${String(s).padStart(2, '0')}`
-            : `${restTimerSecs}s`;
+    function startHoldTimer(idx, holdSeconds, totalSets, exerciseName) {
+        if (restTimerInterval) cancelRestTimer();
+        const statusEl = document.getElementById('hold-status-' + idx);
+        let currentSet = 1;
+        document.getElementById('restTimerFloat').classList.add('show');
+
+        function runCountdown(seconds, onDone) {
+            restTimerSecs = seconds;
+            syncRestDisplay();
+            restTimerInterval = setInterval(() => {
+                restTimerSecs--;
+                syncRestDisplay();
+                if (restTimerSecs <= 0) {
+                    clearInterval(restTimerInterval);
+                    restTimerInterval = null;
+                    playTimerBeep();
+                    onDone();
+                }
+            }, 1000);
+        }
+
+        function runHold() {
+            holdTimerState = { active: true, set: currentSet, totalSets, holdSeconds, idx, exerciseName };
+            if (statusEl) statusEl.textContent = `Set ${currentSet} of ${totalSets} — hold ${holdSeconds}s`;
+            runCountdown(holdSeconds, () => {
+                if (currentSet >= totalSets) {
+                    holdTimerState = null;
+                    if (statusEl) statusEl.textContent = 'Hold sets complete ✓';
+                    syncRestDisplay();
+                    return;
+                }
+                const restSec = getRecommendedRest(exerciseName) || 45;
+                if (statusEl) statusEl.textContent = `Rest ${restSec}s — then set ${currentSet + 1}`;
+                runCountdown(restSec, () => {
+                    currentSet++;
+                    runHold();
+                });
+            });
+        }
+
+        runHold();
     }
 
     function cancelRestTimer() {
         if (restTimerInterval) { clearInterval(restTimerInterval); restTimerInterval = null; }
-        document.getElementById('restCountdown').innerText = '—';
-        document.getElementById('restCountdown').classList.remove('go');
+        holdTimerState = null;
+        restTimerSecs = 0;
+        syncRestDisplay();
+        const countEl = document.getElementById('restCountdown');
+        if (countEl) countEl.classList.remove('go');
         document.querySelectorAll('.rest-preset').forEach(b => b.classList.remove('active'));
-        document.getElementById('restTimerFloat').classList.remove('show');
+        const floatEl = document.getElementById('restTimerFloat');
+        if (floatEl) floatEl.classList.remove('show');
     }
 
     function playTimerBeep() {
@@ -1653,6 +1863,7 @@
 
     let activeWeeklyPrep = { breakfast: [], mains: [], snacks: [], preworkout: [], postworkout: [] };
     let selectedMealWeekKey = null;
+    let selectedMealDay = null;
 
     function renderMealWeekSelector() {
         const options = buildMealWeekOptions();
@@ -1728,17 +1939,222 @@
     }
 
     function refreshDailyMenuForSelectedWeek() {
-        const dc = document.getElementById('daily-container');
-        if (!dc) return;
-        if (canDailyShuffle(selectedMealWeekKey)) {
-            generateDailyShuffle();
-        } else if (selectedMealWeekKey !== getCalendarWeekKey()) {
-            dc.innerHTML = `<p style="color:var(--dim); font-size:0.9rem; padding:12px;">Daily menu shuffle is for the <strong>current calendar week</strong> (${formatMealWeekRange(getCalendarWeekKey())}). Switch the week selector to view this archived plan.</p>`;
-        } else if (!activeWeeklyPrep.mains || !activeWeeklyPrep.mains.length) {
-            dc.innerHTML = `<p style="color:var(--dim); font-size:0.9rem; padding:12px;">No bulk prep for this week. ${new Date().getDay() === 0 ? 'Use Sunday shuffle on <strong>next week</strong> in the selector.' : 'Shuffle weekly bulk first (or wait for Sunday prep).'}</p>`;
-        } else {
-            dc.innerHTML = `<p style="color:var(--dim); font-size:0.9rem; padding:12px;">Weekly plan is locked. Tap <strong>Shuffle Today\'s Meals</strong> to pick from this week\'s menu.</p>`;
+        renderDailyDayPills();
+        renderDailyMenuView();
+    }
+
+    function renderDailyDayPills() {
+        const el = document.getElementById('daily-day-pills');
+        if (!el) return;
+        const today = MealPlanner.getTodayWeekdayName();
+        const days = MealPlanner.WEEKDAYS.concat(['Sunday']);
+        if (!selectedMealDay) selectedMealDay = today === 'Sunday' ? 'Monday' : today;
+        el.innerHTML = days.map(d => {
+            const short = d.substring(0, 3);
+            const isToday = d === today;
+            const active = d === selectedMealDay;
+            return `<div class="day-pill${active ? ' active' : ''}" onclick="selectMealDay('${d}')">${short}${isToday ? ' ·' : ''}</div>`;
+        }).join('');
+    }
+
+    function selectMealDay(dayName) {
+        selectedMealDay = dayName;
+        renderDailyDayPills();
+        renderDailyMenuView();
+    }
+
+    function shuffleWeekMenu() {
+        const wk = selectedMealWeekKey || getCalendarWeekKey();
+        if (!activeWeeklyPrep.mains || !activeWeeklyPrep.mains.length) {
+            alert('Shuffle weekly bulk prep first.');
+            return;
         }
+        if (wk !== getCalendarWeekKey() && !canDailyShuffle(wk)) {
+            alert('Week menu shuffle is only for the current calendar week with saved prep.');
+            return;
+        }
+        const menu = MealPlanner.buildWeeklyDailyMenu(activeWeeklyPrep, mealDatabase);
+        MealPlanner.saveDailyMenu(wk, menu);
+        renderDailyMenuView();
+    }
+
+    function renderDailyMenuView() {
+        const container = document.getElementById('daily-container');
+        const labelEl = document.getElementById('daily-view-label');
+        const shuffleBtn = document.getElementById('btnShuffleWeekMenu');
+        if (!container) return;
+
+        const wk = selectedMealWeekKey || getCalendarWeekKey();
+        const today = MealPlanner.getTodayWeekdayName();
+        const viewDay = selectedMealDay || (today === 'Sunday' ? 'Monday' : today);
+
+        if (labelEl) {
+            labelEl.textContent = viewDay === today
+                ? `📅 Today — ${viewDay}`
+                : `👀 Viewing ${viewDay} (today is ${today})`;
+        }
+
+        if (viewDay === 'Sunday') {
+            container.innerHTML = `<div class="guide-card cheat-day-card">
+                <div style="font-size:1.2rem; font-weight:800; color:var(--steps); margin-bottom:8px;">🎉 Flexible / Cheat Day</div>
+                <p style="color:var(--dim); font-size:0.88rem; line-height:1.5; margin:0 0 14px;">No assigned bulk-prep meals today. Rest, meal prep for next week, and eat flexibly. Log anything you want in Track.</p>
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    ${(mealDatabase.staples || []).map(s => {
+                        const sn = s.name.replace(/'/g, "\\'");
+                        return `<button class="add-meal-btn" onclick="addMealToTracking('${sn}', ${s.cal}, ${s.protein}, ${s.carbs}, ${s.fat})">+ Log ${s.name}</button>`;
+                    }).join('')}
+                </div>
+            </div>`;
+            if (shuffleBtn) shuffleBtn.disabled = true;
+            return;
+        }
+
+        if (shuffleBtn) shuffleBtn.disabled = !(activeWeeklyPrep.mains && activeWeeklyPrep.mains.length);
+
+        if (wk !== getCalendarWeekKey() && (!activeWeeklyPrep.mains || !activeWeeklyPrep.mains.length)) {
+            container.innerHTML = `<p style="color:var(--dim); font-size:0.9rem; padding:12px;">Archived week — no daily menu saved. View weekly bulk prep only.</p>`;
+            return;
+        }
+
+        if (!activeWeeklyPrep.mains || !activeWeeklyPrep.mains.length) {
+            container.innerHTML = `<p style="color:var(--dim); font-size:0.9rem; padding:12px;">No bulk prep for this week. ${new Date().getDay() === 0 ? 'Use Sunday shuffle on <strong>next week</strong> in the selector.' : 'Shuffle weekly bulk first (or wait for Sunday prep).'}</p>`;
+            return;
+        }
+
+        const menu = MealPlanner.ensureDailyMenu(wk, activeWeeklyPrep, mealDatabase);
+        if (!menu || !menu.days[viewDay]) {
+            container.innerHTML = `<p style="color:var(--dim); font-size:0.9rem; padding:12px;">Could not build menu for this week.</p>`;
+            return;
+        }
+
+        const dayMenu = menu.days[viewDay];
+        const g = getMacroGoals();
+        let html = '';
+        let totalCal = 0, totalPro = 0, totalCarb = 0, totalFat = 0;
+
+        MealPlanner.SLOT_DEFS.forEach(slotDef => {
+            const item = dayMenu[slotDef.key];
+            if (!item) return;
+            totalCal += item.cal; totalPro += item.protein; totalCarb += item.carbs; totalFat += item.fat;
+            const poolKey = slotDef.poolKey;
+            const portion = MealPlanner.getPortionInfo(item, poolKey, menu, viewDay, slotDef.key);
+            const portionHtml = portion && (slotDef.isMain || slotDef.key === 'breakfast' || slotDef.key === 'snack')
+                ? `<div class="meal-portion-badge">Portion ${portion.portion}/${portion.total}${portion.remaining >= 0 ? ` · ${portion.remaining} left in batch` : ''}</div>`
+                : '';
+            const desc = item.desc ? `<div style="font-size:0.78rem; color:var(--dim); margin:4px 0 6px; font-style:italic;">${item.desc}</div>` : '';
+            html += `<div class="guide-card meal-slot-card" style="margin-bottom:10px; border-left:3px solid ${slotDef.color};" onclick="openMealPreviewFromSlot('${viewDay}', '${slotDef.key}')">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div style="font-size:0.75rem; color:${slotDef.color}; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">${slotDef.slot}</div>
+                    <div style="font-size:0.78rem; color:var(--dim); font-weight:700;">${slotDef.time}</div>
+                </div>
+                <div style="font-weight:bold; font-size:1.05rem; margin:5px 0 2px;">${item.name}</div>
+                ${portionHtml}
+                ${desc}
+                <div style="font-size:0.78rem; color:var(--dim); background:var(--bg); padding:6px 8px; border-radius:6px; display:flex; gap:10px; flex-wrap:wrap;">
+                    <span>🔥 ${item.cal} cal</span>
+                    <span style="color:var(--primary);">P: ${item.protein}g</span>
+                    <span style="color:var(--water);">C: ${item.carbs}g</span>
+                    <span style="color:var(--steps);">F: ${item.fat}g</span>
+                </div>
+                <div style="font-size:0.72rem; color:var(--primary); margin-top:8px;">Tap for recipe &amp; prep details</div>
+            </div>`;
+        });
+
+        const calPct = Math.round((totalCal / g.calories) * 100);
+        const proPct = Math.round((totalPro / g.protein) * 100);
+        const carbPct = Math.round((totalCarb / g.carbs) * 100);
+        const fatPct = Math.round((totalFat / g.fat) * 100);
+        const calColor = calPct > 110 ? 'var(--danger)' : calPct > 95 ? 'var(--success)' : 'var(--text)';
+        const proColor = proPct >= 95 ? 'var(--success)' : 'var(--primary)';
+
+        const summaryCard = `<div class="stats-card" style="margin-bottom:15px; padding:15px;">
+            <div style="font-size:0.7rem; color:var(--dim); font-weight:800; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">📊 ${viewDay} Projected Totals</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                <div style="background:var(--bg); padding:10px; border-radius:8px; text-align:center;">
+                    <div style="font-size:0.65rem; color:var(--dim); text-transform:uppercase; font-weight:700;">Calories</div>
+                    <div style="font-size:1.3rem; font-weight:900; color:${calColor};">${totalCal}</div>
+                    <div style="font-size:0.65rem; color:var(--dim);">/ ${g.calories} · ${calPct}%</div>
+                </div>
+                <div style="background:var(--bg); padding:10px; border-radius:8px; text-align:center;">
+                    <div style="font-size:0.65rem; color:var(--dim); text-transform:uppercase; font-weight:700;">Protein</div>
+                    <div style="font-size:1.3rem; font-weight:900; color:${proColor};">${totalPro}g</div>
+                    <div style="font-size:0.65rem; color:var(--dim);">/ ${g.protein}g · ${proPct}%</div>
+                </div>
+                <div style="background:var(--bg); padding:10px; border-radius:8px; text-align:center;">
+                    <div style="font-size:0.65rem; color:var(--dim); text-transform:uppercase; font-weight:700;">Carbs</div>
+                    <div style="font-size:1.3rem; font-weight:900; color:var(--water);">${totalCarb}g</div>
+                    <div style="font-size:0.65rem; color:var(--dim);">/ ${g.carbs}g · ${carbPct}%</div>
+                </div>
+                <div style="background:var(--bg); padding:10px; border-radius:8px; text-align:center;">
+                    <div style="font-size:0.65rem; color:var(--dim); text-transform:uppercase; font-weight:700;">Fat</div>
+                    <div style="font-size:1.3rem; font-weight:900; color:var(--steps);">${totalFat}g</div>
+                    <div style="font-size:0.65rem; color:var(--dim);">/ ${g.fat}g · ${fatPct}%</div>
+                </div>
+            </div>
+        </div>`;
+
+        container.innerHTML = summaryCard + html;
+    }
+
+    let _dailyMenuCache = null;
+    let _dailyMenuViewDay = null;
+
+    function openMealPreviewFromSlot(viewDay, slotKey) {
+        const wk = selectedMealWeekKey || getCalendarWeekKey();
+        const menu = MealPlanner.loadDailyMenu(wk) || MealPlanner.ensureDailyMenu(wk, activeWeeklyPrep, mealDatabase);
+        if (!menu || !menu.days[viewDay]) return;
+        const item = menu.days[viewDay][slotKey];
+        const slotDef = MealPlanner.SLOT_DEFS.find(s => s.key === slotKey);
+        if (!item || !slotDef) return;
+        _dailyMenuCache = menu;
+        _dailyMenuViewDay = viewDay;
+
+        const portion = MealPlanner.getPortionInfo(item, slotDef.poolKey, menu, viewDay, slotKey);
+        document.getElementById('mealPreviewTitle').textContent = item.name;
+        const portionEl = document.getElementById('mealPreviewPortion');
+        if (portion && slotDef.isMain) {
+            portionEl.textContent = `Bulk prep portion ${portion.portion} of ${portion.total} · ${portion.remaining} servings left this week`;
+            portionEl.style.display = 'inline-block';
+        } else if (portion) {
+            portionEl.textContent = `Batch yields ${portion.total} servings`;
+            portionEl.style.display = 'inline-block';
+        } else {
+            portionEl.style.display = 'none';
+        }
+
+        let body = `<p style="color:var(--dim); font-size:0.85rem; margin-bottom:12px;">${slotDef.slot} · ${slotDef.time} · ${viewDay}</p>`;
+        if (item.desc) body += `<p style="font-style:italic; color:var(--dim); margin-bottom:12px;">${item.desc}</p>`;
+        body += `<div style="font-size:0.82rem; margin-bottom:14px;">🔥 ${item.cal} cal · P ${item.protein}g · C ${item.carbs}g · F ${item.fat}g</div>`;
+        if (item.ingredients && item.ingredients.length) {
+            body += `<div style="font-weight:800; margin-bottom:8px;">📋 Ingredients</div>`;
+            item.ingredients.forEach(ing => {
+                body += `<div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px dashed #333; font-size:0.85rem;"><span>${ing.item}</span><span style="color:var(--dim);">${ing.qty}</span></div>`;
+            });
+        }
+        if (item.steps && item.steps.length) {
+            body += `<div style="font-weight:800; margin:14px 0 8px;">Steps</div>`;
+            item.steps.forEach(step => { body += `<div style="font-size:0.85rem; color:var(--dim); margin-bottom:6px;">• ${step}</div>`; });
+        }
+        document.getElementById('mealPreviewBody').innerHTML = body;
+        document.getElementById('mealPreviewLogBtn').onclick = () => {
+            addMealToTracking(item.name, item.cal, item.protein, item.carbs, item.fat);
+            closeMealPreview(null, true);
+        };
+        const modal = document.getElementById('mealPreviewModal');
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('show'), 10);
+    }
+
+    function closeMealPreview(e, force) {
+        if (force || (e && e.target.id === 'mealPreviewModal')) {
+            const modal = document.getElementById('mealPreviewModal');
+            modal.classList.remove('show');
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
+    }
+
+    function generateDailyShuffle() {
+        shuffleWeekMenu();
     }
 
     function ensureWeeklyPrep() {
@@ -1824,9 +2240,9 @@
         const idx = ['workout', 'nutrition', 'grocery', 'guide'].indexOf(tabId);
         document.querySelectorAll('.nav-item')[idx].classList.add('active');
         if (tabId === 'grocery')   { renderMealWeekSelector(); renderGroceryList(); }
-        if (tabId === 'nutrition') { renderMealWeekBanner(); }
-        if (tabId === 'workout')   { setTimeout(renderPhaseProgress, 40); setTimeout(renderTrendChart, 50); setTimeout(updateDeficitCard, 60); }
-        if (tabId === 'guide')     { setTimeout(renderSleepChart, 50); setTimeout(renderHeatmap, 60); setTimeout(renderHabitChecklist, 70); }
+        if (tabId === 'nutrition') { renderMacroDisplay(); renderMealWeekBanner(); }
+        if (tabId === 'workout')   { renderMacroDisplay(); setTimeout(renderPhaseProgress, 40); setTimeout(renderTrendChart, 50); setTimeout(updateDeficitCard, 60); }
+        if (tabId === 'guide')     { renderMacroDisplay(); setTimeout(renderSleepChart, 50); setTimeout(renderHeatmap, 60); setTimeout(renderHabitChecklist, 70); }
     }
 
     // ============================================================
@@ -1837,7 +2253,8 @@
             document.getElementById(m + '-view').style.display = m === mode ? 'block' : 'none';
             document.getElementById('btn-' + m).className = m === mode ? 'tab-btn active-sub' : 'tab-btn';
         });
-        if (mode === 'track') { updateTracking(); updateWaterUI(); updateStepsUI(); }
+        if (mode === 'track') { renderMacroDisplay(); updateTracking(); updateWaterUI(); updateStepsUI(); }
+        else if (mode === 'daily' || mode === 'weekly') renderMacroDisplay();
         renderMealWeekBanner();
     }
 
@@ -1856,6 +2273,8 @@
         activeWeeklyPrep.preworkout = getRandom(mealDatabase.prepRecipes.preworkout, 1);
         activeWeeklyPrep.postworkout= getRandom(mealDatabase.prepRecipes.postworkout, 1);
         saveWeeklyPrepForKey(wk, activeWeeklyPrep);
+        const menu = MealPlanner.buildWeeklyDailyMenu(activeWeeklyPrep, mealDatabase);
+        MealPlanner.saveDailyMenu(wk, menu);
         renderWeeklyPrepUI();
         renderMealWeekBanner();
         refreshDailyMenuForSelectedWeek();
@@ -1891,95 +2310,6 @@
         if (activeWeeklyPrep.preworkout) activeWeeklyPrep.preworkout.forEach(i => html += renderItem(i, 'Pre-Workout'));
         if (activeWeeklyPrep.postworkout) activeWeeklyPrep.postworkout.forEach(i => html += renderItem(i, 'Post-Workout'));
         container.innerHTML = html;
-    }
-
-    function generateDailyShuffle() {
-        const container = document.getElementById('daily-container');
-        const wk = selectedMealWeekKey || getCalendarWeekKey();
-        if (!canDailyShuffle(wk)) {
-            refreshDailyMenuForSelectedWeek();
-            return;
-        }
-
-        const getRand = arr => (arr && arr.length) ? arr[Math.floor(Math.random() * arr.length)] : null;
-        const db = mealDatabase.prepRecipes;
-        const prep = activeWeeklyPrep;
-        const pool = (key, fallback) => {
-            const fromPrep = prep && prep[key] && prep[key].length ? prep[key] : null;
-            return fromPrep || fallback;
-        };
-
-        const mainsPool = pool('mains', db.mains);
-        const lunchItem = getRand(mainsPool);
-        const dinnerPool = mainsPool.filter(m => m.name !== lunchItem?.name);
-        const todayMenu = [
-            { slot: '⚡ Pre-Workout',   time: '5:15 AM',  color: 'var(--steps)',   item: getRand(pool('preworkout', db.preworkout)) },
-            { slot: '🥤 Post-Workout',  time: '7:00 AM',  color: 'var(--water)',   item: getRand(pool('postworkout', db.postworkout)) },
-            { slot: '🍳 Breakfast',     time: '9:30 AM',  color: 'var(--primary)', item: getRand(pool('breakfast', db.breakfast)) },
-            { slot: '🍛 Lunch',         time: '12:30 PM', color: 'var(--success)', item: lunchItem },
-            { slot: '🥜 Afternoon Snack', time: '4:00 PM', color: 'var(--purple)', item: getRand(pool('snacks', db.snacks)) },
-            { slot: '🍽️ Dinner',        time: '7:30 PM',  color: 'var(--success)', item: getRand(dinnerPool.length ? dinnerPool : mainsPool) }
-        ];
-
-        const g = getMacroGoals();
-        let html = ''; let totalCal = 0; let totalPro = 0; let totalCarb = 0; let totalFat = 0;
-        todayMenu.forEach(meal => {
-            if (!meal.item) return;
-            const safeName = meal.item.name.replace(/'/g, "\\'");
-            totalCal += meal.item.cal; totalPro += meal.item.protein;
-            totalCarb += meal.item.carbs; totalFat += meal.item.fat;
-            const desc = meal.item.desc ? `<div style="font-size:0.78rem; color:var(--dim); margin:4px 0 6px; font-style:italic;">${meal.item.desc}</div>` : '';
-            html += `<div class="guide-card" style="margin-bottom:10px; border-left:3px solid ${meal.color};">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <div style="font-size:0.75rem; color:${meal.color}; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">${meal.slot}</div>
-                    <div style="font-size:0.78rem; color:var(--dim); font-weight:700;">${meal.time}</div>
-                </div>
-                <div style="font-weight:bold; font-size:1.05rem; margin:5px 0 2px;">${meal.item.name}</div>
-                ${desc}
-                <div style="font-size:0.78rem; color:var(--dim); background:var(--bg); padding:6px 8px; border-radius:6px; display:flex; gap:10px; flex-wrap:wrap;">
-                    <span>🔥 ${meal.item.cal} cal</span>
-                    <span style="color:var(--primary);">P: ${meal.item.protein}g</span>
-                    <span style="color:var(--water);">C: ${meal.item.carbs}g</span>
-                    <span style="color:var(--steps);">F: ${meal.item.fat}g</span>
-                </div>
-                <button class="add-meal-btn" style="margin-top:8px;" onclick="addMealToTracking('${safeName}', ${meal.item.cal}, ${meal.item.protein}, ${meal.item.carbs}, ${meal.item.fat})">+ Log This Meal</button>
-            </div>`;
-        });
-
-        const calPct  = Math.round((totalCal  / g.calories) * 100);
-        const proPct  = Math.round((totalPro  / g.protein)  * 100);
-        const carbPct = Math.round((totalCarb / g.carbs)  * 100);
-        const fatPct  = Math.round((totalFat  / g.fat)   * 100);
-        const calColor  = calPct  > 110 ? 'var(--danger)' : calPct  > 95 ? 'var(--success)' : 'var(--text)';
-        const proColor  = proPct  >= 95 ? 'var(--success)' : 'var(--primary)';
-
-        const summaryCard = `<div class="stats-card" style="margin-bottom:15px; padding:15px;">
-            <div style="font-size:0.7rem; color:var(--dim); font-weight:800; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">📊 Today's Projected Totals</div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                <div style="background:var(--bg); padding:10px; border-radius:8px; text-align:center;">
-                    <div style="font-size:0.65rem; color:var(--dim); text-transform:uppercase; font-weight:700;">Calories</div>
-                    <div style="font-size:1.3rem; font-weight:900; color:${calColor};">${totalCal}</div>
-                    <div style="font-size:0.65rem; color:var(--dim);">/ ${g.calories} · ${calPct}%</div>
-                </div>
-                <div style="background:var(--bg); padding:10px; border-radius:8px; text-align:center;">
-                    <div style="font-size:0.65rem; color:var(--dim); text-transform:uppercase; font-weight:700;">Protein</div>
-                    <div style="font-size:1.3rem; font-weight:900; color:${proColor};">${totalPro}g</div>
-                    <div style="font-size:0.65rem; color:var(--dim);">/ ${g.protein}g · ${proPct}%</div>
-                </div>
-                <div style="background:var(--bg); padding:10px; border-radius:8px; text-align:center;">
-                    <div style="font-size:0.65rem; color:var(--dim); text-transform:uppercase; font-weight:700;">Carbs</div>
-                    <div style="font-size:1.3rem; font-weight:900; color:var(--water);">${totalCarb}g</div>
-                    <div style="font-size:0.65rem; color:var(--dim);">/ ${g.carbs}g · ${carbPct}%</div>
-                </div>
-                <div style="background:var(--bg); padding:10px; border-radius:8px; text-align:center;">
-                    <div style="font-size:0.65rem; color:var(--dim); text-transform:uppercase; font-weight:700;">Fat</div>
-                    <div style="font-size:1.3rem; font-weight:900; color:var(--steps);">${totalFat}g</div>
-                    <div style="font-size:0.65rem; color:var(--dim);">/ ${g.fat}g · ${fatPct}%</div>
-                </div>
-            </div>
-        </div>`;
-
-        container.innerHTML = summaryCard + html;
     }
 
     // ============================================================
@@ -2507,8 +2837,11 @@
                 let done = false;
                 if (!isFuture) {
                     const dayNames = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-                    for (const wk of ['1','2','5']) {
-                        const key = `wo_${dateStr}_${wk}_${dayNames[row]}`;
+                    for (const wk of ['1','2','3','4','5','6']) {
+                        const dayName = dayNames[row];
+                        const completeKey = `wo_complete_${dateStr}_${wk}_${dayName}`;
+                        if (pGet(completeKey) === '1') { done = true; break; }
+                        const key = `wo_${dateStr}_${wk}_${dayName}`;
                         const state = JSON.parse(pGet(key) || '{}');
                         if (Object.values(state).some(v => v === true)) { done = true; break; }
                     }

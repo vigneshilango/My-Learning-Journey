@@ -1,20 +1,59 @@
 {
   "staples": [
-    { "name": "Huel Black Edition Shake", "cat": "shake", "desc": "Post-workout or quick liquid meal.", "cal": 400, "protein": 40, "carbs": 17, "fat": 18 },
-    { "name": "Huel Hot & Savory",         "cat": "main",  "desc": "Zero-prep savory meal.",           "cal": 400, "protein": 25, "carbs": 47, "fat": 11 },
-    { "name": "Cosmic Protein",              "cat": "shake", "desc": "Quick post-workout: 1 scoop + cold water in a shaker.", "cal": 120, "protein": 28, "carbs": 3, "fat": 1 }
+    {
+      "name": "Huel Black Edition Shake",
+      "cat": "shake",
+      "desc": "Post-workout or quick liquid meal.",
+      "cal": 400,
+      "protein": 40,
+      "carbs": 17,
+      "fat": 18
+    },
+    {
+      "name": "Huel Hot & Savory",
+      "cat": "main",
+      "desc": "Zero-prep savory meal.",
+      "cal": 400,
+      "protein": 25,
+      "carbs": 47,
+      "fat": 11
+    },
+    {
+      "name": "Cosmic Protein",
+      "cat": "shake",
+      "desc": "Quick post-workout: 1 scoop + cold water in a shaker.",
+      "cal": 120,
+      "protein": 28,
+      "carbs": 3,
+      "fat": 1
+    }
   ],
   "prepRecipes": {
     "preworkout": [
       {
         "name": "Banana + Mini Whey Shot",
-        "cal": 200, "protein": 20, "carbs": 30, "fat": 2,
+        "cal": 200,
+        "protein": 20,
+        "carbs": 30,
+        "fat": 2,
         "desc": "🧪 Take Kaged Pre-Workout Elite (Stim Free) now — creatine & beta-alanine included. Fast carbs + light protein on the side.",
         "ingredients": [
-          { "item": "Kaged Pre-Workout Elite (Stim Free)", "qty": "1 serving mixed in water" },
-          { "item": "Banana", "qty": "1 medium" },
-          { "item": "Whey Protein", "qty": "1 scoop (25g)" },
-          { "item": "Water", "qty": "150ml" }
+          {
+            "item": "Kaged Pre-Workout Elite (Stim Free)",
+            "qty": "1 serving mixed in water"
+          },
+          {
+            "item": "Banana",
+            "qty": "1 medium"
+          },
+          {
+            "item": "Whey Protein",
+            "qty": "1 scoop (25g)"
+          },
+          {
+            "item": "Water",
+            "qty": "150ml"
+          }
         ],
         "steps": [
           "Mix Kaged Pre-Workout in water and drink 20 min before training",
@@ -24,13 +63,28 @@
       },
       {
         "name": "Rice Cakes + PB + Honey",
-        "cal": 210, "protein": 6, "carbs": 38, "fat": 5,
+        "cal": 210,
+        "protein": 6,
+        "carbs": 38,
+        "fat": 5,
         "desc": "🧪 Take Kaged Pre-Workout Elite (Stim Free) now — creatine & beta-alanine included. Light, no-cook fast carbs on the side.",
         "ingredients": [
-          { "item": "Kaged Pre-Workout Elite (Stim Free)", "qty": "1 serving mixed in water" },
-          { "item": "Rice Cakes", "qty": "3 cakes" },
-          { "item": "Peanut Butter", "qty": "1 tbsp" },
-          { "item": "Honey", "qty": "1 tsp" }
+          {
+            "item": "Kaged Pre-Workout Elite (Stim Free)",
+            "qty": "1 serving mixed in water"
+          },
+          {
+            "item": "Rice Cakes",
+            "qty": "3 cakes"
+          },
+          {
+            "item": "Peanut Butter",
+            "qty": "1 tbsp"
+          },
+          {
+            "item": "Honey",
+            "qty": "1 tsp"
+          }
         ],
         "steps": [
           "Mix Kaged Pre-Workout in water and drink 20 min before training",
@@ -40,14 +94,32 @@
       },
       {
         "name": "Date + Almond Butter + Whey Shot",
-        "cal": 220, "protein": 18, "carbs": 32, "fat": 4,
+        "cal": 220,
+        "protein": 18,
+        "carbs": 32,
+        "fat": 4,
         "desc": "🧪 Take Kaged Pre-Workout Elite (Stim Free) now. Dates give instant glucose spike — ideal 20 min before lifting.",
         "ingredients": [
-          { "item": "Kaged Pre-Workout Elite (Stim Free)", "qty": "1 serving mixed in water" },
-          { "item": "Medjool Dates", "qty": "2 large (50g)" },
-          { "item": "Almond Butter", "qty": "1 tsp" },
-          { "item": "Whey Protein", "qty": "0.75 scoop" },
-          { "item": "Water", "qty": "120ml" }
+          {
+            "item": "Kaged Pre-Workout Elite (Stim Free)",
+            "qty": "1 serving mixed in water"
+          },
+          {
+            "item": "Medjool Dates",
+            "qty": "2 large (50g)"
+          },
+          {
+            "item": "Almond Butter",
+            "qty": "1 tsp"
+          },
+          {
+            "item": "Whey Protein",
+            "qty": "0.75 scoop"
+          },
+          {
+            "item": "Water",
+            "qty": "120ml"
+          }
         ],
         "steps": [
           "Mix Kaged Pre-Workout in water and drink 20 min before training",
@@ -59,71 +131,169 @@
     "postworkout": [
       {
         "name": "Cosmic Protein + Water",
-        "cal": 120, "protein": 28, "carbs": 3, "fat": 1,
+        "cal": 120,
+        "protein": 28,
+        "carbs": 3,
+        "fat": 1,
         "desc": "⚡ Default post-workout — one scoop, cold water, done in 30 seconds.",
         "ingredients": [
-          { "item": "Cosmic Protein", "qty": "1 scoop" },
-          { "item": "Cold Water", "qty": "300–400ml" }
+          {
+            "item": "Cosmic Protein",
+            "qty": "1 scoop"
+          },
+          {
+            "item": "Cold Water",
+            "qty": "300–400ml"
+          }
         ],
         "steps": [
           "Add water to shaker, add scoop, shake 15–20 seconds",
           "Drink within 30 min of finishing workout"
-        ]
+        ],
+        "family": "cosmic"
       },
       {
         "name": "Huel Black Recovery Shake",
-        "cal": 400, "protein": 40, "carbs": 17, "fat": 18,
+        "cal": 400,
+        "protein": 40,
+        "carbs": 17,
+        "fat": 18,
         "desc": "Immediate post-workout protein hit. Fast and complete.",
         "ingredients": [
-          { "item": "Huel Black Powder", "qty": "2 scoops (90g)" },
-          { "item": "Cold Water", "qty": "500ml" }
+          {
+            "item": "Huel Black Powder",
+            "qty": "2 scoops (90g)"
+          },
+          {
+            "item": "Cold Water",
+            "qty": "500ml"
+          }
         ],
         "steps": [
           "Shake vigorously with cold water",
           "Drink within 30 min of finishing workout"
-        ]
+        ],
+        "family": "huel",
+        "servingsPerBatch": 7
       },
       {
         "name": "Cosmic Shake + Banana",
-        "cal": 330, "protein": 38, "carbs": 26, "fat": 5,
+        "cal": 330,
+        "protein": 38,
+        "carbs": 26,
+        "fat": 5,
         "desc": "High protein + carbs to kickstart muscle repair.",
         "ingredients": [
-          { "item": "Cosmic Protein", "qty": "1.5 Scoops" },
-          { "item": "Almond Milk", "qty": "250ml" },
-          { "item": "Banana", "qty": "1 medium" }
+          {
+            "item": "Cosmic Protein",
+            "qty": "1.5 Scoops"
+          },
+          {
+            "item": "Almond Milk",
+            "qty": "250ml"
+          },
+          {
+            "item": "Banana",
+            "qty": "1 medium"
+          }
         ],
         "steps": [
           "Blend all with ice",
           "Drink immediately after workout"
-        ]
+        ],
+        "family": "cosmic"
       },
       {
         "name": "Huel Black + Greek Yogurt Stack",
-        "cal": 450, "protein": 50, "carbs": 20, "fat": 18,
+        "cal": 450,
+        "protein": 50,
+        "carbs": 20,
+        "fat": 18,
         "desc": "🔥 Double protein punch. Huel handles speed, yogurt adds casein for sustained repair.",
         "ingredients": [
-          { "item": "Huel Black Powder", "qty": "1.5 scoops (68g)" },
-          { "item": "Cold Water", "qty": "350ml" },
-          { "item": "Greek Yogurt (0% fat)", "qty": "150g" },
-          { "item": "Honey", "qty": "1 tsp" }
+          {
+            "item": "Huel Black Powder",
+            "qty": "1.5 scoops (68g)"
+          },
+          {
+            "item": "Cold Water",
+            "qty": "350ml"
+          },
+          {
+            "item": "Greek Yogurt (0% fat)",
+            "qty": "150g"
+          },
+          {
+            "item": "Honey",
+            "qty": "1 tsp"
+          }
         ],
         "steps": [
           "Shake Huel with cold water in shaker bottle",
           "Serve Greek yogurt in a bowl, drizzle honey",
           "Drink shake first, eat yogurt within 15 min — casein extends recovery window"
+        ],
+        "family": "huel"
+      },
+      {
+        "name": "Greek Yogurt Berry Recovery Bowl",
+        "family": "yogurt",
+        "servingsPerBatch": 7,
+        "cal": 280,
+        "protein": 32,
+        "carbs": 28,
+        "fat": 4,
+        "desc": "🫐 Post-workout without shakes — high protein yogurt bowl with berries and honey.",
+        "ingredients": [
+          {
+            "item": "Greek Yogurt (0% fat)",
+            "qty": "250g"
+          },
+          {
+            "item": "Mixed Berries",
+            "qty": "100g"
+          },
+          {
+            "item": "Honey",
+            "qty": "1 tsp"
+          },
+          {
+            "item": "Granola (low sugar)",
+            "qty": "20g"
+          }
+        ],
+        "steps": [
+          "Spoon Greek yogurt into a bowl",
+          "Top with berries, granola and drizzle of honey",
+          "Eat within 30 min of finishing workout"
         ]
       }
     ],
     "breakfast": [
       {
         "name": "High-Pro Oats Bowl",
-        "cal": 370, "protein": 32, "carbs": 44, "fat": 7,
+        "cal": 370,
+        "protein": 32,
+        "carbs": 44,
+        "fat": 7,
         "desc": "🥣 Slow-release carbs + solid protein. Keeps you full till lunch.",
         "ingredients": [
-          { "item": "Oats", "qty": "70g" },
-          { "item": "Milk (low-fat)", "qty": "250ml" },
-          { "item": "Whey Protein", "qty": "0.75 scoop" },
-          { "item": "Mixed Berries", "qty": "100g" }
+          {
+            "item": "Oats",
+            "qty": "70g"
+          },
+          {
+            "item": "Milk (low-fat)",
+            "qty": "250ml"
+          },
+          {
+            "item": "Whey Protein",
+            "qty": "0.75 scoop"
+          },
+          {
+            "item": "Mixed Berries",
+            "qty": "100g"
+          }
         ],
         "steps": [
           "Cook oats in milk on stove or microwave",
@@ -133,13 +303,28 @@
       },
       {
         "name": "Greek Yogurt Power Bowl",
-        "cal": 300, "protein": 28, "carbs": 26, "fat": 6,
+        "cal": 300,
+        "protein": 28,
+        "carbs": 26,
+        "fat": 6,
         "desc": "🫙 Light, digestive-friendly. Great when stomach is still waking up.",
         "ingredients": [
-          { "item": "Greek Yogurt (0% fat)", "qty": "300g" },
-          { "item": "Mixed Berries", "qty": "100g" },
-          { "item": "Granola (low sugar)", "qty": "35g" },
-          { "item": "Honey", "qty": "1 tsp" }
+          {
+            "item": "Greek Yogurt (0% fat)",
+            "qty": "300g"
+          },
+          {
+            "item": "Mixed Berries",
+            "qty": "100g"
+          },
+          {
+            "item": "Granola (low sugar)",
+            "qty": "35g"
+          },
+          {
+            "item": "Honey",
+            "qty": "1 tsp"
+          }
         ],
         "steps": [
           "Layer yogurt in a bowl",
@@ -149,13 +334,28 @@
       },
       {
         "name": "Besan Chilla + Greek Yogurt",
-        "cal": 290, "protein": 24, "carbs": 36, "fat": 5,
+        "cal": 290,
+        "protein": 24,
+        "carbs": 36,
+        "fat": 5,
         "desc": "🥞 Indian savoury pancakes. Quick, filling and 100% desi.",
         "ingredients": [
-          { "item": "Besan (Gram Flour)", "qty": "70g" },
-          { "item": "Onion + Capsicum", "qty": "1 small each" },
-          { "item": "Cumin, turmeric, chilli", "qty": "to taste" },
-          { "item": "Greek Yogurt (0% fat)", "qty": "150g" }
+          {
+            "item": "Besan (Gram Flour)",
+            "qty": "70g"
+          },
+          {
+            "item": "Onion + Capsicum",
+            "qty": "1 small each"
+          },
+          {
+            "item": "Cumin, turmeric, chilli",
+            "qty": "to taste"
+          },
+          {
+            "item": "Greek Yogurt (0% fat)",
+            "qty": "150g"
+          }
         ],
         "steps": [
           "Mix besan with water, veggies and spices into thick batter",
@@ -165,16 +365,40 @@
       },
       {
         "name": "Besan Breakfast Burrito",
-        "cal": 300, "protein": 25, "carbs": 38, "fat": 6,
+        "cal": 300,
+        "protein": 25,
+        "carbs": 38,
+        "fat": 6,
         "desc": "🌯 Mexican-Indian fusion breakfast. Besan acts as the tortilla AND the protein. Two birds, one pan.",
         "ingredients": [
-          { "item": "Besan (Gram Flour)", "qty": "70g" },
-          { "item": "Black Beans (cooked)", "qty": "60g" },
-          { "item": "Greek Yogurt (0% fat)", "qty": "80g" },
-          { "item": "Salsa", "qty": "40g" },
-          { "item": "Cumin + smoked paprika + chilli", "qty": "pinch each" },
-          { "item": "Jalapeño + lime juice", "qty": "to taste" },
-          { "item": "Fresh cilantro", "qty": "handful" }
+          {
+            "item": "Besan (Gram Flour)",
+            "qty": "70g"
+          },
+          {
+            "item": "Black Beans (cooked)",
+            "qty": "60g"
+          },
+          {
+            "item": "Greek Yogurt (0% fat)",
+            "qty": "80g"
+          },
+          {
+            "item": "Salsa",
+            "qty": "40g"
+          },
+          {
+            "item": "Cumin + smoked paprika + chilli",
+            "qty": "pinch each"
+          },
+          {
+            "item": "Jalapeño + lime juice",
+            "qty": "to taste"
+          },
+          {
+            "item": "Fresh cilantro",
+            "qty": "handful"
+          }
         ],
         "steps": [
           "Mix besan with water, cumin, smoked paprika and chilli into a thin pourable batter",
@@ -186,31 +410,69 @@
       },
       {
         "name": "Huel Black Morning Shake",
-        "cal": 400, "protein": 40, "carbs": 17, "fat": 18,
+        "cal": 400,
+        "protein": 40,
+        "carbs": 17,
+        "fat": 18,
         "desc": "⚡ Zero-cook breakfast. On those mornings when you need to move fast. Huel Black has everything you need.",
         "ingredients": [
-          { "item": "Huel Black Powder", "qty": "2 scoops (90g)" },
-          { "item": "Cold Water or Almond Milk", "qty": "500ml" },
-          { "item": "Ice cubes", "qty": "handful (optional)" }
+          {
+            "item": "Huel Black Powder",
+            "qty": "2 scoops (90g)"
+          },
+          {
+            "item": "Cold Water or Almond Milk",
+            "qty": "500ml"
+          },
+          {
+            "item": "Ice cubes",
+            "qty": "handful (optional)"
+          }
         ],
         "steps": [
           "Add Huel Black to shaker with cold water or almond milk",
           "Shake hard for 30 seconds until fully mixed",
           "Add ice if blending — transforms it into a proper thick shake"
-        ]
+        ],
+        "family": "huel",
+        "servingsPerBatch": 4
       },
       {
         "name": "Overnight Oats + Whey",
-        "cal": 350, "protein": 30, "carbs": 42, "fat": 7,
+        "cal": 350,
+        "protein": 30,
+        "carbs": 42,
+        "fat": 7,
         "desc": "🌙 Prep the night before, grab in the morning. Zero effort breakfast with zero excuses.",
         "ingredients": [
-          { "item": "Oats", "qty": "60g" },
-          { "item": "Almond Milk", "qty": "200ml" },
-          { "item": "Whey Protein", "qty": "0.75 scoop" },
-          { "item": "Greek Yogurt (0% fat)", "qty": "80g" },
-          { "item": "Mixed Berries", "qty": "80g" },
-          { "item": "Chia Seeds", "qty": "1 tsp" },
-          { "item": "Honey", "qty": "1 tsp" }
+          {
+            "item": "Oats",
+            "qty": "60g"
+          },
+          {
+            "item": "Almond Milk",
+            "qty": "200ml"
+          },
+          {
+            "item": "Whey Protein",
+            "qty": "0.75 scoop"
+          },
+          {
+            "item": "Greek Yogurt (0% fat)",
+            "qty": "80g"
+          },
+          {
+            "item": "Mixed Berries",
+            "qty": "80g"
+          },
+          {
+            "item": "Chia Seeds",
+            "qty": "1 tsp"
+          },
+          {
+            "item": "Honey",
+            "qty": "1 tsp"
+          }
         ],
         "steps": [
           "Night before: mix oats, almond milk, yogurt, chia seeds and honey in a jar",
@@ -221,35 +483,82 @@
       },
       {
         "name": "Protein Smoothie Bowl",
-        "cal": 320, "protein": 32, "carbs": 36, "fat": 5,
+        "cal": 320,
+        "protein": 32,
+        "carbs": 36,
+        "fat": 5,
         "desc": "🍓 Thick enough to eat with a spoon. Feels indulgent, hits the macros.",
         "ingredients": [
-          { "item": "Cosmic Protein", "qty": "1 scoop" },
-          { "item": "Frozen Banana", "qty": "1 medium (frozen overnight)" },
-          { "item": "Frozen Mixed Berries", "qty": "80g" },
-          { "item": "Almond Milk", "qty": "100ml (small amount — keep it thick)" },
-          { "item": "Granola (low sugar)", "qty": "25g (topping)" },
-          { "item": "Fresh Berries or Sliced Banana", "qty": "30g (topping)" }
+          {
+            "item": "Cosmic Protein",
+            "qty": "1 scoop"
+          },
+          {
+            "item": "Frozen Banana",
+            "qty": "1 medium (frozen overnight)"
+          },
+          {
+            "item": "Frozen Mixed Berries",
+            "qty": "80g"
+          },
+          {
+            "item": "Almond Milk",
+            "qty": "100ml (small amount — keep it thick)"
+          },
+          {
+            "item": "Granola (low sugar)",
+            "qty": "25g (topping)"
+          },
+          {
+            "item": "Fresh Berries or Sliced Banana",
+            "qty": "30g (topping)"
+          }
         ],
         "steps": [
           "Blend Cosmic protein, frozen banana, frozen berries and almond milk — use minimal milk to keep it thick",
           "Pour into a bowl — it should be thick enough a spoon stands upright",
           "Top with granola and fresh fruit",
           "Eat immediately before it melts"
-        ]
+        ],
+        "family": "cosmic",
+        "servingsPerBatch": 4
       },
       {
         "name": "Masala Oats (Savoury)",
-        "cal": 320, "protein": 26, "carbs": 42, "fat": 5,
+        "cal": 320,
+        "protein": 26,
+        "carbs": 42,
+        "fat": 5,
         "desc": "🌶️ Oats don't have to be sweet. Masala oats taste like upma — comfort food that hits your macros. Zero soy.",
         "ingredients": [
-          { "item": "Oats (rolled)", "qty": "65g" },
-          { "item": "Chickpeas (cooked)", "qty": "60g" },
-          { "item": "Onion + Tomato", "qty": "1 small each" },
-          { "item": "Mustard seeds + cumin + turmeric + chilli", "qty": "1/4 tsp each" },
-          { "item": "Green peas (frozen)", "qty": "40g" },
-          { "item": "Water", "qty": "350ml" },
-          { "item": "Lemon juice + salt", "qty": "to taste" }
+          {
+            "item": "Oats (rolled)",
+            "qty": "65g"
+          },
+          {
+            "item": "Chickpeas (cooked)",
+            "qty": "60g"
+          },
+          {
+            "item": "Onion + Tomato",
+            "qty": "1 small each"
+          },
+          {
+            "item": "Mustard seeds + cumin + turmeric + chilli",
+            "qty": "1/4 tsp each"
+          },
+          {
+            "item": "Green peas (frozen)",
+            "qty": "40g"
+          },
+          {
+            "item": "Water",
+            "qty": "350ml"
+          },
+          {
+            "item": "Lemon juice + salt",
+            "qty": "to taste"
+          }
         ],
         "steps": [
           "Heat pan, add mustard seeds — wait for them to pop",
@@ -262,15 +571,36 @@
       },
       {
         "name": "Paneer Poha",
-        "cal": 330, "protein": 28, "carbs": 40, "fat": 8,
+        "cal": 330,
+        "protein": 28,
+        "carbs": 40,
+        "fat": 8,
         "desc": "🍚 Flattened rice with crumbled paneer — the protein-packed version of every Indian's favourite quick breakfast.",
         "ingredients": [
-          { "item": "Poha (Flattened Rice)", "qty": "70g" },
-          { "item": "Paneer (low-fat, crumbled)", "qty": "80g" },
-          { "item": "Onion", "qty": "1 small" },
-          { "item": "Green peas (frozen)", "qty": "40g" },
-          { "item": "Mustard seeds + curry leaves + turmeric", "qty": "pinch each" },
-          { "item": "Lemon juice + coriander", "qty": "to taste" }
+          {
+            "item": "Poha (Flattened Rice)",
+            "qty": "70g"
+          },
+          {
+            "item": "Paneer (low-fat, crumbled)",
+            "qty": "80g"
+          },
+          {
+            "item": "Onion",
+            "qty": "1 small"
+          },
+          {
+            "item": "Green peas (frozen)",
+            "qty": "40g"
+          },
+          {
+            "item": "Mustard seeds + curry leaves + turmeric",
+            "qty": "pinch each"
+          },
+          {
+            "item": "Lemon juice + coriander",
+            "qty": "to taste"
+          }
         ],
         "steps": [
           "Rinse poha in water for 30 sec, drain and let sit — it softens in 2 min",
@@ -284,15 +614,36 @@
       },
       {
         "name": "Mango Lassi Protein Bowl",
-        "cal": 310, "protein": 30, "carbs": 28, "fat": 6,
+        "cal": 310,
+        "protein": 30,
+        "carbs": 28,
+        "fat": 6,
         "desc": "🥭 Tastes like a dessert, hits like a protein meal. Cardamom makes it feel luxurious.",
         "ingredients": [
-          { "item": "Greek Yogurt (0% fat)", "qty": "250g" },
-          { "item": "Whey Protein (vanilla or unflavoured)", "qty": "0.75 scoop" },
-          { "item": "Mango chunks (fresh or frozen)", "qty": "80g" },
-          { "item": "Cardamom powder", "qty": "pinch" },
-          { "item": "Honey", "qty": "1 tsp" },
-          { "item": "Granola (low sugar)", "qty": "20g" }
+          {
+            "item": "Greek Yogurt (0% fat)",
+            "qty": "250g"
+          },
+          {
+            "item": "Whey Protein (vanilla or unflavoured)",
+            "qty": "0.75 scoop"
+          },
+          {
+            "item": "Mango chunks (fresh or frozen)",
+            "qty": "80g"
+          },
+          {
+            "item": "Cardamom powder",
+            "qty": "pinch"
+          },
+          {
+            "item": "Honey",
+            "qty": "1 tsp"
+          },
+          {
+            "item": "Granola (low sugar)",
+            "qty": "20g"
+          }
         ],
         "steps": [
           "Whip Greek yogurt with whey protein using a fork until smooth",
@@ -300,22 +651,91 @@
           "Pour into a bowl, top with mango chunks and granola",
           "Serve cold — pairs great with a black coffee"
         ]
+      },
+      {
+        "name": "Egg White Enchilada Skillet",
+        "family": "enchilada",
+        "servingsPerBatch": 4,
+        "cal": 310,
+        "protein": 32,
+        "carbs": 28,
+        "fat": 6,
+        "desc": "🍳 Savory breakfast without Huel — egg whites, beans and enchilada sauce in one pan.",
+        "ingredients": [
+          {
+            "item": "Egg Whites",
+            "qty": "200g (about 6 whites)"
+          },
+          {
+            "item": "Black Beans (cooked)",
+            "qty": "80g"
+          },
+          {
+            "item": "Enchilada sauce",
+            "qty": "60g"
+          },
+          {
+            "item": "Corn Tortilla",
+            "qty": "1 small, torn"
+          },
+          {
+            "item": "Salsa",
+            "qty": "40g"
+          },
+          {
+            "item": "Greek Yogurt",
+            "qty": "40g"
+          }
+        ],
+        "steps": [
+          "Warm beans with enchilada sauce in a non-stick pan",
+          "Pour in egg whites, scramble gently until just set",
+          "Fold in torn tortilla and salsa off heat",
+          "Top with Greek yogurt and eat immediately"
+        ]
       }
     ],
     "mains": [
       {
         "name": "Beyond Beef Chipotle Taco Bowl",
-        "cal": 480, "protein": 36, "carbs": 46, "fat": 16,
+        "cal": 480,
+        "protein": 36,
+        "carbs": 46,
+        "fat": 16,
         "desc": "🌮 Beyond Beef is pea-protein based (zero soy). Chipotle-spiced, genuinely tastes like taco night.",
         "ingredients": [
-          { "item": "Beyond Beef ground (or Beyond Beef crumbles)", "qty": "120g" },
-          { "item": "Black Beans (cooked)", "qty": "100g" },
-          { "item": "Brown Rice (cooked)", "qty": "100g" },
-          { "item": "Chipotle powder + smoked paprika + cumin + garlic powder", "qty": "1 tsp each" },
-          { "item": "Onion", "qty": "1 small" },
-          { "item": "Salsa", "qty": "60g" },
-          { "item": "Greek Yogurt", "qty": "60g (as crema)" },
-          { "item": "Jalapeño + lime juice + cilantro", "qty": "to taste" }
+          {
+            "item": "Beyond Beef ground (or Beyond Beef crumbles)",
+            "qty": "120g"
+          },
+          {
+            "item": "Black Beans (cooked)",
+            "qty": "100g"
+          },
+          {
+            "item": "Brown Rice (cooked)",
+            "qty": "100g"
+          },
+          {
+            "item": "Chipotle powder + smoked paprika + cumin + garlic powder",
+            "qty": "1 tsp each"
+          },
+          {
+            "item": "Onion",
+            "qty": "1 small"
+          },
+          {
+            "item": "Salsa",
+            "qty": "60g"
+          },
+          {
+            "item": "Greek Yogurt",
+            "qty": "60g (as crema)"
+          },
+          {
+            "item": "Jalapeño + lime juice + cilantro",
+            "qty": "to taste"
+          }
         ],
         "steps": [
           "Cook Beyond Beef in a hot dry pan — break it apart like ground meat, cook 5–6 min",
@@ -327,16 +747,40 @@
       },
       {
         "name": "Paneer Tikka Quesadilla",
-        "cal": 440, "protein": 40, "carbs": 44, "fat": 13,
+        "cal": 440,
+        "protein": 40,
+        "carbs": 44,
+        "fat": 13,
         "desc": "🌮 When India met Mexico and had a gains-friendly baby. Charred paneer in a crispy tortilla.",
         "ingredients": [
-          { "item": "Paneer (low-fat)", "qty": "130g" },
-          { "item": "Whole Wheat Tortillas (small)", "qty": "2 (60g total)" },
-          { "item": "Black Beans (cooked)", "qty": "80g" },
-          { "item": "Greek Yogurt", "qty": "80g (as crema)" },
-          { "item": "Salsa", "qty": "50g" },
-          { "item": "Tikka spice mix (cumin, paprika, garam masala, turmeric)", "qty": "1 tsp each" },
-          { "item": "Lime juice", "qty": "half lime" }
+          {
+            "item": "Paneer (low-fat)",
+            "qty": "130g"
+          },
+          {
+            "item": "Whole Wheat Tortillas (small)",
+            "qty": "2 (60g total)"
+          },
+          {
+            "item": "Black Beans (cooked)",
+            "qty": "80g"
+          },
+          {
+            "item": "Greek Yogurt",
+            "qty": "80g (as crema)"
+          },
+          {
+            "item": "Salsa",
+            "qty": "50g"
+          },
+          {
+            "item": "Tikka spice mix (cumin, paprika, garam masala, turmeric)",
+            "qty": "1 tsp each"
+          },
+          {
+            "item": "Lime juice",
+            "qty": "half lime"
+          }
         ],
         "steps": [
           "Cube paneer, marinate in tikka spices + 2 tbsp Greek yogurt for 15 min",
@@ -348,36 +792,271 @@
       },
       {
         "name": "Rajma Enchilada Bowl",
-        "cal": 420, "protein": 38, "carbs": 48, "fat": 11,
+        "cal": 420,
+        "protein": 38,
+        "carbs": 48,
+        "fat": 11,
         "desc": "🌶️ Plot twist: Rajma IS kidney beans. This is basically Mexican dal. Mind blown.",
         "ingredients": [
-          { "item": "Rajma (Kidney Beans, cooked)", "qty": "150g" },
-          { "item": "Brown Rice (cooked)", "qty": "100g" },
-          { "item": "Paneer (low-fat, crumbled)", "qty": "60g" },
-          { "item": "Tomato passata", "qty": "100g" },
-          { "item": "Chipotle + cumin + dried oregano", "qty": "1 tsp each" },
-          { "item": "Greek Yogurt", "qty": "60g (as sour cream)" },
-          { "item": "Jalapeño + lime", "qty": "to taste" }
+          {
+            "item": "Rajma (Kidney Beans, cooked)",
+            "qty": "150g"
+          },
+          {
+            "item": "Brown Rice (cooked)",
+            "qty": "100g"
+          },
+          {
+            "item": "Paneer (low-fat, crumbled)",
+            "qty": "60g"
+          },
+          {
+            "item": "Tomato passata",
+            "qty": "100g"
+          },
+          {
+            "item": "Chipotle + cumin + dried oregano",
+            "qty": "1 tsp each"
+          },
+          {
+            "item": "Greek Yogurt",
+            "qty": "60g (as sour cream)"
+          },
+          {
+            "item": "Jalapeño + lime",
+            "qty": "to taste"
+          }
         ],
         "steps": [
           "Cook rajma with tomato passata and the enchilada spice blend",
           "Simmer 15 min until thick and saucy — same as rajma masala, different spices",
           "Serve over brown rice",
           "Top with crumbled paneer, Greek yogurt dollop, jalapeño and lime"
+        ],
+        "family": "enchilada",
+        "servingsPerBatch": 6
+      },
+      {
+        "name": "Black Bean Enchilada Bake",
+        "family": "enchilada",
+        "servingsPerBatch": 6,
+        "cal": 435,
+        "protein": 36,
+        "carbs": 46,
+        "fat": 12,
+        "desc": "🫘 Layered corn tortillas, black beans, enchilada sauce and melted paneer. Batch-cook Sunday, eat all week.",
+        "ingredients": [
+          {
+            "item": "Black Beans (cooked)",
+            "qty": "150g"
+          },
+          {
+            "item": "Corn Tortillas",
+            "qty": "2 small (50g)"
+          },
+          {
+            "item": "Enchilada sauce (passata + chipotle)",
+            "qty": "120g"
+          },
+          {
+            "item": "Paneer (low-fat, crumbled)",
+            "qty": "70g"
+          },
+          {
+            "item": "Greek Yogurt",
+            "qty": "60g"
+          },
+          {
+            "item": "Cumin + smoked paprika",
+            "qty": "1 tsp each"
+          },
+          {
+            "item": "Jalapeño + cilantro",
+            "qty": "to taste"
+          }
+        ],
+        "steps": [
+          "Warm black beans with cumin, smoked paprika and half the enchilada sauce",
+          "Layer tortillas, beans, sauce and crumbled paneer in an oven-safe dish",
+          "Top with remaining sauce and paneer, bake 15 min at 200°C until bubbling",
+          "Serve with Greek yogurt crema, jalapeño and cilantro"
+        ]
+      },
+      {
+        "name": "Sweet Potato & Pinto Enchiladas",
+        "family": "enchilada",
+        "servingsPerBatch": 6,
+        "cal": 445,
+        "protein": 34,
+        "carbs": 52,
+        "fat": 11,
+        "desc": "🍠 Roasted sweet potato and pinto beans rolled tight — comfort food that still cuts.",
+        "ingredients": [
+          {
+            "item": "Sweet Potato (cubed, roasted)",
+            "qty": "150g"
+          },
+          {
+            "item": "Pinto Beans (cooked)",
+            "qty": "120g"
+          },
+          {
+            "item": "Corn Tortillas",
+            "qty": "2 small (50g)"
+          },
+          {
+            "item": "Enchilada sauce",
+            "qty": "120g"
+          },
+          {
+            "item": "Paneer (low-fat, crumbled)",
+            "qty": "50g"
+          },
+          {
+            "item": "Greek Yogurt",
+            "qty": "50g"
+          },
+          {
+            "item": "Lime + coriander",
+            "qty": "to taste"
+          }
+        ],
+        "steps": [
+          "Roast sweet potato cubes until tender with cumin and smoked paprika",
+          "Mash pinto beans lightly with lime and salt",
+          "Fill warmed tortillas with sweet potato and beans, roll and place seam-down",
+          "Pour enchilada sauce over, top with paneer, bake 12 min at 200°C",
+          "Finish with Greek yogurt and fresh coriander"
+        ]
+      },
+      {
+        "name": "Chickpea Enchilada Skillet",
+        "family": "enchilada",
+        "servingsPerBatch": 6,
+        "cal": 430,
+        "protein": 38,
+        "carbs": 48,
+        "fat": 10,
+        "desc": "🥘 One-pan enchilada vibes — chickpeas, sauce, tortillas torn and simmered. Minimal dishes.",
+        "ingredients": [
+          {
+            "item": "Chickpeas (cooked)",
+            "qty": "150g"
+          },
+          {
+            "item": "Corn Tortillas",
+            "qty": "2 small (50g), torn"
+          },
+          {
+            "item": "Enchilada sauce",
+            "qty": "150g"
+          },
+          {
+            "item": "Paneer (low-fat, cubed)",
+            "qty": "80g"
+          },
+          {
+            "item": "Spinach",
+            "qty": "60g"
+          },
+          {
+            "item": "Greek Yogurt",
+            "qty": "50g"
+          },
+          {
+            "item": "Chipotle + cumin",
+            "qty": "1/2 tsp each"
+          }
+        ],
+        "steps": [
+          "Sauté paneer cubes until golden in a non-stick skillet",
+          "Add chickpeas, chipotle, cumin and enchilada sauce — simmer 5 min",
+          "Stir in torn tortillas and spinach until wilted and sauce thickens",
+          "Top with Greek yogurt and serve from the pan"
+        ]
+      },
+      {
+        "name": "Paneer Enchilada Casserole",
+        "family": "enchilada",
+        "servingsPerBatch": 6,
+        "cal": 450,
+        "protein": 40,
+        "carbs": 44,
+        "fat": 13,
+        "desc": "🧀 High-protein casserole — paneer stars, enchilada sauce carries. Great for meal prep rotation.",
+        "ingredients": [
+          {
+            "item": "Paneer (low-fat)",
+            "qty": "130g"
+          },
+          {
+            "item": "Black Beans (cooked)",
+            "qty": "100g"
+          },
+          {
+            "item": "Corn Tortillas",
+            "qty": "2 small (50g)"
+          },
+          {
+            "item": "Enchilada sauce",
+            "qty": "130g"
+          },
+          {
+            "item": "Brown Rice (cooked)",
+            "qty": "80g"
+          },
+          {
+            "item": "Greek Yogurt",
+            "qty": "60g"
+          },
+          {
+            "item": "Salsa + lime",
+            "qty": "to taste"
+          }
+        ],
+        "steps": [
+          "Cube and pan-sear paneer until golden",
+          "Layer rice, beans, paneer, torn tortillas and enchilada sauce in a dish",
+          "Bake 18 min at 200°C until edges bubble",
+          "Serve with Greek yogurt, salsa and lime"
         ]
       },
       {
         "name": "Beyond Beef Arrabiata Pasta",
-        "cal": 455, "protein": 35, "carbs": 48, "fat": 16,
+        "cal": 455,
+        "protein": 35,
+        "carbs": 48,
+        "fat": 16,
         "desc": "🍝 Italian spicy arrabiata, but the 'beef' is pea protein. Rich, proper pasta night with zero soy.",
         "ingredients": [
-          { "item": "Beyond Beef ground", "qty": "120g" },
-          { "item": "Whole Wheat Pasta", "qty": "55g dry" },
-          { "item": "Passata (or crushed tomatoes)", "qty": "150g" },
-          { "item": "Garlic", "qty": "3 cloves, minced" },
-          { "item": "Chilli flakes + dried Italian herbs (basil, oregano)", "qty": "1 tsp each" },
-          { "item": "Olive oil", "qty": "1 tsp" },
-          { "item": "Nutritional yeast", "qty": "1 tbsp" }
+          {
+            "item": "Beyond Beef ground",
+            "qty": "120g"
+          },
+          {
+            "item": "Whole Wheat Pasta",
+            "qty": "55g dry"
+          },
+          {
+            "item": "Passata (or crushed tomatoes)",
+            "qty": "150g"
+          },
+          {
+            "item": "Garlic",
+            "qty": "3 cloves, minced"
+          },
+          {
+            "item": "Chilli flakes + dried Italian herbs (basil, oregano)",
+            "qty": "1 tsp each"
+          },
+          {
+            "item": "Olive oil",
+            "qty": "1 tsp"
+          },
+          {
+            "item": "Nutritional yeast",
+            "qty": "1 tbsp"
+          }
         ],
         "steps": [
           "Cook pasta al dente — save 50ml pasta water",
@@ -390,16 +1069,40 @@
       },
       {
         "name": "Chickpea Paneer Pesto Bowl",
-        "cal": 440, "protein": 40, "carbs": 46, "fat": 12,
+        "cal": 440,
+        "protein": 40,
+        "carbs": 46,
+        "fat": 12,
         "desc": "🍃 Italian-Indian fusion. Basil pesto + paneer + chickpeas is a combo that absolutely slaps.",
         "ingredients": [
-          { "item": "Paneer (low-fat)", "qty": "100g" },
-          { "item": "Chickpeas (cooked)", "qty": "120g" },
-          { "item": "Whole Wheat Pasta", "qty": "50g dry" },
-          { "item": "Basil Pesto", "qty": "25g (store-bought or homemade)" },
-          { "item": "Cherry tomatoes", "qty": "80g" },
-          { "item": "Spinach", "qty": "60g" },
-          { "item": "Lemon juice + chilli flakes", "qty": "to taste" }
+          {
+            "item": "Paneer (low-fat)",
+            "qty": "100g"
+          },
+          {
+            "item": "Chickpeas (cooked)",
+            "qty": "120g"
+          },
+          {
+            "item": "Whole Wheat Pasta",
+            "qty": "50g dry"
+          },
+          {
+            "item": "Basil Pesto",
+            "qty": "25g (store-bought or homemade)"
+          },
+          {
+            "item": "Cherry tomatoes",
+            "qty": "80g"
+          },
+          {
+            "item": "Spinach",
+            "qty": "60g"
+          },
+          {
+            "item": "Lemon juice + chilli flakes",
+            "qty": "to taste"
+          }
         ],
         "steps": [
           "Cook pasta al dente",
@@ -411,14 +1114,32 @@
       },
       {
         "name": "Chickpea & Lentil Curry",
-        "cal": 420, "protein": 38, "carbs": 48, "fat": 9,
+        "cal": 420,
+        "protein": 38,
+        "carbs": 48,
+        "fat": 9,
         "desc": "🍛 The OG. Coconut dal that never misses. Your comfort meal baseline.",
         "ingredients": [
-          { "item": "Chickpeas (cooked)", "qty": "150g" },
-          { "item": "Moong/Masoor Dal (cooked)", "qty": "100g" },
-          { "item": "Spinach", "qty": "100g" },
-          { "item": "Coconut Milk", "qty": "60ml" },
-          { "item": "Brown Rice (cooked)", "qty": "100g" }
+          {
+            "item": "Chickpeas (cooked)",
+            "qty": "150g"
+          },
+          {
+            "item": "Moong/Masoor Dal (cooked)",
+            "qty": "100g"
+          },
+          {
+            "item": "Spinach",
+            "qty": "100g"
+          },
+          {
+            "item": "Coconut Milk",
+            "qty": "60ml"
+          },
+          {
+            "item": "Brown Rice (cooked)",
+            "qty": "100g"
+          }
         ],
         "steps": [
           "Cook dal until completely soft",
@@ -429,14 +1150,32 @@
       },
       {
         "name": "Paneer & Black Bean Tikka",
-        "cal": 460, "protein": 44, "carbs": 40, "fat": 13,
+        "cal": 460,
+        "protein": 44,
+        "carbs": 40,
+        "fat": 13,
         "desc": "🔥 Indian classic meets Mexican black beans. High-protein power combo.",
         "ingredients": [
-          { "item": "Paneer (low-fat)", "qty": "150g" },
-          { "item": "Black Beans (cooked)", "qty": "120g" },
-          { "item": "Greek Yogurt", "qty": "80g" },
-          { "item": "Tomato Sauce", "qty": "120g" },
-          { "item": "Brown Rice (cooked)", "qty": "100g" }
+          {
+            "item": "Paneer (low-fat)",
+            "qty": "150g"
+          },
+          {
+            "item": "Black Beans (cooked)",
+            "qty": "120g"
+          },
+          {
+            "item": "Greek Yogurt",
+            "qty": "80g"
+          },
+          {
+            "item": "Tomato Sauce",
+            "qty": "120g"
+          },
+          {
+            "item": "Brown Rice (cooked)",
+            "qty": "100g"
+          }
         ],
         "steps": [
           "Sauté paneer cubes until golden",
@@ -447,31 +1186,65 @@
       },
       {
         "name": "Huel Hot & Savory",
-        "cal": 400, "protein": 25, "carbs": 47, "fat": 11,
+        "cal": 400,
+        "protein": 25,
+        "carbs": 47,
+        "fat": 11,
         "desc": "🤖 Zero prep, zero dishes, zero excuses. Add boiling water and you're done. Lifesaver on chaotic days.",
         "ingredients": [
-          { "item": "Huel Hot & Savory", "qty": "1 pouch or 3 scoops (100g)" },
-          { "item": "Boiling water", "qty": "250ml" }
+          {
+            "item": "Huel Hot & Savory",
+            "qty": "1 pouch or 3 scoops (100g)"
+          },
+          {
+            "item": "Boiling water",
+            "qty": "250ml"
+          }
         ],
         "steps": [
           "Add Huel Hot & Savory to bowl",
           "Pour boiling water, stir well",
           "Cover and wait 5 min for best texture",
           "Add a squeeze of lemon or hot sauce if you want to jazz it up"
-        ]
+        ],
+        "family": "huel"
       },
       {
         "name": "Saag Paneer + Chickpea + Brown Rice",
-        "cal": 445, "protein": 38, "carbs": 44, "fat": 12,
+        "cal": 445,
+        "protein": 38,
+        "carbs": 44,
+        "fat": 12,
         "desc": "🌿 Classic saag paneer with chickpeas adding body and protein. Spinach, paneer and chickpeas — zero soy.",
         "ingredients": [
-          { "item": "Paneer (low-fat)", "qty": "120g" },
-          { "item": "Chickpeas (cooked)", "qty": "100g" },
-          { "item": "Spinach (fresh or frozen)", "qty": "200g" },
-          { "item": "Greek Yogurt", "qty": "60g (as cream substitute)" },
-          { "item": "Onion + garlic + ginger", "qty": "1 small + 2 cloves + 1 inch" },
-          { "item": "Garam masala + cumin + turmeric", "qty": "1 tsp each" },
-          { "item": "Brown Rice (cooked)", "qty": "100g" }
+          {
+            "item": "Paneer (low-fat)",
+            "qty": "120g"
+          },
+          {
+            "item": "Chickpeas (cooked)",
+            "qty": "100g"
+          },
+          {
+            "item": "Spinach (fresh or frozen)",
+            "qty": "200g"
+          },
+          {
+            "item": "Greek Yogurt",
+            "qty": "60g (as cream substitute)"
+          },
+          {
+            "item": "Onion + garlic + ginger",
+            "qty": "1 small + 2 cloves + 1 inch"
+          },
+          {
+            "item": "Garam masala + cumin + turmeric",
+            "qty": "1 tsp each"
+          },
+          {
+            "item": "Brown Rice (cooked)",
+            "qty": "100g"
+          }
         ],
         "steps": [
           "Blanch spinach 2 min, blend into a smooth green paste",
@@ -483,16 +1256,40 @@
       },
       {
         "name": "Paneer Soft Tacos with Pico de Gallo",
-        "cal": 460, "protein": 42, "carbs": 50, "fat": 12,
+        "cal": 460,
+        "protein": 42,
+        "carbs": 50,
+        "fat": 12,
         "desc": "🌮 The paneer taco you've been waiting for. Spiced paneer, fresh pico, creamy yogurt crema. Street food vibes.",
         "ingredients": [
-          { "item": "Paneer (low-fat)", "qty": "130g" },
-          { "item": "Small Corn Tortillas", "qty": "3 (75g)" },
-          { "item": "Black Beans (cooked)", "qty": "80g" },
-          { "item": "Greek Yogurt", "qty": "80g (as crema)" },
-          { "item": "Tomato + onion + cilantro (pico de gallo)", "qty": "100g combined" },
-          { "item": "Cumin + smoked paprika + chilli powder", "qty": "1 tsp each" },
-          { "item": "Lime juice + jalapeño", "qty": "to taste" }
+          {
+            "item": "Paneer (low-fat)",
+            "qty": "130g"
+          },
+          {
+            "item": "Small Corn Tortillas",
+            "qty": "3 (75g)"
+          },
+          {
+            "item": "Black Beans (cooked)",
+            "qty": "80g"
+          },
+          {
+            "item": "Greek Yogurt",
+            "qty": "80g (as crema)"
+          },
+          {
+            "item": "Tomato + onion + cilantro (pico de gallo)",
+            "qty": "100g combined"
+          },
+          {
+            "item": "Cumin + smoked paprika + chilli powder",
+            "qty": "1 tsp each"
+          },
+          {
+            "item": "Lime juice + jalapeño",
+            "qty": "to taste"
+          }
         ],
         "steps": [
           "Slice paneer into strips, season with cumin, paprika, chilli — pan-fry 3 min each side",
@@ -504,17 +1301,44 @@
       },
       {
         "name": "Dal Makhani Style Bowl",
-        "cal": 430, "protein": 38, "carbs": 52, "fat": 9,
+        "cal": 430,
+        "protein": 38,
+        "carbs": 52,
+        "fat": 9,
         "desc": "🫕 Slow-cooked black lentils with a smoky depth. Greek yogurt replaces cream — you won't notice.",
         "ingredients": [
-          { "item": "Black Lentils / Whole Urad Dal (cooked)", "qty": "150g" },
-          { "item": "Rajma (Kidney Beans, cooked)", "qty": "80g" },
-          { "item": "Tomato passata", "qty": "120g" },
-          { "item": "Greek Yogurt", "qty": "60g (replaces cream)" },
-          { "item": "Butter (unsalted)", "qty": "1 tsp (the one tsp of flavour that matters)" },
-          { "item": "Garlic + ginger paste", "qty": "1 tsp each" },
-          { "item": "Garam masala + smoked paprika", "qty": "1/2 tsp each" },
-          { "item": "Brown Rice (cooked)", "qty": "110g" }
+          {
+            "item": "Black Lentils / Whole Urad Dal (cooked)",
+            "qty": "150g"
+          },
+          {
+            "item": "Rajma (Kidney Beans, cooked)",
+            "qty": "80g"
+          },
+          {
+            "item": "Tomato passata",
+            "qty": "120g"
+          },
+          {
+            "item": "Greek Yogurt",
+            "qty": "60g (replaces cream)"
+          },
+          {
+            "item": "Butter (unsalted)",
+            "qty": "1 tsp (the one tsp of flavour that matters)"
+          },
+          {
+            "item": "Garlic + ginger paste",
+            "qty": "1 tsp each"
+          },
+          {
+            "item": "Garam masala + smoked paprika",
+            "qty": "1/2 tsp each"
+          },
+          {
+            "item": "Brown Rice (cooked)",
+            "qty": "110g"
+          }
         ],
         "steps": [
           "Sauté garlic-ginger paste in 1 tsp butter until golden",
@@ -526,17 +1350,44 @@
       },
       {
         "name": "Beyond Beef Burrito Bowl",
-        "cal": 475, "protein": 36, "carbs": 48, "fat": 17,
+        "cal": 475,
+        "protein": 36,
+        "carbs": 48,
+        "fat": 17,
         "desc": "🌯 The fully-loaded bowl. Beyond Beef (pea protein) seasoned like carnitas. Everything a burrito has, minus the tortilla.",
         "ingredients": [
-          { "item": "Beyond Beef ground", "qty": "120g" },
-          { "item": "Black Beans (cooked)", "qty": "100g" },
-          { "item": "Brown Rice (cooked)", "qty": "100g" },
-          { "item": "Corn (frozen or canned)", "qty": "50g" },
-          { "item": "Greek Yogurt", "qty": "60g (as sour cream)" },
-          { "item": "Salsa", "qty": "60g" },
-          { "item": "Cumin + chipotle + garlic powder + smoked paprika", "qty": "1 tsp each" },
-          { "item": "Lime + cilantro + jalapeño", "qty": "to taste" }
+          {
+            "item": "Beyond Beef ground",
+            "qty": "120g"
+          },
+          {
+            "item": "Black Beans (cooked)",
+            "qty": "100g"
+          },
+          {
+            "item": "Brown Rice (cooked)",
+            "qty": "100g"
+          },
+          {
+            "item": "Corn (frozen or canned)",
+            "qty": "50g"
+          },
+          {
+            "item": "Greek Yogurt",
+            "qty": "60g (as sour cream)"
+          },
+          {
+            "item": "Salsa",
+            "qty": "60g"
+          },
+          {
+            "item": "Cumin + chipotle + garlic powder + smoked paprika",
+            "qty": "1 tsp each"
+          },
+          {
+            "item": "Lime + cilantro + jalapeño",
+            "qty": "to taste"
+          }
         ],
         "steps": [
           "Cook Beyond Beef in hot pan, breaking apart — season with cumin, chipotle, garlic, paprika",
@@ -548,17 +1399,44 @@
       },
       {
         "name": "Chickpea Alla Puttanesca",
-        "cal": 430, "protein": 36, "carbs": 56, "fat": 9,
+        "cal": 430,
+        "protein": 36,
+        "carbs": 56,
+        "fat": 9,
         "desc": "🍝 The Roman sauce with capers and olives, but chickpeas as the hero. Bold, briny, zero fuss.",
         "ingredients": [
-          { "item": "Chickpeas (cooked)", "qty": "150g" },
-          { "item": "Whole Wheat Pasta", "qty": "60g dry" },
-          { "item": "Passata (crushed tomatoes)", "qty": "150g" },
-          { "item": "Capers", "qty": "1 tbsp" },
-          { "item": "Black olives (sliced)", "qty": "8 olives" },
-          { "item": "Garlic", "qty": "3 cloves" },
-          { "item": "Chilli flakes + dried oregano", "qty": "1 tsp each" },
-          { "item": "Olive oil", "qty": "1 tsp" }
+          {
+            "item": "Chickpeas (cooked)",
+            "qty": "150g"
+          },
+          {
+            "item": "Whole Wheat Pasta",
+            "qty": "60g dry"
+          },
+          {
+            "item": "Passata (crushed tomatoes)",
+            "qty": "150g"
+          },
+          {
+            "item": "Capers",
+            "qty": "1 tbsp"
+          },
+          {
+            "item": "Black olives (sliced)",
+            "qty": "8 olives"
+          },
+          {
+            "item": "Garlic",
+            "qty": "3 cloves"
+          },
+          {
+            "item": "Chilli flakes + dried oregano",
+            "qty": "1 tsp each"
+          },
+          {
+            "item": "Olive oil",
+            "qty": "1 tsp"
+          }
         ],
         "steps": [
           "Cook pasta al dente",
@@ -571,17 +1449,44 @@
       },
       {
         "name": "Beyond Bolognese + Whole Wheat Pasta",
-        "cal": 450, "protein": 34, "carbs": 48, "fat": 17,
+        "cal": 450,
+        "protein": 34,
+        "carbs": 48,
+        "fat": 17,
         "desc": "🍝 Slow-simmered Italian bolognese with Beyond Beef. The soffritto is non-negotiable — it's what makes it taste real.",
         "ingredients": [
-          { "item": "Beyond Beef ground", "qty": "120g" },
-          { "item": "Whole Wheat Pasta", "qty": "55g dry" },
-          { "item": "Passata", "qty": "150g" },
-          { "item": "Carrot + celery + onion (soffritto)", "qty": "30g each, finely diced" },
-          { "item": "Garlic", "qty": "2 cloves" },
-          { "item": "Dried basil + oregano + bay leaf", "qty": "1 tsp each" },
-          { "item": "Olive oil", "qty": "1 tsp" },
-          { "item": "Nutritional yeast", "qty": "1 tbsp" }
+          {
+            "item": "Beyond Beef ground",
+            "qty": "120g"
+          },
+          {
+            "item": "Whole Wheat Pasta",
+            "qty": "55g dry"
+          },
+          {
+            "item": "Passata",
+            "qty": "150g"
+          },
+          {
+            "item": "Carrot + celery + onion (soffritto)",
+            "qty": "30g each, finely diced"
+          },
+          {
+            "item": "Garlic",
+            "qty": "2 cloves"
+          },
+          {
+            "item": "Dried basil + oregano + bay leaf",
+            "qty": "1 tsp each"
+          },
+          {
+            "item": "Olive oil",
+            "qty": "1 tsp"
+          },
+          {
+            "item": "Nutritional yeast",
+            "qty": "1 tbsp"
+          }
         ],
         "steps": [
           "Finely dice carrot, celery and onion — don't skip this, it builds the flavour base",
@@ -593,16 +1498,40 @@
       },
       {
         "name": "Palak Paneer Dal",
-        "cal": 420, "protein": 40, "carbs": 44, "fat": 10,
+        "cal": 420,
+        "protein": 40,
+        "carbs": 44,
+        "fat": 10,
         "desc": "🌿 The cleanest meal in the database. Spinach + paneer + double lentils. Zero soy, zero compromise.",
         "ingredients": [
-          { "item": "Masoor Dal / Red Lentils (dry)", "qty": "70g" },
-          { "item": "Moong Dal (dry)", "qty": "30g" },
-          { "item": "Paneer (low-fat)", "qty": "80g" },
-          { "item": "Spinach", "qty": "150g" },
-          { "item": "Tomato + onion", "qty": "1 medium each" },
-          { "item": "Turmeric + cumin + coriander + chilli", "qty": "1/2 tsp each" },
-          { "item": "Lemon juice + salt", "qty": "to taste" }
+          {
+            "item": "Masoor Dal / Red Lentils (dry)",
+            "qty": "70g"
+          },
+          {
+            "item": "Moong Dal (dry)",
+            "qty": "30g"
+          },
+          {
+            "item": "Paneer (low-fat)",
+            "qty": "80g"
+          },
+          {
+            "item": "Spinach",
+            "qty": "150g"
+          },
+          {
+            "item": "Tomato + onion",
+            "qty": "1 medium each"
+          },
+          {
+            "item": "Turmeric + cumin + coriander + chilli",
+            "qty": "1/2 tsp each"
+          },
+          {
+            "item": "Lemon juice + salt",
+            "qty": "to taste"
+          }
         ],
         "steps": [
           "Cook both lentils together until completely soft with turmeric and salt",
@@ -615,16 +1544,40 @@
       },
       {
         "name": "Beyond Keema Roti Wrap",
-        "cal": 460, "protein": 36, "carbs": 44, "fat": 18,
+        "cal": 460,
+        "protein": 36,
+        "carbs": 44,
+        "fat": 18,
         "desc": "🫓 Indian street food energy with Beyond Beef as the keema. Spiced with proper masala, wrapped in whole wheat roti.",
         "ingredients": [
-          { "item": "Beyond Beef ground", "qty": "120g" },
-          { "item": "Whole Wheat Roti or Tortilla", "qty": "2 medium" },
-          { "item": "Green peas (frozen)", "qty": "50g" },
-          { "item": "Onion + tomato + garlic + ginger", "qty": "1 small each + 2 cloves + 1/2 inch" },
-          { "item": "Keema masala (cumin, coriander, chilli, garam masala)", "qty": "1 tsp each" },
-          { "item": "Greek Yogurt", "qty": "80g (as mint raita)" },
-          { "item": "Fresh mint + lemon", "qty": "handful + squeeze" }
+          {
+            "item": "Beyond Beef ground",
+            "qty": "120g"
+          },
+          {
+            "item": "Whole Wheat Roti or Tortilla",
+            "qty": "2 medium"
+          },
+          {
+            "item": "Green peas (frozen)",
+            "qty": "50g"
+          },
+          {
+            "item": "Onion + tomato + garlic + ginger",
+            "qty": "1 small each + 2 cloves + 1/2 inch"
+          },
+          {
+            "item": "Keema masala (cumin, coriander, chilli, garam masala)",
+            "qty": "1 tsp each"
+          },
+          {
+            "item": "Greek Yogurt",
+            "qty": "80g (as mint raita)"
+          },
+          {
+            "item": "Fresh mint + lemon",
+            "qty": "handful + squeeze"
+          }
         ],
         "steps": [
           "Sauté onion, garlic and ginger until deep golden — add all keema masala spices",
@@ -637,15 +1590,36 @@
       },
       {
         "name": "Chickpea Tikka Masala",
-        "cal": 440, "protein": 36, "carbs": 52, "fat": 10,
+        "cal": 440,
+        "protein": 36,
+        "carbs": 52,
+        "fat": 10,
         "desc": "🍛 The beloved tikka masala sauce, but chickpeas as the star. Goes hard over rice or with a roti.",
         "ingredients": [
-          { "item": "Chickpeas (cooked)", "qty": "200g" },
-          { "item": "Greek Yogurt", "qty": "80g" },
-          { "item": "Tomato passata", "qty": "130g" },
-          { "item": "Onion + garlic + ginger", "qty": "1 small + 2 cloves + 1 inch" },
-          { "item": "Tikka spice mix (cumin, coriander, paprika, garam masala, turmeric)", "qty": "2 tsp total" },
-          { "item": "Brown Rice (cooked)", "qty": "110g" }
+          {
+            "item": "Chickpeas (cooked)",
+            "qty": "200g"
+          },
+          {
+            "item": "Greek Yogurt",
+            "qty": "80g"
+          },
+          {
+            "item": "Tomato passata",
+            "qty": "130g"
+          },
+          {
+            "item": "Onion + garlic + ginger",
+            "qty": "1 small + 2 cloves + 1 inch"
+          },
+          {
+            "item": "Tikka spice mix (cumin, coriander, paprika, garam masala, turmeric)",
+            "qty": "2 tsp total"
+          },
+          {
+            "item": "Brown Rice (cooked)",
+            "qty": "110g"
+          }
         ],
         "steps": [
           "Sauté onion, garlic and ginger until deeply golden — don't rush this step",
@@ -658,17 +1632,44 @@
       },
       {
         "name": "Seitan Chipotle Stew Bowl",
-        "cal": 430, "protein": 40, "carbs": 50, "fat": 6,
+        "cal": 430,
+        "protein": 40,
+        "carbs": 50,
+        "fat": 6,
         "desc": "🥣 Seitan is wheat gluten — zero soy, high protein, holds up beautifully in stews. Chipotle broth makes it sing.",
         "ingredients": [
-          { "item": "Seitan (store-bought chunks or strips)", "qty": "150g" },
-          { "item": "Black Beans (cooked)", "qty": "80g" },
-          { "item": "Brown Rice (cooked)", "qty": "100g" },
-          { "item": "Tomato passata", "qty": "150g" },
-          { "item": "Vegetable stock", "qty": "250ml" },
-          { "item": "Chipotle + cumin + dried oregano + smoked paprika", "qty": "1 tsp each" },
-          { "item": "Garlic + onion", "qty": "2 cloves + 1 small" },
-          { "item": "Lime juice + cilantro", "qty": "to taste" }
+          {
+            "item": "Seitan (store-bought chunks or strips)",
+            "qty": "150g"
+          },
+          {
+            "item": "Black Beans (cooked)",
+            "qty": "80g"
+          },
+          {
+            "item": "Brown Rice (cooked)",
+            "qty": "100g"
+          },
+          {
+            "item": "Tomato passata",
+            "qty": "150g"
+          },
+          {
+            "item": "Vegetable stock",
+            "qty": "250ml"
+          },
+          {
+            "item": "Chipotle + cumin + dried oregano + smoked paprika",
+            "qty": "1 tsp each"
+          },
+          {
+            "item": "Garlic + onion",
+            "qty": "2 cloves + 1 small"
+          },
+          {
+            "item": "Lime juice + cilantro",
+            "qty": "to taste"
+          }
         ],
         "steps": [
           "Tear seitan into rough chunks for better texture — don't cut too neat",
@@ -681,14 +1682,32 @@
       },
       {
         "name": "Rajma + Paneer Bowl",
-        "cal": 420, "protein": 38, "carbs": 46, "fat": 11,
+        "cal": 420,
+        "protein": 38,
+        "carbs": 46,
+        "fat": 11,
         "desc": "🫕 Classic Indian comfort meal. The rajma masala that heals everything.",
         "ingredients": [
-          { "item": "Rajma (Kidney Beans, cooked)", "qty": "150g" },
-          { "item": "Paneer (low-fat)", "qty": "80g" },
-          { "item": "Brown Rice (cooked)", "qty": "110g" },
-          { "item": "Onion + tomato", "qty": "1 small each" },
-          { "item": "Garam masala + cumin + coriander + chilli", "qty": "1/2 tsp each" }
+          {
+            "item": "Rajma (Kidney Beans, cooked)",
+            "qty": "150g"
+          },
+          {
+            "item": "Paneer (low-fat)",
+            "qty": "80g"
+          },
+          {
+            "item": "Brown Rice (cooked)",
+            "qty": "110g"
+          },
+          {
+            "item": "Onion + tomato",
+            "qty": "1 small each"
+          },
+          {
+            "item": "Garam masala + cumin + coriander + chilli",
+            "qty": "1/2 tsp each"
+          }
         ],
         "steps": [
           "Cook rajma masala with onion, tomato and spices",
@@ -698,13 +1717,28 @@
       },
       {
         "name": "Soy Chunk Masala + Brown Rice",
-        "cal": 450, "protein": 44, "carbs": 50, "fat": 5,
+        "cal": 450,
+        "protein": 44,
+        "carbs": 50,
+        "fat": 5,
         "desc": "💪 The one soy recipe kept on purpose — highest plant protein in the database. Swap for seitan chunks if you want to go fully soy-free.",
         "ingredients": [
-          { "item": "Soy Chunks (dry)", "qty": "80g" },
-          { "item": "Tomato + Onion Masala", "qty": "180g" },
-          { "item": "Brown Rice (cooked)", "qty": "130g" },
-          { "item": "Garam masala, cumin, coriander", "qty": "to taste" }
+          {
+            "item": "Soy Chunks (dry)",
+            "qty": "80g"
+          },
+          {
+            "item": "Tomato + Onion Masala",
+            "qty": "180g"
+          },
+          {
+            "item": "Brown Rice (cooked)",
+            "qty": "130g"
+          },
+          {
+            "item": "Garam masala, cumin, coriander",
+            "qty": "to taste"
+          }
         ],
         "steps": [
           "Soak soy chunks 10 min in hot water, squeeze dry",
@@ -717,12 +1751,24 @@
     "snacks": [
       {
         "name": "Roasted Chana + Mini Shake",
-        "cal": 240, "protein": 26, "carbs": 24, "fat": 4,
+        "cal": 240,
+        "protein": 26,
+        "carbs": 24,
+        "fat": 4,
         "desc": "🥜 Indian snack staple meets gym nutrition. Crunchy, portable.",
         "ingredients": [
-          { "item": "Roasted Chana (dry)", "qty": "40g" },
-          { "item": "Whey Protein", "qty": "0.75 scoop" },
-          { "item": "Almond Milk", "qty": "200ml" }
+          {
+            "item": "Roasted Chana (dry)",
+            "qty": "40g"
+          },
+          {
+            "item": "Whey Protein",
+            "qty": "0.75 scoop"
+          },
+          {
+            "item": "Almond Milk",
+            "qty": "200ml"
+          }
         ],
         "steps": [
           "Shake whey with almond milk",
@@ -731,27 +1777,55 @@
       },
       {
         "name": "Cosmic Shake",
-        "cal": 120, "protein": 28, "carbs": 3, "fat": 1,
+        "cal": 120,
+        "protein": 28,
+        "carbs": 3,
+        "fat": 1,
         "desc": "⚡ The quick hit. Protein sorted in 30 seconds — water only.",
         "ingredients": [
-          { "item": "Cosmic Protein", "qty": "1 scoop" },
-          { "item": "Cold Water", "qty": "300–400ml" }
+          {
+            "item": "Cosmic Protein",
+            "qty": "1 scoop"
+          },
+          {
+            "item": "Cold Water",
+            "qty": "300–400ml"
+          }
         ],
         "steps": [
           "Shake scoop with cold water",
           "Drink immediately"
-        ]
+        ],
+        "family": "cosmic"
       },
       {
         "name": "Makhana + Mini Shake",
-        "cal": 250, "protein": 26, "carbs": 34, "fat": 3,
+        "cal": 250,
+        "protein": 26,
+        "carbs": 34,
+        "fat": 3,
         "desc": "🪷 Fox nuts are low-cal and addictively crunchy. Season them right and they become a snack addiction.",
         "ingredients": [
-          { "item": "Makhana (Fox Nuts)", "qty": "40g" },
-          { "item": "Ghee", "qty": "1/4 tsp" },
-          { "item": "Rock salt + pepper", "qty": "pinch" },
-          { "item": "Whey Protein", "qty": "0.75 scoop" },
-          { "item": "Water/Milk", "qty": "180ml" }
+          {
+            "item": "Makhana (Fox Nuts)",
+            "qty": "40g"
+          },
+          {
+            "item": "Ghee",
+            "qty": "1/4 tsp"
+          },
+          {
+            "item": "Rock salt + pepper",
+            "qty": "pinch"
+          },
+          {
+            "item": "Whey Protein",
+            "qty": "0.75 scoop"
+          },
+          {
+            "item": "Water/Milk",
+            "qty": "180ml"
+          }
         ],
         "steps": [
           "Dry roast makhana with ghee + seasoning till crispy",
@@ -761,13 +1835,28 @@
       },
       {
         "name": "Paneer Bites + Almonds",
-        "cal": 240, "protein": 26, "carbs": 3, "fat": 14,
+        "cal": 240,
+        "protein": 26,
+        "carbs": 3,
+        "fat": 14,
         "desc": "⚡ Zero cooking. Great on-the-go protein snack.",
         "ingredients": [
-          { "item": "Paneer (low-fat)", "qty": "80g" },
-          { "item": "Almonds", "qty": "15g" },
-          { "item": "Chaat masala", "qty": "pinch" },
-          { "item": "Lemon juice", "qty": "squeeze" }
+          {
+            "item": "Paneer (low-fat)",
+            "qty": "80g"
+          },
+          {
+            "item": "Almonds",
+            "qty": "15g"
+          },
+          {
+            "item": "Chaat masala",
+            "qty": "pinch"
+          },
+          {
+            "item": "Lemon juice",
+            "qty": "squeeze"
+          }
         ],
         "steps": [
           "Cube paneer, season with chaat masala and lemon",
@@ -776,15 +1865,36 @@
       },
       {
         "name": "Chipotle Chickpea Crunch + Shake",
-        "cal": 240, "protein": 27, "carbs": 27, "fat": 4,
+        "cal": 240,
+        "protein": 27,
+        "carbs": 27,
+        "fat": 4,
         "desc": "🌶️ Mexican bar snack meets gym nutrition. Crunchy, spicy, addictive. Way better than plain chana.",
         "ingredients": [
-          { "item": "Chickpeas (cooked, dried on paper towel)", "qty": "80g" },
-          { "item": "Chipotle powder + smoked paprika + cumin", "qty": "1/2 tsp each" },
-          { "item": "Lime zest + lime juice", "qty": "1/2 lime" },
-          { "item": "Salt + olive oil spray", "qty": "pinch + 2 sprays" },
-          { "item": "Whey Protein", "qty": "0.75 scoop" },
-          { "item": "Water or Almond Milk", "qty": "180ml" }
+          {
+            "item": "Chickpeas (cooked, dried on paper towel)",
+            "qty": "80g"
+          },
+          {
+            "item": "Chipotle powder + smoked paprika + cumin",
+            "qty": "1/2 tsp each"
+          },
+          {
+            "item": "Lime zest + lime juice",
+            "qty": "1/2 lime"
+          },
+          {
+            "item": "Salt + olive oil spray",
+            "qty": "pinch + 2 sprays"
+          },
+          {
+            "item": "Whey Protein",
+            "qty": "0.75 scoop"
+          },
+          {
+            "item": "Water or Almond Milk",
+            "qty": "180ml"
+          }
         ],
         "steps": [
           "Spread dried chickpeas on a tray, spray with olive oil, roast at 200°C for 25 min until very crunchy",
@@ -795,14 +1905,32 @@
       },
       {
         "name": "Paneer Queso Bites + Salsa",
-        "cal": 235, "protein": 25, "carbs": 6, "fat": 13,
+        "cal": 235,
+        "protein": 25,
+        "carbs": 6,
+        "fat": 13,
         "desc": "🧀 Mexican-Indian zero-cook snack. Paneer plays queso fresco and it just works.",
         "ingredients": [
-          { "item": "Paneer (low-fat)", "qty": "85g" },
-          { "item": "Smoked paprika + cumin + chilli", "qty": "pinch each" },
-          { "item": "Lime juice", "qty": "squeeze" },
-          { "item": "Salsa", "qty": "40g (for dipping)" },
-          { "item": "Almonds", "qty": "12g" }
+          {
+            "item": "Paneer (low-fat)",
+            "qty": "85g"
+          },
+          {
+            "item": "Smoked paprika + cumin + chilli",
+            "qty": "pinch each"
+          },
+          {
+            "item": "Lime juice",
+            "qty": "squeeze"
+          },
+          {
+            "item": "Salsa",
+            "qty": "40g (for dipping)"
+          },
+          {
+            "item": "Almonds",
+            "qty": "12g"
+          }
         ],
         "steps": [
           "Cube paneer into bite-size pieces",
@@ -813,11 +1941,20 @@
       },
       {
         "name": "Huel Black Mini Shake",
-        "cal": 200, "protein": 20, "carbs": 9, "fat": 9,
+        "cal": 200,
+        "protein": 20,
+        "carbs": 9,
+        "fat": 9,
         "desc": "🤖 1-scoop Huel as a light snack. Complete nutrition in 30 seconds. Keep a shaker ready.",
         "ingredients": [
-          { "item": "Huel Black Powder", "qty": "1 scoop (45g)" },
-          { "item": "Cold Water", "qty": "300ml" }
+          {
+            "item": "Huel Black Powder",
+            "qty": "1 scoop (45g)"
+          },
+          {
+            "item": "Cold Water",
+            "qty": "300ml"
+          }
         ],
         "steps": [
           "Shake vigorously with cold water for 20 seconds",
@@ -826,14 +1963,32 @@
       },
       {
         "name": "Spiced Edamame + Mini Shake",
-        "cal": 240, "protein": 28, "carbs": 14, "fat": 6,
+        "cal": 240,
+        "protein": 28,
+        "carbs": 14,
+        "fat": 6,
         "desc": "🫛 Indian spice rub on Japanese edamame. Weird on paper, elite in practice.",
         "ingredients": [
-          { "item": "Edamame (frozen, in pod)", "qty": "120g" },
-          { "item": "Chaat masala or cumin + chilli + salt", "qty": "1/2 tsp" },
-          { "item": "Lemon juice", "qty": "squeeze" },
-          { "item": "Whey Protein", "qty": "0.75 scoop" },
-          { "item": "Almond Milk", "qty": "180ml" }
+          {
+            "item": "Edamame (frozen, in pod)",
+            "qty": "120g"
+          },
+          {
+            "item": "Chaat masala or cumin + chilli + salt",
+            "qty": "1/2 tsp"
+          },
+          {
+            "item": "Lemon juice",
+            "qty": "squeeze"
+          },
+          {
+            "item": "Whey Protein",
+            "qty": "0.75 scoop"
+          },
+          {
+            "item": "Almond Milk",
+            "qty": "180ml"
+          }
         ],
         "steps": [
           "Microwave edamame 3 min or boil 5 min",
@@ -844,16 +1999,40 @@
       },
       {
         "name": "Chickpea Bhel",
-        "cal": 235, "protein": 24, "carbs": 28, "fat": 4,
+        "cal": 235,
+        "protein": 24,
+        "carbs": 28,
+        "fat": 4,
         "desc": "🌟 Indian street food snack, gym-edition. Crispy chickpeas replace soy — better crunch, zero soy.",
         "ingredients": [
-          { "item": "Roasted Chickpeas (or canned, air-dried)", "qty": "60g" },
-          { "item": "Puffed Rice (murmura)", "qty": "25g" },
-          { "item": "Roasted Chana", "qty": "15g" },
-          { "item": "Onion + tomato + cucumber", "qty": "2 tbsp each, diced small" },
-          { "item": "Tamarind chutney + green chutney", "qty": "1 tsp each" },
-          { "item": "Chaat masala + lemon juice", "qty": "pinch + squeeze" },
-          { "item": "Fresh coriander", "qty": "handful" }
+          {
+            "item": "Roasted Chickpeas (or canned, air-dried)",
+            "qty": "60g"
+          },
+          {
+            "item": "Puffed Rice (murmura)",
+            "qty": "25g"
+          },
+          {
+            "item": "Roasted Chana",
+            "qty": "15g"
+          },
+          {
+            "item": "Onion + tomato + cucumber",
+            "qty": "2 tbsp each, diced small"
+          },
+          {
+            "item": "Tamarind chutney + green chutney",
+            "qty": "1 tsp each"
+          },
+          {
+            "item": "Chaat masala + lemon juice",
+            "qty": "pinch + squeeze"
+          },
+          {
+            "item": "Fresh coriander",
+            "qty": "handful"
+          }
         ],
         "steps": [
           "If using canned chickpeas: drain, pat dry with paper towel and air-fry or oven-roast 15 min at 200°C until very crunchy",
@@ -865,14 +2044,32 @@
       },
       {
         "name": "Greek Yogurt Berry Bowl",
-        "cal": 240, "protein": 28, "carbs": 22, "fat": 4,
+        "cal": 240,
+        "protein": 28,
+        "carbs": 22,
+        "fat": 4,
         "desc": "🫐 Simple, sweet, feels like a treat. Whey stirred into yogurt makes it extra thick and protein-forward.",
         "ingredients": [
-          { "item": "Greek Yogurt (0% fat)", "qty": "250g" },
-          { "item": "Whey Protein (vanilla)", "qty": "0.5 scoop" },
-          { "item": "Mixed Berries", "qty": "80g" },
-          { "item": "Honey", "qty": "1 tsp" },
-          { "item": "Almonds (crushed)", "qty": "8g" }
+          {
+            "item": "Greek Yogurt (0% fat)",
+            "qty": "250g"
+          },
+          {
+            "item": "Whey Protein (vanilla)",
+            "qty": "0.5 scoop"
+          },
+          {
+            "item": "Mixed Berries",
+            "qty": "80g"
+          },
+          {
+            "item": "Honey",
+            "qty": "1 tsp"
+          },
+          {
+            "item": "Almonds (crushed)",
+            "qty": "8g"
+          }
         ],
         "steps": [
           "Stir whey into Greek yogurt until fully combined and thick",
