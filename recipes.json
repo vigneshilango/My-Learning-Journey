@@ -1,7 +1,8 @@
 {
   "staples": [
     { "name": "Huel Black Edition Shake", "cat": "shake", "desc": "Post-workout or quick liquid meal.", "cal": 400, "protein": 40, "carbs": 17, "fat": 18 },
-    { "name": "Huel Hot & Savory",         "cat": "main",  "desc": "Zero-prep savory meal.",           "cal": 400, "protein": 25, "carbs": 47, "fat": 11 }
+    { "name": "Huel Hot & Savory",         "cat": "main",  "desc": "Zero-prep savory meal.",           "cal": 400, "protein": 25, "carbs": 47, "fat": 11 },
+    { "name": "Cosmic Protein",              "cat": "shake", "desc": "Quick post-workout: 1 scoop + cold water in a shaker.", "cal": 120, "protein": 28, "carbs": 3, "fat": 1 }
   ],
   "prepRecipes": {
     "preworkout": [
@@ -56,6 +57,19 @@
       }
     ],
     "postworkout": [
+      {
+        "name": "Cosmic Protein + Water",
+        "cal": 120, "protein": 28, "carbs": 3, "fat": 1,
+        "desc": "⚡ Default post-workout — one scoop, cold water, done in 30 seconds.",
+        "ingredients": [
+          { "item": "Cosmic Protein", "qty": "1 scoop" },
+          { "item": "Cold Water", "qty": "300–400ml" }
+        ],
+        "steps": [
+          "Add water to shaker, add scoop, shake 15–20 seconds",
+          "Drink within 30 min of finishing workout"
+        ]
+      },
       {
         "name": "Huel Black Recovery Shake",
         "cal": 400, "protein": 40, "carbs": 17, "fat": 18,
@@ -717,15 +731,15 @@
       },
       {
         "name": "Cosmic Shake",
-        "cal": 200, "protein": 28, "carbs": 10, "fat": 4,
-        "desc": "⚡ The quick hit. Protein sorted in 30 seconds.",
+        "cal": 120, "protein": 28, "carbs": 3, "fat": 1,
+        "desc": "⚡ The quick hit. Protein sorted in 30 seconds — water only.",
         "ingredients": [
-          { "item": "Cosmic Protein", "qty": "1 Scoop" },
-          { "item": "Almond Milk", "qty": "250ml" },
-          { "item": "Ice", "qty": "handful" }
+          { "item": "Cosmic Protein", "qty": "1 scoop" },
+          { "item": "Cold Water", "qty": "300–400ml" }
         ],
         "steps": [
-          "Shake or blend all ingredients"
+          "Shake scoop with cold water",
+          "Drink immediately"
         ]
       },
       {
