@@ -8,10 +8,13 @@
         startWeight: 250,
         goalWeight: 210,
         heightIn: 0,
+        neckIn: 0,
+        waistIn: 0,
+        hipIn: 0,
+        sex: 'male',
         macros: { calories: 2200, protein: 210, carbs: 180, fat: 70 },
         useProteinPerLbGoal: true,
-        cardioEquipment: 'peloton',
-        strengthEquipment: 'barbell'
+        cardioEquipment: 'peloton'
     };
 
     const BARBELL_EXERCISE_SUBS = {
@@ -234,9 +237,32 @@
         return (p && p.settings && p.settings.cardioEquipment) || 'peloton';
     }
 
-    function getStrengthEquipment() {
+    function getProfileSex() {
         const p = getActiveProfile();
-        return (p && p.settings && p.settings.strengthEquipment) || 'barbell';
+        const sex = p && p.settings && p.settings.sex;
+        return sex === 'female' ? 'female' : 'male';
+    }
+
+    function getExerciseBase(exerciseStr) {
+        if (!exerciseStr) return '';
+        const paren = exerciseStr.indexOf('(');
+        return paren >= 0 ? exerciseStr.slice(0, paren).trim() : exerciseStr.trim();
+    }
+
+    function hasBarbellSub(base) {
+        return !!(base && BARBELL_EXERCISE_SUBS[base]);
+    }
+
+    function isExerciseDumbbellMode(base) {
+        return base && pGet('equip_' + base) === 'dumbbell';
+    }
+
+    function toggleExerciseEquipment(base) {
+        if (!base) return;
+        const key = 'equip_' + base;
+        if (pGet(key) === 'dumbbell') pRemove(key);
+        else pSet(key, 'dumbbell');
+        if (typeof renderWorkoutDay === 'function') renderWorkoutDay();
     }
 
     function getRecommendedRest(exerciseLabel) {
@@ -251,13 +277,29 @@
 
     function parseTimedExercise(exerciseStr) {
         if (!exerciseStr) return null;
-        const m = exerciseStr.match(/\((\d+)x(\d+)\s*(s|sec|seconds|m|min|minutes)?\)/i);
+        const name = getExerciseBase(exerciseStr).toLowerCase();
+        const withUnit = exerciseStr.match(/\((\d+)x(\d+)\s*(s|sec|seconds|m|min|minutes)\)/i);
+        if (withUnit) {
+            const sets = parseInt(withUnit[1], 10);
+            let secs = parseInt(withUnit[2], 10);
+            const unit = withUnit[3].toLowerCase();
+            if (unit.startsWith('m')) secs *= 60;
+            return { sets, holdSeconds: secs };
+        }
+        if (/plank|wall sit|hold|dead hang/.test(name)) {
+            const bare = exerciseStr.match(/\((\d+)x(\d+)\)/i);
+            if (bare) {
+                return { sets: parseInt(bare[1], 10), holdSeconds: parseInt(bare[2], 10) };
+            }
+        }
+        return null;
+    }
+
+    function parseRepScheme(exerciseStr) {
+        if (!exerciseStr || parseTimedExercise(exerciseStr)) return null;
+        const m = exerciseStr.match(/\((\d+)x(\d+)\)/i);
         if (!m) return null;
-        const sets = parseInt(m[1], 10);
-        let secs = parseInt(m[2], 10);
-        const unit = (m[3] || 's').toLowerCase();
-        if (unit.startsWith('m')) secs *= 60;
-        return { sets, holdSeconds: secs };
+        return { sets: parseInt(m[1], 10), reps: parseInt(m[2], 10) };
     }
 
     function resolveCardioExercise(exerciseStr) {
@@ -271,16 +313,16 @@
     }
 
     function resolveStrengthExercise(exerciseStr) {
-        if (!exerciseStr) return { label: exerciseStr, tipKey: '' };
+        if (!exerciseStr) return { label: exerciseStr, tipKey: '', base: '' };
+        const base = getExerciseBase(exerciseStr);
         const paren = exerciseStr.indexOf('(');
-        const base = paren >= 0 ? exerciseStr.slice(0, paren).trim() : exerciseStr.trim();
         const suffix = paren >= 0 ? exerciseStr.slice(paren) : '';
-        if (getStrengthEquipment() !== 'dumbbell') {
-            return { label: exerciseStr, tipKey: base };
+        if (!isExerciseDumbbellMode(base)) {
+            return { label: exerciseStr, tipKey: base, base };
         }
         const sub = BARBELL_EXERCISE_SUBS[base];
-        if (sub) return { label: sub.label + suffix, tipKey: sub.tipKey };
-        return { label: exerciseStr, tipKey: base };
+        if (sub) return { label: sub.label + suffix, tipKey: sub.tipKey, base };
+        return { label: exerciseStr, tipKey: base, base };
     }
 
     function resolveExercise(exerciseStr) {
@@ -294,10 +336,45 @@
         const nameMap = CARDIO_WORKOUT_NAME_SUBS[eq] || {};
         const copy = Object.assign({}, dayData);
         if (eq !== 'peloton' && copy.name && nameMap[copy.name]) copy.name = nameMap[copy.name];
-        if (copy.exercises) {
-            copy.exercises = copy.exercises.map(ex => resolveExercise(ex).label);
-        }
         return copy;
+    }
+
+    function syncBodyMetricsToWorkoutInputs(settings) {
+        settings = Object.assign({}, DEFAULT_SETTINGS, settings || {});
+        const heightEl = document.getElementById('currentHeight');
+        const neckEl = document.getElementById('currentNeck');
+        const waistEl = document.getElementById('currentWaist');
+        const hipEl = document.getElementById('currentHip');
+        if (settings.heightIn > 0) {
+            if (heightEl) heightEl.value = settings.heightIn;
+            pSet('bf_height', String(settings.heightIn));
+        }
+        if (settings.neckIn > 0) {
+            if (neckEl) neckEl.value = settings.neckIn;
+            pSet('bf_neck', String(settings.neckIn));
+        }
+        if (settings.waistIn > 0) {
+            if (waistEl) waistEl.value = settings.waistIn;
+            pSet('currentWaist', String(settings.waistIn));
+        }
+        if (settings.hipIn > 0) {
+            if (hipEl) hipEl.value = settings.hipIn;
+            pSet('bf_hip', String(settings.hipIn));
+        }
+        updateHipFieldVisibility();
+        if (typeof updateBF === 'function') updateBF();
+    }
+
+    function updateHipFieldVisibility() {
+        const row = document.getElementById('hipInputRow');
+        if (row) row.style.display = getProfileSex() === 'female' ? 'flex' : 'none';
+        updateMeasureHints();
+    }
+
+    function toggleProfileHipRow(prefix) {
+        const sexEl = document.getElementById(prefix + 'Sex');
+        const row = document.getElementById(prefix + 'HipRow');
+        if (row && sexEl) row.style.display = sexEl.value === 'female' ? 'block' : 'none';
     }
 
     function toDateStr(d) {
@@ -491,6 +568,35 @@
         }
     }
 
+    function getWaistMeasureHint() {
+        return getProfileSex() === 'female'
+            ? 'At your natural narrowest point (usually above the belly button) — tape horizontal, relaxed.'
+            : 'At belly button (navel) level — tape horizontal around your abdomen, relaxed (don\'t suck in).';
+    }
+
+    function updateMeasureHints() {
+        const waistHint = document.getElementById('waistMeasureHint');
+        const checkinWaistHint = document.getElementById('checkinWaistHint');
+        const hintText = getWaistMeasureHint();
+        if (waistHint) waistHint.textContent = hintText;
+        if (checkinWaistHint) checkinWaistHint.textContent = hintText;
+        const hipRow = document.getElementById('hipMeasureHintRow');
+        if (hipRow) hipRow.style.display = getProfileSex() === 'female' ? 'list-item' : 'none';
+    }
+
+    function bodyMeasureGuideHtml() {
+        return `<details class="measure-guide" style="margin-bottom:14px;">
+            <summary>How to measure (Navy body-fat method)</summary>
+            <ul>
+                <li><strong>Neck:</strong> Just below the Adam's apple — tape sloped slightly down in front. Don't flex.</li>
+                <li><strong>Waist (male):</strong> At belly button (navel) — horizontal tape, relaxed abdomen.</li>
+                <li><strong>Waist (female):</strong> At natural narrowest point — usually above the navel.</li>
+                <li><strong>Hip (female):</strong> Widest part of hips/buttocks — tape parallel to the floor.</li>
+                <li><strong>Height:</strong> Barefoot, stand straight — measure in inches.</li>
+            </ul>
+        </details>`;
+    }
+
     function profileFormFields(s, prefix) {
         const p = prefix || 'prof';
         return `
@@ -500,8 +606,27 @@
             <input type="number" step="0.1" id="${p}StartWt" class="checkin-input" value="${s.startWeight || ''}" placeholder="e.g. 244.4">
             <label class="checkin-modal-label">Goal weight (lbs) <span style="color:var(--danger);">*</span></label>
             <input type="number" step="0.1" id="${p}GoalWt" class="checkin-input" value="${s.goalWeight || ''}" placeholder="e.g. 210">
-            <label class="checkin-modal-label">Height (inches, optional)</label>
+            <p style="color:var(--dim); font-size:0.78rem; margin:8px 0 10px;">Body measurements for body-fat tracking (optional — update anytime on the Workout tab).</p>
+            ${bodyMeasureGuideHtml()}
+            <label class="checkin-modal-label">Neck (inches)</label>
+            <p class="measure-hint">Just below the Adam's apple — tape horizontal, don't flex your neck.</p>
+            <input type="number" step="0.1" id="${p}Neck" class="checkin-input" value="${s.neckIn || ''}" placeholder="e.g. 15">
+            <label class="checkin-modal-label">Waist (inches)</label>
+            <p class="measure-hint">Male: at navel (belly button). Female: narrowest waist above navel. Stay consistent each week.</p>
+            <input type="number" step="0.1" id="${p}Waist" class="checkin-input" value="${s.waistIn || ''}" placeholder="e.g. 38">
+            <label class="checkin-modal-label">Height (inches)</label>
+            <p class="measure-hint">Barefoot, stand straight against a wall — measure in inches.</p>
             <input type="number" step="0.1" id="${p}Height" class="checkin-input" value="${s.heightIn || ''}" placeholder="e.g. 72">
+            <label class="checkin-modal-label">Sex (for body-fat formula)</label>
+            <select id="${p}Sex" class="checkin-input" onchange="toggleProfileHipRow('${p}'); updateMeasureHints();">
+                <option value="male" ${s.sex !== 'female' ? 'selected' : ''}>Male</option>
+                <option value="female" ${s.sex === 'female' ? 'selected' : ''}>Female</option>
+            </select>
+            <div id="${p}HipRow" style="display:${s.sex === 'female' ? 'block' : 'none'};">
+                <label class="checkin-modal-label">Hip (inches, female BF)</label>
+                <p class="measure-hint">Widest part of hips/buttocks — tape parallel to the floor.</p>
+                <input type="number" step="0.1" id="${p}Hip" class="checkin-input" value="${s.hipIn || ''}" placeholder="e.g. 40">
+            </div>
             <div class="cf-grid" style="margin-top:10px;">
                 <div><label class="checkin-modal-label">Calories</label><input type="number" id="${p}Cal" class="checkin-input" value="${s.macros.calories}"></div>
                 <div><label class="checkin-modal-label">Protein (g)</label><input type="number" id="${p}Pro" class="checkin-input" value="${s.macros.protein}"></div>
@@ -518,11 +643,6 @@
                 <option value="generic_bike" ${s.cardioEquipment === 'generic_bike' ? 'selected' : ''}>Stationary bike (no Peloton)</option>
                 <option value="treadmill" ${s.cardioEquipment === 'treadmill' ? 'selected' : ''}>Treadmill</option>
                 <option value="outdoor" ${s.cardioEquipment === 'outdoor' ? 'selected' : ''}>Outdoor walk / run</option>
-            </select>
-            <label class="checkin-modal-label">Strength equipment</label>
-            <select id="${p}Strength" class="checkin-input">
-                <option value="barbell" ${s.strengthEquipment === 'barbell' ? 'selected' : ''}>Barbell / gym rack</option>
-                <option value="dumbbell" ${s.strengthEquipment === 'dumbbell' ? 'selected' : ''}>Dumbbells only (no barbell)</option>
             </select>`;
     }
 
@@ -535,6 +655,7 @@
         el.innerHTML = profileFormFields(s, 'prof') + `
             <button class="action-btn btn-primary" style="margin-top:12px;" onclick="saveProfileSettings()">💾 Save Profile</button>
             <button class="action-btn btn-outline" style="margin-top:8px;" onclick="showProfileGate()">👤 Switch Profile</button>`;
+        toggleProfileHipRow('prof');
     }
 
     function renderProfileSheetForm() {
@@ -546,6 +667,7 @@
         el.innerHTML = profileFormFields(s, 'sheet') + `
             <button class="action-btn btn-primary" style="margin-top:12px;" onclick="saveProfileSheet()">💾 Save Profile</button>
             <button class="action-btn btn-outline" style="margin-top:8px;" onclick="showProfileGate(); closeProfileSheet();">👤 Switch Profile</button>`;
+        toggleProfileHipRow('sheet');
     }
 
     function applyProfileFields(meta, p, prefix, opts) {
@@ -579,20 +701,22 @@
             }
         }
         const heightEl = document.getElementById(prefix + 'Height');
-        if (heightEl && heightEl.value) {
-            p.settings.heightIn = parseFloat(heightEl.value) || 0;
-            const heightInput = document.getElementById('currentHeight');
-            if (heightInput) heightInput.value = p.settings.heightIn;
-            pSet('bf_height', String(p.settings.heightIn));
-        }
+        const neckEl = document.getElementById(prefix + 'Neck');
+        const waistEl = document.getElementById(prefix + 'Waist');
+        const hipEl = document.getElementById(prefix + 'Hip');
+        const sexEl = document.getElementById(prefix + 'Sex');
+        if (heightEl && heightEl.value) p.settings.heightIn = parseFloat(heightEl.value) || 0;
+        if (neckEl && neckEl.value) p.settings.neckIn = parseFloat(neckEl.value) || 0;
+        if (waistEl && waistEl.value) p.settings.waistIn = parseFloat(waistEl.value) || 0;
+        if (hipEl && hipEl.value) p.settings.hipIn = parseFloat(hipEl.value) || 0;
+        if (sexEl) p.settings.sex = sexEl.value === 'female' ? 'female' : 'male';
+        syncBodyMetricsToWorkoutInputs(p.settings);
         p.settings.macros.calories = parseInt(document.getElementById(prefix + 'Cal').value, 10) || 2200;
         p.settings.macros.protein = parseInt(document.getElementById(prefix + 'Pro').value, 10) || 210;
         p.settings.macros.carbs = parseInt(document.getElementById(prefix + 'Carb').value, 10) || 180;
         p.settings.macros.fat = parseInt(document.getElementById(prefix + 'Fat').value, 10) || 70;
         p.settings.useProteinPerLbGoal = document.getElementById(prefix + 'ProPerLb').checked;
         p.settings.cardioEquipment = document.getElementById(prefix + 'Cardio').value;
-        const strEl = document.getElementById(prefix + 'Strength');
-        if (strEl) p.settings.strengthEquipment = strEl.value;
         if (opts.markComplete) p.profileSetupComplete = true;
         saveProfilesMeta(meta);
         return true;
@@ -608,6 +732,8 @@
         if (typeof renderPhaseProgress === 'function') renderPhaseProgress();
         if (typeof renderTrendChart === 'function') renderTrendChart();
         if (typeof updateDeficitCard === 'function') updateDeficitCard();
+        if (typeof updateBF === 'function') updateBF();
+        updateHipFieldVisibility();
         if (message) alert(message);
     }
 
@@ -657,6 +783,7 @@
         const body = document.getElementById('profileSetupBody');
         if (body) {
             body.innerHTML = `<p style="color:var(--dim); font-size:0.88rem; margin-bottom:14px;">Set your starting metrics once. You can change these anytime from the profile icon.</p>` + profileFormFields(s, 'setup');
+            toggleProfileHipRow('setup');
         }
         const gate = document.getElementById('profile-setup-gate');
         if (gate) gate.classList.remove('hidden');
@@ -815,9 +942,14 @@
     global.getScaledPhases = getScaledPhases;
     global.getPhaseTargetWeights = getPhaseTargetWeights;
     global.getCardioEquipment = getCardioEquipment;
-    global.getStrengthEquipment = getStrengthEquipment;
+    global.getProfileSex = getProfileSex;
+    global.getExerciseBase = getExerciseBase;
+    global.hasBarbellSub = hasBarbellSub;
+    global.isExerciseDumbbellMode = isExerciseDumbbellMode;
+    global.toggleExerciseEquipment = toggleExerciseEquipment;
     global.getRecommendedRest = getRecommendedRest;
     global.parseTimedExercise = parseTimedExercise;
+    global.parseRepScheme = parseRepScheme;
     global.resolveExercise = resolveExercise;
     global.resolveStrengthExercise = resolveStrengthExercise;
     global.resolveCardioExercise = resolveCardioExercise;
@@ -841,6 +973,10 @@
     global.addDays = addDays;
     global.parseDateStr = parseDateStr;
     global.syncLoggedWeightToProfile = syncLoggedWeightToProfile;
+    global.syncBodyMetricsToWorkoutInputs = syncBodyMetricsToWorkoutInputs;
+    global.updateHipFieldVisibility = updateHipFieldVisibility;
+    global.updateMeasureHints = updateMeasureHints;
+    global.toggleProfileHipRow = toggleProfileHipRow;
     global.renderMacroDisplay = renderMacroDisplay;
     global.renderProfileSettings = renderProfileSettings;
     global.saveProfileSettings = saveProfileSettings;

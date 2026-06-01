@@ -336,6 +336,12 @@
         .checkin-input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #3a3a3a; background: var(--input-bg); color: var(--text); font-size: 1rem; box-sizing: border-box; margin-bottom: 12px; transition: border-color 0.2s; }
         .checkin-input:focus { outline: none; border-color: var(--primary); }
         .checkin-input.input-error { border-color: var(--danger); }
+        .measure-hint { color: var(--dim); font-size: 0.72rem; line-height: 1.45; margin: -6px 0 8px; }
+        .measure-guide { margin-bottom: 16px; border: 1px solid rgba(167,139,250,0.15); border-radius: 8px; padding: 10px 12px; background: rgba(167,139,250,0.05); }
+        .measure-guide summary { cursor: pointer; color: var(--primary); font-size: 0.8rem; font-weight: 700; }
+        .measure-guide ul { margin: 10px 0 0; padding-left: 18px; color: var(--dim); font-size: 0.75rem; line-height: 1.55; }
+        .measure-guide li { margin-bottom: 6px; }
+        .measure-guide li strong { color: var(--text); font-weight: 600; }
         .checkin-photo-row { display: flex; align-items: center; gap: 10px; background: #0f0f1a; padding: 12px; border-radius: 8px; cursor: pointer; margin-bottom: 16px; }
 
         /* ============================================================
@@ -444,6 +450,8 @@
         .rest-hero-countdown { font-size: 1.4rem; font-weight: 900; color: var(--primary); min-width: 48px; text-align: center; font-variant-numeric: tabular-nums; }
         .rest-after-btn { background: #1e1e2c; border: 1px solid #3a3a3a; color: var(--dim); padding: 5px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; cursor: pointer; margin-top: 8px; }
         .hold-timer-btn { background: rgba(167,139,250,0.15); border: 1px solid rgba(167,139,250,0.35); color: var(--primary); padding: 6px 12px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; cursor: pointer; margin-top: 8px; }
+        .equip-toggle-btn { background: transparent; border: 1px solid rgba(167,139,250,0.25); color: var(--dim); padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; cursor: pointer; margin-top: 6px; }
+        .equip-toggle-btn.active { border-color: var(--primary); color: var(--primary); background: rgba(167,139,250,0.1); }
         .btn-complete-done { background: #2a2a3a !important; color: var(--dim) !important; border: 1px solid #3a3a3a !important; }
 
         /* Meal cards */
@@ -515,6 +523,7 @@
             <input type="number" id="checkinWeight" class="checkin-input" placeholder="e.g. 235">
 
             <label class="checkin-modal-label">Waist (inches)</label>
+            <p class="measure-hint" id="checkinWaistHint">At belly button (navel) — tape horizontal, relaxed.</p>
             <input type="number" step="0.1" id="checkinWaist" class="checkin-input" placeholder="e.g. 38.5">
 
             <label class="checkin-photo-row">
@@ -666,10 +675,23 @@
             <input type="number" step="0.1" id="currentNeck" placeholder="Neck (in)" onchange="updateBF()">
             <input type="number" id="currentHeight" placeholder="Height (in)" onchange="updateBF()">
         </div>
+        <div class="controls" id="hipInputRow" style="display:none;">
+            <input type="number" step="0.1" id="currentHip" placeholder="Hip (in, female BF)" onchange="updateBF()">
+        </div>
+        <details class="measure-guide">
+            <summary>How to measure (Navy body-fat method)</summary>
+            <ul>
+                <li><strong>Neck:</strong> Just below the Adam's apple — tape sloped slightly down in front, horizontal in back. Don't flex your neck.</li>
+                <li><strong>Waist:</strong> <span id="waistMeasureHint">At belly button (navel) level — tape horizontal around your abdomen, relaxed (don't suck in).</span></li>
+                <li><strong>Height:</strong> Stand straight, no shoes — measure barefoot in inches.</li>
+                <li id="hipMeasureHintRow" style="display:none;"><strong>Hip (female):</strong> At the widest part of your hips/buttocks — tape parallel to the floor.</li>
+            </ul>
+            <p style="color:var(--dim); font-size:0.7rem; margin:8px 0 0;">Use the same spots every week for consistent tracking.</p>
+        </details>
 
         <!-- BF% Result Card (hidden until data entered) -->
         <div class="bf-card" id="bfCard" style="display:none; margin-bottom:20px;">
-            <div class="bf-header">🔬 Body Fat Estimate (Navy Method)</div>
+            <div class="bf-header">🔬 Body Fat Estimate · <span id="bfMethodLabel">Navy Method (male)</span></div>
             <div class="bf-result-row">
                 <div class="bf-result" id="bfResult">—</div>
                 <div class="bf-result-label" id="bfLabel"></div>
@@ -1190,18 +1212,23 @@
 
         dayData.exercises.forEach((ex, idx) => {
             const isCompleted = savedState[idx];
+            const planBase = getExerciseBase(ex);
             const resolved = resolveExercise(ex);
             const cleanExName = resolved.tipKey;
             const displayEx = resolved.label;
             const safeExName  = cleanExName.replace(/'/g, "\\'");
-            const safeDisplay = displayEx.replace(/'/g, "\\'");
+            const safePlanBase = planBase.replace(/'/g, "\\'");
             const olData = JSON.parse(pGet('ol_' + cleanExName) || '{"sets":"","reps":"","weight":""}');
             const lastLogText = olData.weight ? `Last: ${olData.sets}x${olData.reps} @ ${olData.weight}lbs` : 'No previous log';
             const prData = JSON.parse(pGet('pr_' + cleanExName) || 'null');
             const prText = prData ? `🏆 PR: ${prData.sets}x${prData.reps} @ ${prData.weight}lbs` : '';
             const histCount = JSON.parse(pGet('ol_hist_' + cleanExName) || '[]').length;
             const timed = parseTimedExercise(displayEx);
+            const repScheme = parseRepScheme(displayEx);
+            const setsVal = olData.sets !== '' && olData.sets != null ? olData.sets : (repScheme ? repScheme.sets : '');
+            const repsVal = olData.reps !== '' && olData.reps != null ? olData.reps : (repScheme ? repScheme.reps : '');
             const recRest = getRecommendedRest(displayEx);
+            const dbToggleHtml = hasBarbellSub(planBase) ? `<button type="button" class="equip-toggle-btn ${isExerciseDumbbellMode(planBase) ? 'active' : ''}" onclick="toggleExerciseEquipment('${safePlanBase}')">${isExerciseDumbbellMode(planBase) ? '↩ Use barbell' : 'Rack busy — use DB'}</button>` : '';
             const overloadHtml = timed ? `
                         <div class="overload-row" onclick="event.stopPropagation()">
                             <span class="overload-label">${timed.sets} sets × ${timed.holdSeconds}s hold</span>
@@ -1210,9 +1237,9 @@
                         <div id="hold-status-${idx}" style="font-size:0.75rem; color:var(--primary); margin-top:4px;"></div>` : `
                         <div class="overload-row" onclick="event.stopPropagation()">
                             <span class="overload-label">S:</span>
-                            <input type="number" id="s_${idx}" class="mini-input" placeholder="0" value="${olData.sets}" onchange="saveOverload('${safeExName}', ${idx})">
+                            <input type="number" id="s_${idx}" class="mini-input" placeholder="0" value="${setsVal}" onchange="saveOverload('${safeExName}', ${idx})">
                             <span class="overload-label">R:</span>
-                            <input type="number" id="r_${idx}" class="mini-input" placeholder="0" value="${olData.reps}" onchange="saveOverload('${safeExName}', ${idx})">
+                            <input type="number" id="r_${idx}" class="mini-input" placeholder="0" value="${repsVal}" onchange="saveOverload('${safeExName}', ${idx})">
                             <span class="overload-label">W:</span>
                             <input type="number" id="w_${idx}" class="mini-input wt" placeholder="lbs" value="${olData.weight}" onchange="saveOverload('${safeExName}', ${idx})">
                         </div>
@@ -1228,6 +1255,7 @@
                             <div class="ex-name" onclick="toggleExercise(${idx}, '${week}', '${currentSelectedDay}')">${displayEx}</div>
                             <button class="info-btn" onclick="showExerciseTip('${safeExName}')">ⓘ</button>
                         </div>
+                        ${dbToggleHtml}
                         ${overloadHtml}
                         <div class="last-logged">${lastLogText}</div>
                         <div class="pr-record" id="pr-info-${idx}">${prText}</div>
@@ -1360,9 +1388,14 @@
 
     function syncRestDisplay() {
         const secs = restTimerSecs;
-        const label = holdTimerState && holdTimerState.active
-            ? (secs > 0 ? `Hold ${secs}s · Set ${holdTimerState.set}/${holdTimerState.totalSets}` : '—')
-            : (secs > 0 ? formatRestTime(secs) : '—');
+        let label = '—';
+        if (secs > 0) {
+            if (holdTimerState && holdTimerState.active && holdTimerState.phase === 'hold') {
+                label = `Hold ${secs}s · Set ${holdTimerState.set}/${holdTimerState.totalSets}`;
+            } else {
+                label = formatRestTime(secs);
+            }
+        }
         const hero = document.getElementById('restHeroCountdown');
         const float = document.getElementById('restCountdown');
         if (hero) hero.textContent = label;
@@ -1432,7 +1465,7 @@
         }
 
         function runHold() {
-            holdTimerState = { active: true, set: currentSet, totalSets, holdSeconds, idx, exerciseName };
+            holdTimerState = { active: true, phase: 'hold', set: currentSet, totalSets, holdSeconds, idx, exerciseName };
             if (statusEl) statusEl.textContent = `Set ${currentSet} of ${totalSets} — hold ${holdSeconds}s`;
             runCountdown(holdSeconds, () => {
                 if (currentSet >= totalSets) {
@@ -1443,6 +1476,7 @@
                 }
                 const restSec = getRecommendedRest(exerciseName) || 45;
                 if (statusEl) statusEl.textContent = `Rest ${restSec}s — then set ${currentSet + 1}`;
+                holdTimerState = { active: true, phase: 'rest', set: currentSet, totalSets, holdSeconds, idx, exerciseName };
                 runCountdown(restSec, () => {
                     currentSet++;
                     runHold();
@@ -1791,13 +1825,28 @@
         const waist  = parseFloat(document.getElementById('currentWaist').value)  || 0;
         const neck   = parseFloat(document.getElementById('currentNeck').value)   || 0;
         const height = parseFloat(document.getElementById('currentHeight').value) || 0;
+        const hipEl  = document.getElementById('currentHip');
+        const hip    = hipEl ? parseFloat(hipEl.value) || 0 : 0;
+        const sex    = getProfileSex();
 
         if (neck   > 0) pSet('bf_neck', neck);
         if (height > 0) pSet('bf_height', height);
+        if (hip    > 0) pSet('bf_hip', hip);
+
+        const methodLabel = document.getElementById('bfMethodLabel');
+        if (methodLabel) methodLabel.textContent = sex === 'female' ? 'Navy Method (female)' : 'Navy Method (male)';
 
         const card = document.getElementById('bfCard');
-        if (waist > neck && neck > 0 && height > 0) {
-            const bf = 495 / (1.0324 - 0.19077 * Math.log10(waist - neck) + 0.15456 * Math.log10(height)) - 450;
+        let bf = null;
+        if (sex === 'female') {
+            if (waist > 0 && hip > 0 && neck > 0 && height > 0 && (waist + hip) > neck) {
+                bf = 495 / (1.29579 - 0.35004 * Math.log10(waist + hip - neck) + 0.22100 * Math.log10(height)) - 450;
+            }
+        } else if (waist > neck && neck > 0 && height > 0) {
+            bf = 495 / (1.0324 - 0.19077 * Math.log10(waist - neck) + 0.15456 * Math.log10(height)) - 450;
+        }
+
+        if (bf !== null && isFinite(bf)) {
             const bfR = Math.max(3, Math.round(bf * 10) / 10);
 
             let label = '';
@@ -1811,9 +1860,8 @@
             document.getElementById('bfResult').innerText = bfR + '%';
             document.getElementById('bfLabel').innerText = label;
 
-            // Milestones: achieved = past it, current-target = next goal
             const milestones = [25, 20, 18, 15, 12];
-            const nextIdx = milestones.findIndex(m => bfR > m); // first milestone not yet beaten
+            const nextIdx = milestones.findIndex(m => bfR > m);
             document.querySelectorAll('.bf-mile').forEach((el, i) => {
                 el.classList.remove('achieved', 'current-target');
                 if (i < nextIdx)        el.classList.add('achieved');
@@ -1821,9 +1869,13 @@
             });
 
             card.style.display = 'block';
-        } else if (neck > 0 || height > 0) {
+        } else if (neck > 0 || height > 0 || hip > 0) {
             document.getElementById('bfResult').innerText = '—';
-            document.getElementById('bfLabel').innerText = neck > 0 ? 'Enter height to calculate' : 'Enter neck measurement';
+            if (sex === 'female') {
+                document.getElementById('bfLabel').innerText = !hip ? 'Enter hip measurement (female formula)' : !neck ? 'Enter neck measurement' : !height ? 'Enter height to calculate' : 'Enter waist to calculate';
+            } else {
+                document.getElementById('bfLabel').innerText = neck > 0 ? (height > 0 ? 'Enter waist to calculate' : 'Enter height to calculate') : 'Enter neck measurement';
+            }
             document.querySelectorAll('.bf-mile').forEach(el => el.classList.remove('achieved', 'current-target'));
             card.style.display = 'block';
         } else {
@@ -2194,14 +2246,13 @@
 
         selectDay(currentSelectedDay);
 
-        // Restore saved weight/waist/neck/height
+        // Restore saved weight/waist and body metrics from profile
         syncLoggedWeightToProfile();
-        const savedWaist  = pGet('currentWaist');
-        const savedNeck   = pGet('bf_neck');
-        const savedHeight = pGet('bf_height');
-        if (savedWaist)  document.getElementById('currentWaist').value  = savedWaist;
-        if (savedNeck)   document.getElementById('currentNeck').value   = savedNeck;
-        if (savedHeight) document.getElementById('currentHeight').value = savedHeight;
+        const activeProf = getActiveProfile();
+        if (activeProf && activeProf.settings) syncBodyMetricsToWorkoutInputs(activeProf.settings);
+        const savedWaist = pGet('currentWaist');
+        if (savedWaist) document.getElementById('currentWaist').value = savedWaist;
+        updateHipFieldVisibility();
 
         updateProgress();
         updateWaterUI();
