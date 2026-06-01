@@ -536,7 +536,7 @@
         <div class="app-header">
             <div>
                 <h1>Visible Abs <span class="highlight">Challenge</span></h1>
-                <p style="color:var(--dim); font-size:0.85rem; margin:0;">250 → 210 lbs | Goal: Visible Abs</p>
+                <p id="workoutHeaderGoal" style="color:var(--dim); font-size:0.85rem; margin:0;">250 → 210 lbs | Goal: Visible Abs</p>
             </div>
             <div class="streak-badge" id="streakBadge">🔥 0 Day</div>
         </div>
@@ -568,7 +568,7 @@
                 <div class="trend-legend">
                     <div class="trend-legend-item"><div class="trend-dot" style="background:var(--primary)"></div> Weight (lbs)</div>
                     <div class="trend-legend-item"><div class="trend-dot" style="background:var(--water); border: 2px dashed var(--water); background: none; width:12px; border-radius:0; height:2px;"></div> Waist (in)</div>
-                    <div class="trend-legend-item"><div class="trend-dot" style="background:var(--success); width:12px; border-radius:0; height:2px;"></div> Goal 210</div>
+                    <div class="trend-legend-item"><div class="trend-dot" style="background:var(--success); width:12px; border-radius:0; height:2px;"></div> <span id="trendGoalLegend">Goal 210</span></div>
                 </div>
             </div>
         </div>
@@ -840,8 +840,8 @@
         <!-- 6-Month Protocol -->
         <div class="guide-card">
             <h3>🎯 6-Month Protocol</h3>
-            <p><strong>Goal:</strong> 250 lbs → 210 lbs</p>
-            <p style="color:var(--success);">✅ <span class="term">80% Nutrition:</span> Calorie deficit is everything. Hit 210g protein.</p>
+            <p><strong>Goal:</strong> <span id="guideProtocolGoal">250 lbs → 210 lbs</span></p>
+            <p style="color:var(--success);">✅ <span class="term">80% Nutrition:</span> Calorie deficit is everything. <span id="guideProtocolProtein">Hit 210g protein.</span></p>
             <p>✅ <span class="term">10% Training:</span> Preserve muscle via progressive overload.</p>
             <p>✅ <span class="term">10% Sleep:</span> 7-9 hours nightly to regulate hunger.</p>
         </div>
@@ -999,6 +999,7 @@
         workoutPlans = plans;
         exerciseTips = tips;
         PHASES = phases;
+        window.PHASES = phases;
     }
 
     let currentSelectedDay = 'Monday';
@@ -1332,9 +1333,10 @@
         const weekNum    = Math.min(weeksSince + 1, 26);
 
         // Find current phase
-        let curIdx = PHASES.findIndex(p => weeksSince >= p.startWk && weeksSince <= p.endWk);
+        const scaledPhases = getScaledPhases(PHASES);
+        let curIdx = scaledPhases.findIndex(p => weeksSince >= p.startWk && weeksSince <= p.endWk);
         if (curIdx === -1) curIdx = weeksSince > 25 ? 5 : 0;
-        const curPhase = PHASES[curIdx];
+        const curPhase = scaledPhases[curIdx];
 
         // Within-phase progress
         const weeksIntoPhase = Math.min(weeksSince - curPhase.startWk, curPhase.endWk - curPhase.startWk);
@@ -1351,7 +1353,7 @@
 
         // Phase step dots
         let stepsHtml = '';
-        PHASES.forEach((p, i) => {
+        scaledPhases.forEach((p, i) => {
             const isDone   = i < curIdx;
             const isActive = i === curIdx;
             const cls      = isDone ? 'done' : isActive ? 'active' : '';
@@ -1432,9 +1434,10 @@
             return;
         }
 
-        // Phase targets and the goal — used for scale calculation
-        const PHASE_TARGETS = [250, 242, 235, 228, 223, 216, 210];
-        const GOAL = 210;
+        // Phase targets and the goal — scaled to profile start/goal weights
+        const scaledPhases = getScaledPhases(PHASES);
+        const PHASE_TARGETS = getPhaseTargetWeights(PHASES);
+        const GOAL = getMacroGoals().goalWeight;
 
         // Weight scale: span across all logged + target + goal weights so lines make sense
         const wEntries = history.filter(e => e.weight > 0);
@@ -1453,7 +1456,7 @@
         const yOf = v => pad.t + (1 - (v - dataMin) / dataRange) * ch;
 
         // Phase target lines (subtle, labeled)
-        const phaseLabels = ['Ph1·250', 'Ph2·242', 'Ph3·235', 'Ph4·228', 'Ph5·223', 'Ph6·216'];
+        const phaseLabels = scaledPhases.slice(0, 6).map(p => `Ph${p.num}·${Math.round(p.weight)}`);
         const phaseColors = ['rgba(167,139,250,0.18)', 'rgba(167,139,250,0.18)', 'rgba(167,139,250,0.18)',
                              'rgba(167,139,250,0.18)', 'rgba(167,139,250,0.18)', 'rgba(167,139,250,0.18)'];
         PHASE_TARGETS.slice(0, 6).forEach((target, i) => {
@@ -1487,7 +1490,7 @@
             ctx.fillStyle = '#4ade80';
             ctx.font = 'bold 8px sans-serif';
             ctx.textAlign = 'left';
-            ctx.fillText('🏁 210', pad.l + cw + 3, goalY + 3);
+            ctx.fillText('🏁 ' + formatWeight(GOAL), pad.l + cw + 3, goalY + 3);
         }
 
         // Weight area fill under the line
@@ -1776,11 +1779,10 @@
         selectDay(currentSelectedDay);
 
         // Restore saved weight/waist/neck/height
-        const savedWeight = pGet('currentWeight');
+        syncLoggedWeightToProfile();
         const savedWaist  = pGet('currentWaist');
         const savedNeck   = pGet('bf_neck');
         const savedHeight = pGet('bf_height');
-        if (savedWeight) document.getElementById('currentWeight').value = savedWeight;
         if (savedWaist)  document.getElementById('currentWaist').value  = savedWaist;
         if (savedNeck)   document.getElementById('currentNeck').value   = savedNeck;
         if (savedHeight) document.getElementById('currentHeight').value = savedHeight;
@@ -2216,7 +2218,7 @@
         }, 100);
 
         document.getElementById('progressPercent').innerText = Math.round(progress) + '%';
-        document.getElementById('displayWeight').innerText = currentWeight;
+        document.getElementById('displayWeight').innerText = formatWeight(currentWeight);
         document.getElementById('displayWaist').innerText = currentWaist > 0 ? currentWaist : '---';
 
         updateBF();

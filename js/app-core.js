@@ -164,6 +164,38 @@
         saveProfilesMeta(meta);
     }
 
+    function formatWeight(w) {
+        const n = parseFloat(w);
+        if (isNaN(n)) return '—';
+        return Number.isInteger(n) ? String(n) : n.toFixed(1);
+    }
+
+    function scalePhaseWeight(defaultWeight, startWeight, goalWeight) {
+        const defaultRange = DEFAULT_SETTINGS.startWeight - DEFAULT_SETTINGS.goalWeight;
+        if (defaultRange <= 0) return defaultWeight;
+        const ratio = (defaultWeight - DEFAULT_SETTINGS.goalWeight) / defaultRange;
+        return Math.round((goalWeight + ratio * (startWeight - goalWeight)) * 10) / 10;
+    }
+
+    function getScaledPhases(phases) {
+        const g = getMacroGoals();
+        if (!phases || !phases.length) return [];
+        return phases.map(p => {
+            const weight = scalePhaseWeight(p.weight, g.startWeight, g.goalWeight);
+            return {
+                ...p,
+                weight,
+                label: '~' + Math.round(weight)
+            };
+        });
+    }
+
+    function getPhaseTargetWeights(phases) {
+        const scaled = getScaledPhases(phases);
+        const g = getMacroGoals();
+        return scaled.map(p => p.weight).concat(g.goalWeight);
+    }
+
     function getMacroGoals() {
         const p = getActiveProfile();
         const s = p && p.settings ? p.settings : DEFAULT_SETTINGS;
@@ -177,6 +209,8 @@
             startWeight: s.startWeight || 250
         };
     }
+
+    const PHASE_OPTION_NAMES = ['Foundation', 'Build', 'Walk/Run Intro', 'Run/Walk', 'Running', 'Peak · 5K'];
 
     function getCardioEquipment() {
         const p = getActiveProfile();
@@ -332,6 +366,24 @@
         return 'Saved';
     }
 
+    function syncLoggedWeightToProfile() {
+        const g = getMacroGoals();
+        const weightInput = document.getElementById('currentWeight');
+        if (!weightInput) return;
+        const stored = parseFloat(pGet('currentWeight'));
+        const defaultStart = DEFAULT_SETTINGS.startWeight;
+        if (!isNaN(stored)) {
+            if (Math.abs(stored - defaultStart) < 0.05 && Math.abs(g.startWeight - defaultStart) > 0.05) {
+                pSet('currentWeight', g.startWeight);
+                weightInput.value = g.startWeight;
+                return;
+            }
+            weightInput.value = stored;
+            return;
+        }
+        weightInput.value = g.startWeight;
+    }
+
     function renderMacroDisplay() {
         const g = getMacroGoals();
         const calEl = document.querySelector('#nutrition .rep-range');
@@ -354,8 +406,29 @@
             const suffix = el.parentElement.querySelector('span[style*="dim"]');
             if (suffix) suffix.textContent = '/ ' + goals[i];
         });
-        const headerP = document.querySelector('#workout .app-header p');
-        if (headerP) headerP.textContent = `${g.startWeight} → ${g.goalWeight} lbs | Goal: Visible Abs`;
+        const goalRange = `${formatWeight(g.startWeight)} → ${formatWeight(g.goalWeight)} lbs | Goal: Visible Abs`;
+        const headerP = document.getElementById('workoutHeaderGoal') || document.querySelector('#workout .app-header p');
+        if (headerP) headerP.textContent = goalRange;
+
+        const guideGoal = document.getElementById('guideProtocolGoal');
+        if (guideGoal) guideGoal.textContent = `${formatWeight(g.startWeight)} lbs → ${formatWeight(g.goalWeight)} lbs`;
+
+        const guidePro = document.getElementById('guideProtocolProtein');
+        if (guidePro) guidePro.textContent = `Hit ${g.protein}g protein.`;
+
+        const trendLegend = document.getElementById('trendGoalLegend');
+        if (trendLegend) trendLegend.textContent = `Goal ${formatWeight(g.goalWeight)}`;
+
+        const phases = global.PHASES || [];
+        const sel = document.getElementById('weekSelect');
+        if (sel && phases.length) {
+            const prev = sel.value;
+            const scaled = getScaledPhases(phases);
+            sel.innerHTML = scaled.map((p, i) =>
+                `<option value="${p.key}">Phase ${p.num} · Wks ${p.wks} · ${PHASE_OPTION_NAMES[i] || ''} (${p.label} lbs)</option>`
+            ).join('');
+            if (prev && scaled.some(p => p.key === prev)) sel.value = prev;
+        }
     }
 
     function renderProfileSettings() {
@@ -401,10 +474,22 @@
         if (!p.settings.macros) p.settings.macros = { ...DEFAULT_SETTINGS.macros };
 
         p.name = document.getElementById('profName').value.trim() || p.name;
+        const oldStart = p.settings.startWeight || DEFAULT_SETTINGS.startWeight;
         const goalVal = parseFloat(document.getElementById('profGoalWt').value);
         const startVal = parseFloat(document.getElementById('profStartWt').value);
         if (!isNaN(goalVal) && goalVal > 0) p.settings.goalWeight = goalVal;
         if (!isNaN(startVal) && startVal > 0) p.settings.startWeight = startVal;
+        if (!isNaN(startVal) && startVal > 0 && startVal !== oldStart) {
+            const stored = parseFloat(pGet('currentWeight'));
+            const weightInput = document.getElementById('currentWeight');
+            const inputEmpty = weightInput && !weightInput.value;
+            const storedMatchesOldStart = !isNaN(stored) && Math.abs(stored - oldStart) < 0.05;
+            const storedIsDefault = !isNaN(stored) && Math.abs(stored - DEFAULT_SETTINGS.startWeight) < 0.05;
+            if (inputEmpty || isNaN(stored) || storedMatchesOldStart || (storedIsDefault && oldStart === DEFAULT_SETTINGS.startWeight)) {
+                pSet('currentWeight', startVal);
+                if (weightInput) weightInput.value = startVal;
+            }
+        }
         p.settings.macros.calories = parseInt(document.getElementById('profCal').value, 10) || 2200;
         p.settings.macros.protein = parseInt(document.getElementById('profPro').value, 10) || 210;
         p.settings.macros.carbs = parseInt(document.getElementById('profCarb').value, 10) || 180;
@@ -417,6 +502,9 @@
         renderWorkoutDay();
         updateTracking();
         if (typeof updateProgress === 'function') updateProgress();
+        if (typeof renderPhaseProgress === 'function') renderPhaseProgress();
+        if (typeof renderTrendChart === 'function') renderTrendChart();
+        if (typeof updateDeficitCard === 'function') updateDeficitCard();
         alert('Profile saved.');
     }
 
@@ -521,6 +609,9 @@
     global.getActiveProfileId = getActiveProfileId;
     global.migrateToProfiles = migrateToProfiles;
     global.getMacroGoals = getMacroGoals;
+    global.formatWeight = formatWeight;
+    global.getScaledPhases = getScaledPhases;
+    global.getPhaseTargetWeights = getPhaseTargetWeights;
     global.getCardioEquipment = getCardioEquipment;
     global.resolveCardioExercise = resolveCardioExercise;
     global.resolveWorkoutDay = resolveWorkoutDay;
@@ -542,6 +633,7 @@
     global.toDateStr = toDateStr;
     global.addDays = addDays;
     global.parseDateStr = parseDateStr;
+    global.syncLoggedWeightToProfile = syncLoggedWeightToProfile;
     global.renderMacroDisplay = renderMacroDisplay;
     global.renderProfileSettings = renderProfileSettings;
     global.saveProfileSettings = saveProfileSettings;
