@@ -275,6 +275,12 @@
         return 75;
     }
 
+    function formatRecommendedRestLabel(secs) {
+        if (!secs || secs <= 0) return '';
+        if (secs >= 120) return Math.round(secs / 60) + 'm';
+        return secs + 's';
+    }
+
     function parseTimedExercise(exerciseStr) {
         if (!exerciseStr) return null;
         const name = getExerciseBase(exerciseStr).toLowerCase();
@@ -948,6 +954,7 @@
     global.isExerciseDumbbellMode = isExerciseDumbbellMode;
     global.toggleExerciseEquipment = toggleExerciseEquipment;
     global.getRecommendedRest = getRecommendedRest;
+    global.formatRecommendedRestLabel = formatRecommendedRestLabel;
     global.parseTimedExercise = parseTimedExercise;
     global.parseRepScheme = parseRepScheme;
     global.resolveExercise = resolveExercise;

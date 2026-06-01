@@ -285,35 +285,37 @@
         .bf-mile.current-target { background: rgba(167, 139, 250, 0.15); color: var(--primary); border-color: var(--primary); }
 
         /* ============================================================
-           REST TIMER
+           REST TIMER (sticky bottom bar)
         ============================================================ */
-        #restTimerFloat {
+        .rest-sticky-bar {
             position: fixed;
-            bottom: 80px;
-            right: 16px;
-            z-index: 800;
+            bottom: 56px;
+            left: 0;
+            right: 0;
+            z-index: 900;
             display: none;
-            animation: timerSlideUp 0.3s ease;
+            background: rgba(12, 12, 20, 0.98);
+            border-top: 1px solid rgba(167,139,250,0.28);
+            padding: 10px 12px 8px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 -4px 24px rgba(0,0,0,0.45);
         }
-        #restTimerFloat.show { display: block; }
-        @keyframes timerSlideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .rest-bubble {
-            background: var(--card);
-            border: 2px solid var(--primary);
-            border-radius: 18px;
-            padding: 16px 18px;
-            text-align: center;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.5), 0 0 20px rgba(167, 139, 250, 0.1);
-            min-width: 170px;
+        .rest-sticky-bar.show { display: block; }
+        #workout.has-rest-sticky { padding-bottom: 155px; }
+        .rest-sticky-inner { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .rest-sticky-countdown {
+            font-size: 1.35rem; font-weight: 900; color: var(--primary);
+            min-width: 72px; text-align: center; font-variant-numeric: tabular-nums;
         }
-        .rest-label { font-size: 0.65rem; color: var(--dim); text-transform: uppercase; font-weight: bold; letter-spacing: 1.5px; margin-bottom: 8px; }
-        .rest-countdown { font-size: 2.8rem; font-weight: 900; color: var(--primary); line-height: 1; margin-bottom: 12px; font-variant-numeric: tabular-nums; }
-        .rest-countdown.go { color: var(--success); animation: pulse 0.5s ease 3; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-        .rest-presets { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; }
+        .rest-sticky-countdown.go { color: var(--success); animation: pulse 0.5s ease 3; }
+        .rest-sticky-presets { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; flex: 1; }
+        .rest-sticky-hint { font-size: 0.65rem; color: var(--dim); margin-top: 6px; text-align: center; letter-spacing: 0.3px; }
         .rest-preset { padding: 6px 10px; border-radius: 8px; background: #1e1e2c; border: 1px solid #3a3a3a; color: var(--dim); font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: all 0.15s; }
         .rest-preset.active, .rest-preset:active { background: var(--primary); color: #000; border-color: var(--primary); }
-        .rest-cancel { background: none; border: none; color: var(--danger); font-size: 0.78rem; cursor: pointer; margin-top: 10px; font-weight: 700; display: block; width: 100%; padding: 4px 0; }
+        .rest-preset:disabled { opacity: 0.4; cursor: not-allowed; }
+        .rest-suggested-preset { border-color: rgba(167,139,250,0.35); color: var(--primary); }
+        .rest-cancel-inline { background: none; border: 1px solid rgba(248,113,113,0.35); color: var(--danger); font-size: 0.75rem; font-weight: 700; cursor: pointer; padding: 6px 10px; border-radius: 8px; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
 
         /* ============================================================
            SLEEP TRACKER
@@ -444,11 +446,9 @@
         /* Workout complete + rest bar */
         .workout-hero.workout-complete-state { opacity: 0.55; border-color: var(--dim); }
         .workout-complete-banner { background: rgba(74,222,128,0.12); border: 1px solid rgba(74,222,128,0.35); border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: 0.82rem; color: var(--success); font-weight: 700; }
-        .rest-hero-bar { margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(167,139,250,0.15); }
-        .rest-hero-label { font-size: 0.68rem; color: var(--dim); text-transform: uppercase; font-weight: 800; letter-spacing: 1px; margin-bottom: 6px; }
-        .rest-hero-presets { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-        .rest-hero-countdown { font-size: 1.4rem; font-weight: 900; color: var(--primary); min-width: 48px; text-align: center; font-variant-numeric: tabular-nums; }
         .rest-after-btn { background: #1e1e2c; border: 1px solid #3a3a3a; color: var(--dim); padding: 5px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; cursor: pointer; margin-top: 8px; }
+        .rest-suggest-badge { font-size: 0.72rem; color: var(--primary); margin-top: 4px; font-weight: 600; }
+        .rest-day-item .last-logged, .rest-day-item .pr-record, .rest-day-item .ol-hist-btn { display: none; }
         .hold-timer-btn { background: rgba(167,139,250,0.15); border: 1px solid rgba(167,139,250,0.35); color: var(--primary); padding: 6px 12px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; cursor: pointer; margin-top: 8px; }
         .equip-toggle-btn { background: transparent; border: 1px solid rgba(167,139,250,0.25); color: var(--dim); padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; cursor: pointer; margin-top: 6px; }
         .equip-toggle-btn.active { border-color: var(--primary); color: var(--primary); background: rgba(167,139,250,0.1); }
@@ -547,22 +547,21 @@
         </div>
     </div>
 
-    <!-- ============================================================
-         REST TIMER FLOAT
-    ============================================================ -->
-    <div id="restTimerFloat">
-        <div class="rest-bubble">
-            <div class="rest-label">Rest Timer</div>
-            <div class="rest-countdown" id="restCountdown">—</div>
-            <div class="rest-presets">
-                <button class="rest-preset" onclick="startRestTimer(30, this)">30s</button>
-                <button class="rest-preset" onclick="startRestTimer(60, this)">1m</button>
-                <button class="rest-preset" onclick="startRestTimer(90, this)">90s</button>
-                <button class="rest-preset" onclick="startRestTimer(120, this)">2m</button>
-                <button class="rest-preset" onclick="startRestTimer(180, this)">3m</button>
+    <!-- STICKY REST TIMER (workout tab, above nav) -->
+    <div id="restStickyBar" class="rest-sticky-bar">
+        <div class="rest-sticky-inner">
+            <span class="rest-sticky-countdown" id="restStickyCountdown">—</span>
+            <div class="rest-sticky-presets">
+                <button type="button" class="rest-preset" onclick="startRestTimer(30, this)">30s</button>
+                <button type="button" class="rest-preset" onclick="startRestTimer(60, this)">1m</button>
+                <button type="button" class="rest-preset" onclick="startRestTimer(90, this)">90s</button>
+                <button type="button" class="rest-preset" onclick="startRestTimer(120, this)">2m</button>
+                <button type="button" class="rest-preset" onclick="startRestTimer(180, this)">3m</button>
+                <button type="button" class="rest-preset rest-suggested-preset" id="restSuggestedBtn" onclick="startSuggestedRestTimer()" disabled>Suggested</button>
+                <button type="button" class="rest-cancel-inline" onclick="cancelRestTimer()">✕</button>
             </div>
-            <button class="rest-cancel" onclick="cancelRestTimer()">✕ Cancel</button>
         </div>
+        <div class="rest-sticky-hint">Compounds 2–3m · Accessories 60–90s · Core 45–60s · tap Rest on an exercise for suggested time</div>
     </div>
 
     <!-- PROFILE SETUP (first run) -->
@@ -735,16 +734,8 @@
             </select>
         </div>
 
-        <!-- Day Pills -->
-        <div class="day-selector" id="daySelector">
-            <div class="day-pill" onclick="selectDay('Monday')">Mon</div>
-            <div class="day-pill" onclick="selectDay('Tuesday')">Tue</div>
-            <div class="day-pill" onclick="selectDay('Wednesday')">Wed</div>
-            <div class="day-pill" onclick="selectDay('Thursday')">Thu</div>
-            <div class="day-pill" onclick="selectDay('Friday')">Fri</div>
-            <div class="day-pill" onclick="selectDay('Saturday')">Sat</div>
-            <div class="day-pill" onclick="selectDay('Sunday')">Sun</div>
-        </div>
+        <!-- Day Pills (rendered dynamically) -->
+        <div class="day-selector" id="daySelector"></div>
 
         <div id="workout-content"></div>
     </div>
@@ -1110,6 +1101,25 @@
     }
 
     let currentSelectedDay = 'Monday';
+    let workoutDayIsRest = false;
+    const WORKOUT_DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+    function renderWorkoutDayPills() {
+        const el = document.getElementById('daySelector');
+        if (!el) return;
+        const today = WORKOUT_DAYS[new Date().getDay()];
+        el.innerHTML = WORKOUT_DAYS.map(d => {
+            const short = d.substring(0, 3);
+            const isToday = d === today;
+            const active = d === currentSelectedDay;
+            return `<div class="day-pill${active ? ' active' : ''}" onclick="selectDay('${d}')">${short}${isToday ? ' ·' : ''}</div>`;
+        }).join('');
+    }
+
+    function isRestDayActivity(exerciseStr) {
+        const base = getExerciseBase(exerciseStr).toLowerCase();
+        return /complete rest|meal prep|stretching routine/.test(base);
+    }
 
     // Dynamically assigns named workout templates to Mon-Sat based on volleyball day.
     // Rules: day-before VB = light cardio, day-after VB = active recovery, 2-days-after = lower.
@@ -1155,9 +1165,7 @@
 
     function selectDay(dayName) {
         currentSelectedDay = dayName;
-        document.querySelectorAll('.day-pill').forEach(pill => {
-            pill.classList.toggle('active', pill.innerText.startsWith(dayName.substring(0, 3)));
-        });
+        renderWorkoutDayPills();
         renderWorkoutDay();
     }
 
@@ -1171,6 +1179,7 @@
         let dayData = schedule[currentSelectedDay] || workoutPlans[week].rest;
         dayData = resolveWorkoutDay(dayData);
         const isRest = dayData.name && dayData.name.startsWith('REST');
+        workoutDayIsRest = isRest;
 
         const todayDateStr = new Date().toISOString().split('T')[0];
         const savedState = JSON.parse(pGet(`wo_${todayDateStr}_${week}_${currentSelectedDay}`) || '{}');
@@ -1183,27 +1192,14 @@
                 <div class="workout-hero-meta">
                     <span>⏱ ${dayData.time}</span>
                     <span>📝 ${dayData.details}</span>
-                </div>`;
+                </div></div>`;
 
-        if (!isRest) {
-            html += `
-                <div class="rest-hero-bar">
-                    <div class="rest-hero-label">Rest Timer · Compounds 2–3m · Accessories 60–90s · Core 45–60s</div>
-                    <div class="rest-hero-presets">
-                        <span class="rest-hero-countdown" id="restHeroCountdown">—</span>
-                        <button class="rest-preset" onclick="startRestTimer(30, this)">30s</button>
-                        <button class="rest-preset" onclick="startRestTimer(60, this)">1m</button>
-                        <button class="rest-preset" onclick="startRestTimer(90, this)">90s</button>
-                        <button class="rest-preset" onclick="startRestTimer(120, this)">2m</button>
-                        <button class="rest-preset" onclick="startRestTimer(180, this)">3m</button>
-                        <button class="rest-cancel" onclick="cancelRestTimer()" style="margin-top:0; width:auto; display:inline;">✕</button>
-                    </div>
-                </div>`;
-        }
-        html += `</div>`;
-
-        if (isWorkoutComplete && !isRest) {
+        if (isWorkoutComplete) {
             html += `<div class="workout-complete-banner">✓ Workout marked complete — tap Complete again after logging changes to sync.</div>`;
+        }
+
+        if (isRest) {
+            html += `<div style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.3);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:0.82rem;color:var(--steps);">Recovery + meal prep day. Tap ⓘ on <strong>Stretching Routine</strong> for your full stretch sequence.</div>`;
         }
 
         if (dayData._note) {
@@ -1218,23 +1214,33 @@
             const displayEx = resolved.label;
             const safeExName  = cleanExName.replace(/'/g, "\\'");
             const safePlanBase = planBase.replace(/'/g, "\\'");
+            const restActivity = isRest || isRestDayActivity(ex);
             const olData = JSON.parse(pGet('ol_' + cleanExName) || '{"sets":"","reps":"","weight":""}');
             const lastLogText = olData.weight ? `Last: ${olData.sets}x${olData.reps} @ ${olData.weight}lbs` : 'No previous log';
             const prData = JSON.parse(pGet('pr_' + cleanExName) || 'null');
             const prText = prData ? `🏆 PR: ${prData.sets}x${prData.reps} @ ${prData.weight}lbs` : '';
             const histCount = JSON.parse(pGet('ol_hist_' + cleanExName) || '[]').length;
-            const timed = parseTimedExercise(displayEx);
-            const repScheme = parseRepScheme(displayEx);
+            const timed = !restActivity && parseTimedExercise(displayEx);
+            const repScheme = !restActivity && parseRepScheme(displayEx);
             const setsVal = olData.sets !== '' && olData.sets != null ? olData.sets : (repScheme ? repScheme.sets : '');
             const repsVal = olData.reps !== '' && olData.reps != null ? olData.reps : (repScheme ? repScheme.reps : '');
             const recRest = getRecommendedRest(displayEx);
-            const dbToggleHtml = hasBarbellSub(planBase) ? `<button type="button" class="equip-toggle-btn ${isExerciseDumbbellMode(planBase) ? 'active' : ''}" onclick="toggleExerciseEquipment('${safePlanBase}')">${isExerciseDumbbellMode(planBase) ? '↩ Use barbell' : 'Rack busy — use DB'}</button>` : '';
-            const overloadHtml = timed ? `
+            const restBadge = recRest > 0 && !restActivity && !timed
+                ? `<div class="rest-suggest-badge">Suggested rest: ${formatRecommendedRestLabel(recRest)}</div>` : '';
+            const dbToggleHtml = !restActivity && hasBarbellSub(planBase)
+                ? `<button type="button" class="equip-toggle-btn ${isExerciseDumbbellMode(planBase) ? 'active' : ''}" onclick="toggleExerciseEquipment('${safePlanBase}')">${isExerciseDumbbellMode(planBase) ? '↩ Use barbell' : 'Rack busy — use DB'}</button>` : '';
+            let overloadHtml = '';
+            if (restActivity) {
+                overloadHtml = '';
+            } else if (timed) {
+                overloadHtml = `
                         <div class="overload-row" onclick="event.stopPropagation()">
                             <span class="overload-label">${timed.sets} sets × ${timed.holdSeconds}s hold</span>
                         </div>
                         <button type="button" class="hold-timer-btn" id="hold-btn-${idx}" onclick="startHoldTimer(${idx}, ${timed.holdSeconds}, ${timed.sets}, '${safeExName}')">⏱ Start Hold Timer</button>
-                        <div id="hold-status-${idx}" style="font-size:0.75rem; color:var(--primary); margin-top:4px;"></div>` : `
+                        <div id="hold-status-${idx}" style="font-size:0.75rem; color:var(--primary); margin-top:4px;"></div>`;
+            } else {
+                overloadHtml = `
                         <div class="overload-row" onclick="event.stopPropagation()">
                             <span class="overload-label">S:</span>
                             <input type="number" id="s_${idx}" class="mini-input" placeholder="0" value="${setsVal}" onchange="saveOverload('${safeExName}', ${idx})">
@@ -1243,10 +1249,11 @@
                             <span class="overload-label">W:</span>
                             <input type="number" id="w_${idx}" class="mini-input wt" placeholder="lbs" value="${olData.weight}" onchange="saveOverload('${safeExName}', ${idx})">
                         </div>
-                        ${recRest > 0 ? `<button type="button" class="rest-after-btn" onclick="startRestTimer(${recRest}, null)">Rest ${recRest >= 120 ? Math.round(recRest/60) + 'm' : recRest + 's'}</button>` : ''}`;
+                        ${recRest > 0 ? `<button type="button" class="rest-after-btn" onclick="startRestFromExercise(${recRest}, this)">Rest ${formatRecommendedRestLabel(recRest)}</button>` : ''}`;
+            }
 
             html += `
-                <div class="exercise-item ${isCompleted ? 'completed' : ''}" id="ex-item-${idx}">
+                <div class="exercise-item ${restActivity ? 'rest-day-item' : ''} ${isCompleted ? 'completed' : ''}" id="ex-item-${idx}">
                     <div class="check-circle" onclick="toggleExercise(${idx}, '${week}', '${currentSelectedDay}')">
                         <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
                     </div>
@@ -1255,6 +1262,7 @@
                             <div class="ex-name" onclick="toggleExercise(${idx}, '${week}', '${currentSelectedDay}')">${displayEx}</div>
                             <button class="info-btn" onclick="showExerciseTip('${safeExName}')">ⓘ</button>
                         </div>
+                        ${restBadge}
                         ${dbToggleHtml}
                         ${overloadHtml}
                         <div class="last-logged">${lastLogText}</div>
@@ -1266,14 +1274,14 @@
                 </div>`;
         });
 
-        if (!isRest) {
-            const btnClass = isWorkoutComplete ? 'action-btn btn-complete-done' : 'action-btn btn-primary';
-            const btnLabel = isWorkoutComplete ? '✓ Workout Complete (tap to sync)' : '🎉 Complete Workout';
-            html += `<button class="${btnClass}" id="finishWorkoutBtn" style="margin-top:10px;" onclick="finishWorkout()">${btnLabel}</button>`;
-        }
+        const btnClass = isWorkoutComplete ? 'action-btn btn-complete-done' : 'action-btn btn-primary';
+        const btnLabel = isWorkoutComplete ? '✓ Workout Complete (tap to sync)' : (isRest ? '✓ Mark Recovery Day Complete' : '🎉 Complete Workout');
+        html += `<button class="${btnClass}" id="finishWorkoutBtn" style="margin-top:10px;" onclick="finishWorkout()">${btnLabel}</button>`;
 
         container.innerHTML = html;
         syncRestDisplay();
+        updateRestStickyVisibility();
+        updateSuggestedRestButton();
     }
 
     function toggleExercise(idx, week, day) {
@@ -1385,6 +1393,42 @@
     let restTimerInterval = null;
     let restTimerSecs = 0;
     let holdTimerState = null;
+    window._lastSuggestedRestSec = 0;
+
+    function updateRestStickyVisibility() {
+        const bar = document.getElementById('restStickyBar');
+        const workoutPage = document.getElementById('workout');
+        if (!bar) return;
+        const workoutActive = workoutPage && workoutPage.classList.contains('active');
+        const show = workoutActive && !workoutDayIsRest;
+        bar.classList.toggle('show', show);
+        if (workoutPage) workoutPage.classList.toggle('has-rest-sticky', show);
+    }
+
+    function updateSuggestedRestButton() {
+        const btn = document.getElementById('restSuggestedBtn');
+        if (!btn) return;
+        const sec = window._lastSuggestedRestSec;
+        if (sec > 0) {
+            btn.disabled = false;
+            btn.textContent = 'Suggested ' + formatRecommendedRestLabel(sec);
+        } else {
+            btn.disabled = true;
+            btn.textContent = 'Suggested';
+        }
+    }
+
+    function startRestFromExercise(seconds, btnEl) {
+        window._lastSuggestedRestSec = seconds;
+        updateSuggestedRestButton();
+        startRestTimer(seconds, btnEl);
+    }
+
+    function startSuggestedRestTimer() {
+        const sec = window._lastSuggestedRestSec;
+        if (!sec) return;
+        startRestTimer(sec, document.getElementById('restSuggestedBtn'));
+    }
 
     function syncRestDisplay() {
         const secs = restTimerSecs;
@@ -1396,10 +1440,11 @@
                 label = formatRestTime(secs);
             }
         }
-        const hero = document.getElementById('restHeroCountdown');
-        const float = document.getElementById('restCountdown');
-        if (hero) hero.textContent = label;
-        if (float) float.textContent = label;
+        const countEl = document.getElementById('restStickyCountdown');
+        if (countEl) {
+            countEl.textContent = label;
+            if (secs <= 0 && label === '—') countEl.classList.remove('go');
+        }
     }
 
     function formatRestTime(secs) {
@@ -1413,9 +1458,7 @@
         if (btnEl) btnEl.classList.add('active');
         if (restTimerInterval) clearInterval(restTimerInterval);
         restTimerSecs = seconds;
-        const floatEl = document.getElementById('restTimerFloat');
-        if (floatEl) floatEl.classList.add('show');
-        const countEl = document.getElementById('restCountdown');
+        const countEl = document.getElementById('restStickyCountdown');
         if (countEl) countEl.classList.remove('go');
         syncRestDisplay();
 
@@ -1427,14 +1470,13 @@
                 restTimerInterval = null;
                 document.querySelectorAll('.rest-preset').forEach(b => b.classList.remove('active'));
                 if (countEl) {
-                    countEl.innerText = 'GO!';
+                    countEl.textContent = 'GO!';
                     countEl.classList.add('go');
                 }
-                syncRestDisplay();
                 playTimerBeep();
                 setTimeout(() => {
                     if (countEl) {
-                        countEl.innerText = '—';
+                        countEl.textContent = '—';
                         countEl.classList.remove('go');
                     }
                     syncRestDisplay();
@@ -1447,7 +1489,7 @@
         if (restTimerInterval) cancelRestTimer();
         const statusEl = document.getElementById('hold-status-' + idx);
         let currentSet = 1;
-        document.getElementById('restTimerFloat').classList.add('show');
+        updateRestStickyVisibility();
 
         function runCountdown(seconds, onDone) {
             restTimerSecs = seconds;
@@ -1475,6 +1517,8 @@
                     return;
                 }
                 const restSec = getRecommendedRest(exerciseName) || 45;
+                window._lastSuggestedRestSec = restSec;
+                updateSuggestedRestButton();
                 if (statusEl) statusEl.textContent = `Rest ${restSec}s — then set ${currentSet + 1}`;
                 holdTimerState = { active: true, phase: 'rest', set: currentSet, totalSets, holdSeconds, idx, exerciseName };
                 runCountdown(restSec, () => {
@@ -1492,11 +1536,9 @@
         holdTimerState = null;
         restTimerSecs = 0;
         syncRestDisplay();
-        const countEl = document.getElementById('restCountdown');
+        const countEl = document.getElementById('restStickyCountdown');
         if (countEl) countEl.classList.remove('go');
         document.querySelectorAll('.rest-preset').forEach(b => b.classList.remove('active'));
-        const floatEl = document.getElementById('restTimerFloat');
-        if (floatEl) floatEl.classList.remove('show');
     }
 
     function playTimerBeep() {
@@ -2000,7 +2042,7 @@
         if (!el) return;
         const today = MealPlanner.getTodayWeekdayName();
         const days = MealPlanner.WEEKDAYS.concat(['Sunday']);
-        if (!selectedMealDay) selectedMealDay = today === 'Sunday' ? 'Monday' : today;
+        if (!selectedMealDay) selectedMealDay = today;
         el.innerHTML = days.map(d => {
             const short = d.substring(0, 3);
             const isToday = d === today;
@@ -2038,7 +2080,7 @@
 
         const wk = selectedMealWeekKey || getCalendarWeekKey();
         const today = MealPlanner.getTodayWeekdayName();
-        const viewDay = selectedMealDay || (today === 'Sunday' ? 'Monday' : today);
+        const viewDay = selectedMealDay || today;
 
         if (labelEl) {
             labelEl.textContent = viewDay === today
@@ -2244,6 +2286,7 @@
         renderMacroDisplay();
         renderProfileSettings();
 
+        renderWorkoutDayPills();
         selectDay(currentSelectedDay);
 
         // Restore saved weight/waist and body metrics from profile
@@ -2292,8 +2335,9 @@
         document.querySelectorAll('.nav-item')[idx].classList.add('active');
         if (tabId === 'grocery')   { renderMealWeekSelector(); renderGroceryList(); }
         if (tabId === 'nutrition') { renderMacroDisplay(); renderMealWeekBanner(); }
-        if (tabId === 'workout')   { renderMacroDisplay(); setTimeout(renderPhaseProgress, 40); setTimeout(renderTrendChart, 50); setTimeout(updateDeficitCard, 60); }
+        if (tabId === 'workout')   { renderMacroDisplay(); setTimeout(renderPhaseProgress, 40); setTimeout(renderTrendChart, 50); setTimeout(updateDeficitCard, 60); updateRestStickyVisibility(); }
         if (tabId === 'guide')     { renderMacroDisplay(); setTimeout(renderSleepChart, 50); setTimeout(renderHeatmap, 60); setTimeout(renderHabitChecklist, 70); }
+        if (tabId !== 'workout') updateRestStickyVisibility();
     }
 
     // ============================================================
