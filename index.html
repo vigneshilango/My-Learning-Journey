@@ -2365,7 +2365,12 @@
 
         pSet('checkin_' + getWeekKey(), new Date().toISOString());
         dismissCheckin();
-        setTimeout(() => alert('✅ Weekly check-in saved! You are ' + Math.round(((250 - parseFloat(weight)) / 40) * 100) + '% of the way to goal. Keep grinding.'), 350);
+        setTimeout(() => {
+            const g = getMacroGoals();
+            const total = g.startWeight - g.goalWeight;
+            const pct = total > 0 ? Math.round(((g.startWeight - parseFloat(weight)) / total) * 100) : 0;
+            alert('✅ Weekly check-in saved! You are ' + pct + '% of the way to goal. Keep grinding.');
+        }, 350);
     }
 
     function dismissCheckin() {

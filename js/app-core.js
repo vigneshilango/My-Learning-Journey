@@ -394,11 +394,17 @@
 
     function saveProfileSettings() {
         const meta = getProfilesMeta();
-        const p = getActiveProfile();
-        if (!meta || !p) return;
+        if (!meta || !meta.activeProfileId) return;
+        const p = meta.profiles.find(pr => pr.id === meta.activeProfileId);
+        if (!p) return;
+        if (!p.settings) p.settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+        if (!p.settings.macros) p.settings.macros = { ...DEFAULT_SETTINGS.macros };
+
         p.name = document.getElementById('profName').value.trim() || p.name;
-        p.settings.goalWeight = parseInt(document.getElementById('profGoalWt').value, 10) || 210;
-        p.settings.startWeight = parseInt(document.getElementById('profStartWt').value, 10) || 250;
+        const goalVal = parseFloat(document.getElementById('profGoalWt').value);
+        const startVal = parseFloat(document.getElementById('profStartWt').value);
+        if (!isNaN(goalVal) && goalVal > 0) p.settings.goalWeight = goalVal;
+        if (!isNaN(startVal) && startVal > 0) p.settings.startWeight = startVal;
         p.settings.macros.calories = parseInt(document.getElementById('profCal').value, 10) || 2200;
         p.settings.macros.protein = parseInt(document.getElementById('profPro').value, 10) || 210;
         p.settings.macros.carbs = parseInt(document.getElementById('profCarb').value, 10) || 180;
@@ -410,6 +416,7 @@
         renderProfileSettings();
         renderWorkoutDay();
         updateTracking();
+        if (typeof updateProgress === 'function') updateProgress();
         alert('Profile saved.');
     }
 
