@@ -253,16 +253,83 @@
         return `Mon ${fmt(mon)} – Sun ${fmt(sun)}`;
     }
 
-    function loadWeeklyPrep() {
-        const key = getActiveMealWeekKey();
-        const raw = pGet('weekly_prep_' + key);
+    function getCalendarWeekKey(date) {
+        return getMealWeekKey(date || new Date());
+    }
+
+    function getPlanningWeekKey() {
+        return getActiveMealWeekKey();
+    }
+
+    function listSavedMealWeekKeys() {
+        const id = getActiveProfileId();
+        const prefix = id ? `profile_${id}_weekly_prep_` : 'weekly_prep_';
+        const keys = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            if (k && k.startsWith(prefix)) keys.push(k.slice(prefix.length));
+        }
+        return keys.sort();
+    }
+
+    function buildMealWeekOptions() {
+        const set = new Set(listSavedMealWeekKeys());
+        set.add(getCalendarWeekKey());
+        set.add(getPlanningWeekKey());
+        return [...set].sort().reverse();
+    }
+
+    function loadWeeklyPrepForKey(weekKey) {
+        const raw = pGet('weekly_prep_' + weekKey);
         if (!raw) return null;
         try { return JSON.parse(raw); } catch (e) { return null; }
     }
 
+    function saveWeeklyPrepForKey(weekKey, prep) {
+        pSet('weekly_prep_' + weekKey, JSON.stringify(prep));
+    }
+
+    function loadWeeklyPrep() {
+        return loadWeeklyPrepForKey(getActiveMealWeekKey());
+    }
+
     function saveWeeklyPrep(prep) {
-        const key = getActiveMealWeekKey();
-        pSet('weekly_prep_' + key, JSON.stringify(prep));
+        saveWeeklyPrepForKey(getActiveMealWeekKey(), prep);
+    }
+
+    function isWeekFrozen(weekKey) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const weekStart = parseDateStr(weekKey);
+        const calStart = parseDateStr(getCalendarWeekKey(today));
+        if (weekStart < calStart) return true;
+        if (today.getDay() === 0 && weekKey === getCalendarWeekKey(today)) return true;
+        return false;
+    }
+
+    function canShuffleWeeklyPrep(weekKey) {
+        if (!weekKey || isWeekFrozen(weekKey)) return false;
+        const today = new Date();
+        const planningKey = getPlanningWeekKey();
+        if (today.getDay() === 0) return weekKey === planningKey;
+        const calKey = getCalendarWeekKey(today);
+        if (weekKey !== calKey) return false;
+        const existing = loadWeeklyPrepForKey(weekKey);
+        return !(existing && existing.mains && existing.mains.length);
+    }
+
+    function canDailyShuffle(weekKey) {
+        if (!weekKey || weekKey !== getCalendarWeekKey()) return false;
+        const prep = loadWeeklyPrepForKey(weekKey);
+        return !!(prep && prep.mains && prep.mains.length);
+    }
+
+    function getWeekStatusLabel(weekKey) {
+        if (isWeekFrozen(weekKey)) return 'Locked';
+        if (weekKey === getPlanningWeekKey() && new Date().getDay() === 0) return 'Plan on Sunday';
+        if (weekKey === getCalendarWeekKey()) return 'Current week';
+        if (weekKey === getPlanningWeekKey()) return 'Upcoming';
+        return 'Saved';
     }
 
     function renderMacroDisplay() {
@@ -453,8 +520,18 @@
     global.getMealWeekKey = getMealWeekKey;
     global.getActiveMealWeekKey = getActiveMealWeekKey;
     global.formatMealWeekRange = formatMealWeekRange;
+    global.getCalendarWeekKey = getCalendarWeekKey;
+    global.getPlanningWeekKey = getPlanningWeekKey;
+    global.listSavedMealWeekKeys = listSavedMealWeekKeys;
+    global.buildMealWeekOptions = buildMealWeekOptions;
+    global.loadWeeklyPrepForKey = loadWeeklyPrepForKey;
+    global.saveWeeklyPrepForKey = saveWeeklyPrepForKey;
     global.loadWeeklyPrep = loadWeeklyPrep;
     global.saveWeeklyPrep = saveWeeklyPrep;
+    global.isWeekFrozen = isWeekFrozen;
+    global.canShuffleWeeklyPrep = canShuffleWeeklyPrep;
+    global.canDailyShuffle = canDailyShuffle;
+    global.getWeekStatusLabel = getWeekStatusLabel;
     global.toDateStr = toDateStr;
     global.addDays = addDays;
     global.parseDateStr = parseDateStr;

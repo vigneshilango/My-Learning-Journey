@@ -400,6 +400,8 @@
         .habit-score-badge { background: rgba(0,208,132,0.15); color: var(--success); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 800; border: 1px solid rgba(0,208,132,0.3); }
         .profile-pick-btn { margin-bottom: 8px; }
         .meal-week-banner { background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.25); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; font-size: 0.82rem; color: var(--primary); }
+        .meal-week-select { width: 100%; margin-bottom: 8px; padding: 10px; border-radius: 8px; border: 1px solid rgba(167,139,250,0.3); background: var(--input-bg); color: var(--text); font-size: 0.9rem; }
+        .action-btn:disabled { opacity: 0.45; cursor: not-allowed; }
         .start-challenge-row { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
     </style>
 </head>
@@ -666,7 +668,11 @@
             <button class="tab-btn" id="btn-track" onclick="showKitchenMode('track')">📊 Track</button>
         </div>
 
-        <div id="mealWeekBanner" class="meal-week-banner" style="display:none;"></div>
+        <div id="mealWeekBanner" class="meal-week-banner" style="display:none;">
+            <label class="checkin-modal-label" style="margin-bottom:6px;">Meal plan week</label>
+            <select id="mealWeekSelect" class="meal-week-select" onchange="selectMealWeek(this.value)"></select>
+            <div id="mealWeekBannerText"></div>
+        </div>
 
         <!-- DAILY MENU -->
         <div id="daily-view">
@@ -678,7 +684,8 @@
         <!-- WEEKLY PREP -->
         <div id="weekly-view" style="display:none;">
             <p style="color:var(--dim); font-size:0.85rem;">Lock in your bulk cooking for the week. The daily menu and shop tab will only pull from these items.</p>
-            <button class="action-btn btn-primary" onclick="shuffleWeeklyPrep()">🎲 Shuffle Weekly Bulk Prep</button>
+            <button class="action-btn btn-primary" id="btnShuffleWeekly" onclick="shuffleWeeklyPrep()">🎲 Shuffle Weekly Bulk Prep</button>
+            <p id="weeklyShuffleHint" style="color:var(--dim); font-size:0.78rem; margin-top:8px;"></p>
             <div id="sample-day-container" style="margin-top: 20px;"></div>
         </div>
 
@@ -864,7 +871,11 @@
     ============================================================ -->
     <div id="grocery" class="page">
         <h1>Shopping <span class="highlight">List</span></h1>
-        <p style="color:var(--dim); font-size:0.9rem;">Automatically syncs with your active Weekly Bulk Prep and staples.</p>
+        <p style="color:var(--dim); font-size:0.9rem;">Automatically syncs with your selected meal plan week.</p>
+        <div id="groceryWeekBanner" class="meal-week-banner" style="margin-bottom:14px;">
+            <label class="checkin-modal-label" style="margin-bottom:6px;">Meal plan week</label>
+            <select id="mealWeekSelectGrocery" class="meal-week-select" onchange="selectMealWeek(this.value)"></select>
+        </div>
         <button class="action-btn btn-success" onclick="exportGroceryCSV()" style="margin-bottom: 20px;">⬇️ Download CSV</button>
         <div id="dynamic-grocery-list"></div>
     </div>
@@ -1638,29 +1649,101 @@
     // Recipe data is now in recipes.json — loaded by loadRecipes() above
 
     let activeWeeklyPrep = { breakfast: [], mains: [], snacks: [], preworkout: [], postworkout: [] };
+    let selectedMealWeekKey = null;
+
+    function renderMealWeekSelector() {
+        const options = buildMealWeekOptions();
+        const html = options.map(wk => {
+            const label = `${formatMealWeekRange(wk)} · ${getWeekStatusLabel(wk)}`;
+            return `<option value="${wk}"${wk === selectedMealWeekKey ? ' selected' : ''}>${label}</option>`;
+        }).join('');
+        ['mealWeekSelect', 'mealWeekSelectGrocery'].forEach(id => {
+            const sel = document.getElementById(id);
+            if (sel) sel.innerHTML = html;
+        });
+    }
 
     function renderMealWeekBanner() {
-        const el = document.getElementById('mealWeekBanner');
-        if (!el) return;
-        const weekKey = getActiveMealWeekKey();
+        const wrap = document.getElementById('mealWeekBanner');
+        const text = document.getElementById('mealWeekBannerText');
+        if (!wrap || !text) return;
+        const weekKey = selectedMealWeekKey || getCalendarWeekKey();
         const hasPrep = activeWeeklyPrep.mains && activeWeeklyPrep.mains.length;
-        el.style.display = 'block';
-        el.innerHTML = hasPrep
-            ? `📅 Meal plan week: <strong>${formatMealWeekRange(weekKey)}</strong>`
-            : `📅 Plan meals for <strong>${formatMealWeekRange(weekKey)}</strong> — tap Shuffle Weekly Bulk Prep below`;
+        const frozen = isWeekFrozen(weekKey);
+        wrap.style.display = 'block';
+        renderMealWeekSelector();
+        let msg = hasPrep
+            ? (frozen ? '🔒 <strong>Locked</strong> — view-only. Bulk prep cannot be changed.' : '📋 Bulk prep loaded for this week.')
+            : '📋 No bulk prep saved for this week yet.';
+        if (weekKey === getPlanningWeekKey() && new Date().getDay() === 0 && !frozen) {
+            msg += ' <strong>Sunday:</strong> shuffle here to plan next week\'s groceries.';
+        }
+        if (weekKey === getCalendarWeekKey() && !canDailyShuffle(weekKey) && hasPrep && !frozen) {
+            msg += ' Use <strong>Daily Menu → Shuffle Today\'s Meals</strong> to mix slots from this plan.';
+        }
+        text.innerHTML = msg;
+        updateWeeklyShuffleButton();
+    }
+
+    function updateWeeklyShuffleButton() {
+        const btn = document.getElementById('btnShuffleWeekly');
+        const hint = document.getElementById('weeklyShuffleHint');
+        const wk = selectedMealWeekKey || getCalendarWeekKey();
+        const can = canShuffleWeeklyPrep(wk);
+        if (btn) {
+            btn.disabled = !can;
+            if (isWeekFrozen(wk)) btn.innerText = '🔒 Week locked';
+            else if (new Date().getDay() === 0 && wk === getPlanningWeekKey()) btn.innerText = '🎲 Shuffle next week\'s bulk prep';
+            else if (!can && wk === getCalendarWeekKey()) btn.innerText = '🔒 Locked until Sunday';
+            else btn.innerText = '🎲 Shuffle Weekly Bulk Prep';
+        }
+        if (hint) {
+            if (isWeekFrozen(wk)) hint.innerText = 'Past weeks and the week ending today stay frozen after Sunday prep.';
+            else if (new Date().getDay() === 0 && wk === getPlanningWeekKey()) hint.innerText = 'Only Sunday can set next week\'s bulk menu. Re-shuffle anytime today before Monday.';
+            else if (!can) hint.innerText = 'Weekly bulk is locked Mon–Sat. Daily menu shuffle still mixes meals from this week\'s plan.';
+            else hint.innerText = 'First-time setup: shuffle once to create this week\'s plan.';
+        }
+    }
+
+    function selectMealWeek(weekKey) {
+        loadMealWeekView(weekKey);
+    }
+
+    function loadMealWeekView(weekKey) {
+        selectedMealWeekKey = weekKey;
+        pSet('selected_meal_week', weekKey);
+        const saved = loadWeeklyPrepForKey(weekKey);
+        if (saved && saved.mains && saved.mains.length) {
+            activeWeeklyPrep = saved;
+        } else {
+            activeWeeklyPrep = { breakfast: [], mains: [], snacks: [], preworkout: [], postworkout: [] };
+        }
+        renderMealWeekBanner();
+        renderWeeklyPrepUI();
+        refreshDailyMenuForSelectedWeek();
+        if (document.getElementById('grocery').classList.contains('active')) renderGroceryList();
+    }
+
+    function refreshDailyMenuForSelectedWeek() {
+        const dc = document.getElementById('daily-container');
+        if (!dc) return;
+        if (canDailyShuffle(selectedMealWeekKey)) {
+            generateDailyShuffle();
+        } else if (selectedMealWeekKey !== getCalendarWeekKey()) {
+            dc.innerHTML = `<p style="color:var(--dim); font-size:0.9rem; padding:12px;">Daily menu shuffle is for the <strong>current calendar week</strong> (${formatMealWeekRange(getCalendarWeekKey())}). Switch the week selector to view this archived plan.</p>`;
+        } else if (!activeWeeklyPrep.mains || !activeWeeklyPrep.mains.length) {
+            dc.innerHTML = `<p style="color:var(--dim); font-size:0.9rem; padding:12px;">No bulk prep for this week. ${new Date().getDay() === 0 ? 'Use Sunday shuffle on <strong>next week</strong> in the selector.' : 'Shuffle weekly bulk first (or wait for Sunday prep).'}</p>`;
+        } else {
+            dc.innerHTML = `<p style="color:var(--dim); font-size:0.9rem; padding:12px;">Weekly plan is locked. Tap <strong>Shuffle Today\'s Meals</strong> to pick from this week\'s menu.</p>`;
+        }
     }
 
     function ensureWeeklyPrep() {
-        const saved = loadWeeklyPrep();
-        if (saved && saved.mains && saved.mains.length) {
-            activeWeeklyPrep = saved;
-            renderWeeklyPrepUI();
-            generateDailyShuffle();
-            renderMealWeekBanner();
-            return true;
-        }
-        renderMealWeekBanner();
-        return false;
+        const savedKey = pGet('selected_meal_week');
+        const options = buildMealWeekOptions();
+        let weekKey = savedKey && options.includes(savedKey) ? savedKey : getCalendarWeekKey();
+        loadMealWeekView(weekKey);
+        return !!(activeWeeklyPrep.mains && activeWeeklyPrep.mains.length);
     }
 
     // ============================================================
@@ -1683,7 +1766,7 @@
         if (!ensureWeeklyPrep()) {
             const container = document.getElementById('sample-day-container');
             if (container && !container.innerHTML) {
-                container.innerHTML = `<p style="color:var(--dim); font-size:0.85rem;">No meal plan for this week yet. Tap <strong>Shuffle Weekly Bulk Prep</strong> to build your grocery list.</p>`;
+                container.innerHTML = `<p style="color:var(--dim); font-size:0.85rem;">No meal plan for the selected week. ${new Date().getDay() === 0 ? 'On Sunday, select <strong>next week</strong> above and shuffle bulk prep.' : 'Select another week above or wait for Sunday prep.'}</p>`;
             }
         }
 
@@ -1738,7 +1821,7 @@
         document.getElementById(tabId).classList.add('active');
         const idx = ['workout', 'nutrition', 'grocery', 'guide'].indexOf(tabId);
         document.querySelectorAll('.nav-item')[idx].classList.add('active');
-        if (tabId === 'grocery')   { renderMealWeekBanner(); renderGroceryList(); }
+        if (tabId === 'grocery')   { renderMealWeekSelector(); renderGroceryList(); }
         if (tabId === 'nutrition') { renderMealWeekBanner(); }
         if (tabId === 'workout')   { setTimeout(renderPhaseProgress, 40); setTimeout(renderTrendChart, 50); setTimeout(updateDeficitCard, 60); }
         if (tabId === 'guide')     { setTimeout(renderSleepChart, 50); setTimeout(renderHeatmap, 60); setTimeout(renderHabitChecklist, 70); }
@@ -1757,22 +1840,38 @@
     }
 
     function shuffleWeeklyPrep() {
+        const wk = selectedMealWeekKey || getCalendarWeekKey();
+        if (!canShuffleWeeklyPrep(wk)) {
+            alert(isWeekFrozen(wk)
+                ? 'This week is locked. Past weeks and the week ending today cannot be re-shuffled.'
+                : 'Weekly bulk prep can only be shuffled on Sunday for next week, or once if this week has no plan yet.');
+            return;
+        }
         const getRandom = (arr, n) => [...arr].sort(() => 0.5 - Math.random()).slice(0, n);
         activeWeeklyPrep.breakfast  = getRandom(mealDatabase.prepRecipes.breakfast, 1);
         activeWeeklyPrep.mains      = getRandom(mealDatabase.prepRecipes.mains, 3);
         activeWeeklyPrep.snacks     = getRandom(mealDatabase.prepRecipes.snacks, 1);
         activeWeeklyPrep.preworkout = getRandom(mealDatabase.prepRecipes.preworkout, 1);
         activeWeeklyPrep.postworkout= getRandom(mealDatabase.prepRecipes.postworkout, 1);
-        saveWeeklyPrep(activeWeeklyPrep);
+        saveWeeklyPrepForKey(wk, activeWeeklyPrep);
         renderWeeklyPrepUI();
         renderMealWeekBanner();
-        generateDailyShuffle();
+        refreshDailyMenuForSelectedWeek();
         if (document.getElementById('grocery').classList.contains('active')) renderGroceryList();
     }
 
     function renderWeeklyPrepUI() {
         const container = document.getElementById('sample-day-container');
+        if (!container) return;
+        const wk = selectedMealWeekKey || getCalendarWeekKey();
+        if (!activeWeeklyPrep.mains || !activeWeeklyPrep.mains.length) {
+            container.innerHTML = `<p style="color:var(--dim); font-size:0.85rem;">No bulk prep saved for ${formatMealWeekRange(wk)}.</p>`;
+            return;
+        }
         let html = '';
+        if (isWeekFrozen(wk)) {
+            html += `<p style="color:var(--dim); font-size:0.78rem; margin-bottom:12px;">🔒 Frozen plan — ingredients and recipes for this week (view only).</p>`;
+        }
         const renderItem = (item, cat) => {
             let s = `<div class="meal-card"><div class="meal-time">${cat}</div><div class="meal-name">${item.name}</div><div class="meal-macros" style="margin-bottom:10px;">P: ${item.protein}g | C: ${item.carbs}g | F: ${item.fat}g | ${item.cal} cal</div>`;
             if (item.ingredients) {
@@ -1794,18 +1893,19 @@
 
     function generateDailyShuffle() {
         const container = document.getElementById('daily-container');
+        const wk = selectedMealWeekKey || getCalendarWeekKey();
+        if (!canDailyShuffle(wk)) {
+            refreshDailyMenuForSelectedWeek();
+            return;
+        }
+
         const getRand = arr => (arr && arr.length) ? arr[Math.floor(Math.random() * arr.length)] : null;
         const db = mealDatabase.prepRecipes;
-        const prep = (activeWeeklyPrep.mains && activeWeeklyPrep.mains.length) ? activeWeeklyPrep : null;
+        const prep = activeWeeklyPrep;
         const pool = (key, fallback) => {
             const fromPrep = prep && prep[key] && prep[key].length ? prep[key] : null;
             return fromPrep || fallback;
         };
-
-        if (!prep) {
-            container.innerHTML = `<p style="color:var(--dim); font-size:0.9rem; padding:12px;">Shuffle <strong>Weekly Bulk Prep</strong> first — daily meals pull from that week's locked plan.</p>`;
-            return;
-        }
 
         const mainsPool = pool('mains', db.mains);
         const lunchItem = getRand(mainsPool);
@@ -2045,7 +2145,10 @@
     // ============================================================
     function renderGroceryList() {
         const container = document.getElementById('dynamic-grocery-list');
-        const weekKey = getActiveMealWeekKey();
+        const weekKey = selectedMealWeekKey || getActiveMealWeekKey();
+        const saved = loadWeeklyPrepForKey(weekKey);
+        if (saved && saved.mains && saved.mains.length) activeWeeklyPrep = saved;
+        renderMealWeekSelector();
         let combined = [];
         const mealSlots = [
             ...(activeWeeklyPrep.breakfast || []),
@@ -2061,7 +2164,7 @@
             ? mealDatabase.staples
             : [{ name: 'Huel Black Edition' }, { name: 'Huel Hot & Savory' }, { name: 'Cosmic Protein' }];
         let staplesHtml = staples.map(s => `<div class="grocery-item"><span>${s.name}</span></div>`).join('');
-        let html = `<div class="meal-week-banner">🛒 Shopping for <strong>${formatMealWeekRange(weekKey)}</strong></div>`;
+        let html = `<div class="meal-week-banner">🛒 Shopping for <strong>${formatMealWeekRange(weekKey)}</strong>${isWeekFrozen(weekKey) ? ' · 🔒 locked' : ''}</div>`;
         if (!mealSlots.length) {
             html += `<p style="color:var(--dim); font-size:0.88rem; margin-bottom:14px;">No weekly prep locked yet. Go to Kitchen → Weekly Bulk → <strong>Shuffle Weekly Bulk Prep</strong>.</p>`;
         }
