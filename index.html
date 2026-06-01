@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>6-Pack Challenge</title>
+    <title>Visible Abs Challenge</title>
     <meta name="theme-color" content="#0d0d12">
     <style>
         :root {
@@ -173,7 +173,7 @@
         /* ============================================================
            PASSWORD GATE
         ============================================================ */
-        #password-gate {
+        #password-gate, #profile-gate {
             position: fixed;
             inset: 0;
             background: linear-gradient(160deg, #080810 0%, #0d0d18 55%, #140d22 100%);
@@ -185,8 +185,8 @@
             padding: 30px;
             transition: opacity 0.5s ease;
         }
-        #password-gate.fade-out { opacity: 0; pointer-events: none; }
-        #password-gate.hidden { display: none; }
+        #password-gate.fade-out, #profile-gate.fade-out { opacity: 0; pointer-events: none; }
+        #password-gate.hidden, #profile-gate.hidden { display: none; }
         .lock-icon { font-size: 3.5rem; margin-bottom: 12px; }
         .lock-title { font-size: 2.2rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 4px; }
         .lock-subtitle { color: var(--dim); font-size: 0.9rem; margin-bottom: 40px; }
@@ -398,6 +398,9 @@
         .habit-label { font-size: 0.88rem; font-weight: 600; flex: 1; }
         .habit-note { font-size: 0.65rem; color: var(--dim); display: block; margin-top: 2px; font-weight: 400; }
         .habit-score-badge { background: rgba(0,208,132,0.15); color: var(--success); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 800; border: 1px solid rgba(0,208,132,0.3); }
+        .profile-pick-btn { margin-bottom: 8px; }
+        .meal-week-banner { background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.25); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; font-size: 0.82rem; color: var(--primary); }
+        .start-challenge-row { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -407,7 +410,7 @@
     ============================================================ -->
     <div id="password-gate">
         <div class="lock-icon">🔒</div>
-        <div class="lock-title">6-Pack <span class="highlight">Challenge</span></div>
+        <div class="lock-title">Visible Abs <span class="highlight">Challenge</span></div>
         <div class="lock-subtitle">Your personal fitness vault</div>
         <div class="lock-input-wrap">
             <input type="password" id="lockPassword" placeholder="Enter password"
@@ -416,6 +419,36 @@
         <button class="lock-btn" onclick="attemptUnlock()">🔓 Unlock</button>
         <div id="lockError"></div>
         <div class="lock-badge">Secured · Local Storage Only</div>
+    </div>
+
+    <!-- ============================================================
+         PROFILE GATE
+    ============================================================ -->
+    <div id="profile-gate" class="hidden">
+        <div class="lock-icon">👤</div>
+        <div class="lock-title">Choose <span class="highlight">Profile</span></div>
+        <div class="lock-subtitle">Each profile keeps its own progress and goals</div>
+        <div id="profileList" style="width:100%; max-width:320px; margin: 0 auto 12px;"></div>
+        <div class="lock-input-wrap">
+            <input type="password" id="profilePinInput" placeholder="PIN (if set)"
+                   onkeydown="if(event.key==='Enter'){ const b=document.querySelector('.profile-pick-btn'); if(b) b.click(); }">
+        </div>
+        <div id="profilePinError" style="color:var(--danger); font-size:0.85rem; min-height:1.2em;"></div>
+        <details style="width:100%; max-width:320px; margin: 12px auto 0; color:var(--dim); font-size:0.85rem;">
+            <summary style="cursor:pointer; color:var(--primary); font-weight:700;">+ Create new profile</summary>
+            <div style="margin-top:10px;">
+                <input type="text" id="newProfName" class="cf-text-input" placeholder="Name">
+                <input type="password" id="newProfPin" class="cf-text-input" placeholder="Optional PIN">
+                <input type="number" id="newProfGoal" class="cf-text-input" placeholder="Goal weight (lbs)" value="210">
+                <select id="newProfCardio" class="cf-text-input">
+                    <option value="peloton">Peloton / spin bike app</option>
+                    <option value="generic_bike">Stationary bike</option>
+                    <option value="treadmill">Treadmill</option>
+                    <option value="outdoor">Outdoor walk / run</option>
+                </select>
+                <button class="lock-btn" type="button" onclick="createProfileFromForm()">Create &amp; Start</button>
+            </div>
+        </details>
     </div>
 
     <!-- ============================================================
@@ -500,7 +533,7 @@
 
         <div class="app-header">
             <div>
-                <h1>6-Pack <span class="highlight">Challenge</span></h1>
+                <h1>Visible Abs <span class="highlight">Challenge</span></h1>
                 <p style="color:var(--dim); font-size:0.85rem; margin:0;">250 → 210 lbs | Goal: Visible Abs</p>
             </div>
             <div class="streak-badge" id="streakBadge">🔥 0 Day</div>
@@ -633,9 +666,11 @@
             <button class="tab-btn" id="btn-track" onclick="showKitchenMode('track')">📊 Track</button>
         </div>
 
+        <div id="mealWeekBanner" class="meal-week-banner" style="display:none;"></div>
+
         <!-- DAILY MENU -->
         <div id="daily-view">
-            <p style="color:var(--dim); font-size:0.85rem;">Today's specific menu, built using your bulk-prepped items and Huel staples.</p>
+            <p style="color:var(--dim); font-size:0.85rem;">Today's menu from your locked weekly bulk prep (+ Huel staples).</p>
             <button class="action-btn btn-primary" onclick="generateDailyShuffle()">🎲 Shuffle Today's Meals</button>
             <div id="daily-container" style="margin-top: 20px;"></div>
         </div>
@@ -804,6 +839,12 @@
             <p>✅ <span class="term">10% Sleep:</span> 7-9 hours nightly to regulate hunger.</p>
         </div>
 
+        <!-- Profile Settings -->
+        <div class="guide-card" style="border-left: 4px solid var(--water);">
+            <h3>👤 Profile Settings</h3>
+            <div id="profileSettingsBody"></div>
+        </div>
+
         <!-- Data Backup & Restore -->
         <div class="guide-card">
             <h3>💾 Data Backup &amp; Restore</h3>
@@ -828,6 +869,7 @@
         <div id="dynamic-grocery-list"></div>
     </div>
 
+<script src="js/app-core.js"></script>
 <script>
     // ============================================================
     // PASSWORD GATE
@@ -854,12 +896,12 @@
         const hash = await hashString(password);
 
         if (hash === PASS_HASH) {
-            localStorage.setItem('app_unlocked', '1');
+            pSet('app_unlocked', '1');
             const gate = document.getElementById('password-gate');
             gate.classList.add('fade-out');
             setTimeout(() => {
                 gate.classList.add('hidden');
-                init();
+                afterUnlock();
             }, 500);
         } else {
             lockAttempts++;
@@ -879,9 +921,9 @@
     }
 
     function checkSession() {
-        if (localStorage.getItem('app_unlocked') === '1') {
+        if (pGet('app_unlocked') === '1') {
             document.getElementById('password-gate').classList.add('hidden');
-            init();
+            afterUnlock();
             return true;
         }
         return false;
@@ -892,8 +934,8 @@
     // ============================================================
     function updateStreak() {
         const todayStr = new Date().toISOString().split('T')[0];
-        let lastLogin = localStorage.getItem('last_login');
-        let currentStreak = parseInt(localStorage.getItem('app_streak') || '0');
+        let lastLogin = pGet('last_login');
+        let currentStreak = parseInt(pGet('app_streak') || '0');
 
         if (lastLogin !== todayStr) {
             if (lastLogin) {
@@ -904,8 +946,8 @@
             } else {
                 currentStreak = 1;
             }
-            localStorage.setItem('last_login', todayStr);
-            localStorage.setItem('app_streak', currentStreak);
+            pSet('last_login', todayStr);
+            pSet('app_streak', currentStreak);
         }
         document.getElementById('streakBadge').innerText = `🔥 ${currentStreak} Day${currentStreak !== 1 ? 's' : ''}`;
     }
@@ -1003,11 +1045,12 @@
     function renderWorkoutDay() {
         const week = parseInt(document.getElementById('weekSelect').value, 10);
         const vbDay = document.getElementById('volleyballDay').value;
-        localStorage.setItem('sm_week', week);
-        localStorage.setItem('vb_day', vbDay);
+        pSet('sm_week', week);
+        pSet('vb_day', vbDay);
         const container = document.getElementById('workout-content');
         const schedule = buildSchedule(vbDay, week);
-        const dayData = schedule[currentSelectedDay] || workoutPlans[week].rest;
+        let dayData = schedule[currentSelectedDay] || workoutPlans[week].rest;
+        dayData = resolveWorkoutDay(dayData);
         const isRest = dayData.name && dayData.name.startsWith('REST');
 
         let html = `
@@ -1025,17 +1068,20 @@
         }
 
         const todayDateStr = new Date().toISOString().split('T')[0];
-        const savedState = JSON.parse(localStorage.getItem(`wo_${todayDateStr}_${week}_${currentSelectedDay}`) || '{}');
+        const savedState = JSON.parse(pGet(`wo_${todayDateStr}_${week}_${currentSelectedDay}`) || '{}');
 
         dayData.exercises.forEach((ex, idx) => {
             const isCompleted = savedState[idx];
-            const cleanExName = ex.split('(')[0].trim();
+            const resolved = resolveCardioExercise(ex);
+            const cleanExName = resolved.tipKey;
+            const displayEx = resolved.label;
             const safeExName  = cleanExName.replace(/'/g, "\\'");
-            const olData = JSON.parse(localStorage.getItem('ol_' + cleanExName) || '{"sets":"","reps":"","weight":""}');
+            const safeDisplay = displayEx.replace(/'/g, "\\'");
+            const olData = JSON.parse(pGet('ol_' + cleanExName) || '{"sets":"","reps":"","weight":""}');
             const lastLogText = olData.weight ? `Last: ${olData.sets}x${olData.reps} @ ${olData.weight}lbs` : 'No previous log';
-            const prData = JSON.parse(localStorage.getItem('pr_' + cleanExName) || 'null');
+            const prData = JSON.parse(pGet('pr_' + cleanExName) || 'null');
             const prText = prData ? `🏆 PR: ${prData.sets}x${prData.reps} @ ${prData.weight}lbs` : '';
-            const histCount = JSON.parse(localStorage.getItem('ol_hist_' + cleanExName) || '[]').length;
+            const histCount = JSON.parse(pGet('ol_hist_' + cleanExName) || '[]').length;
 
             html += `
                 <div class="exercise-item ${isCompleted ? 'completed' : ''}" id="ex-item-${idx}">
@@ -1044,7 +1090,7 @@
                     </div>
                     <div class="ex-meta">
                         <div class="ex-header-row">
-                            <div class="ex-name" onclick="toggleExercise(${idx}, '${week}', '${currentSelectedDay}')">${ex}</div>
+                            <div class="ex-name" onclick="toggleExercise(${idx}, '${week}', '${currentSelectedDay}')">${displayEx}</div>
                             <button class="info-btn" onclick="showExerciseTip('${safeExName}')">ⓘ</button>
                         </div>
                         <div class="overload-row" onclick="event.stopPropagation()">
@@ -1076,9 +1122,9 @@
     function toggleExercise(idx, week, day) {
         const todayDateStr = new Date().toISOString().split('T')[0];
         const key = `wo_${todayDateStr}_${week}_${day}`;
-        let state = JSON.parse(localStorage.getItem(key) || '{}');
+        let state = JSON.parse(pGet(key) || '{}');
         state[idx] = !state[idx];
-        localStorage.setItem(key, JSON.stringify(state));
+        pSet(key, JSON.stringify(state));
         const el = document.getElementById(`ex-item-${idx}`);
         if (state[idx]) el.classList.add('completed');
         else el.classList.remove('completed');
@@ -1088,17 +1134,17 @@
         const sets   = document.getElementById(`s_${idx}`).value;
         const reps   = document.getElementById(`r_${idx}`).value;
         const weight = parseFloat(document.getElementById(`w_${idx}`).value) || 0;
-        localStorage.setItem('ol_' + exerciseName, JSON.stringify({ sets, reps, weight }));
+        pSet('ol_' + exerciseName, JSON.stringify({ sets, reps, weight }));
 
         const today = new Date().toISOString().split('T')[0];
 
         // Save to per-exercise history (last 5 sessions)
         if (sets && reps && weight) {
-            let hist = JSON.parse(localStorage.getItem('ol_hist_' + exerciseName) || '[]');
+            let hist = JSON.parse(pGet('ol_hist_' + exerciseName) || '[]');
             hist = hist.filter(h => h.date !== today);
             hist.push({ date: today, sets, reps, weight });
             if (hist.length > 5) hist = hist.slice(-5);
-            localStorage.setItem('ol_hist_' + exerciseName, JSON.stringify(hist));
+            pSet('ol_hist_' + exerciseName, JSON.stringify(hist));
 
             // Update history panel if visible
             const histEl = document.getElementById(`ol-hist-${idx}`);
@@ -1107,9 +1153,9 @@
 
         // PR detection
         if (weight > 0) {
-            const prData = JSON.parse(localStorage.getItem('pr_' + exerciseName) || 'null');
+            const prData = JSON.parse(pGet('pr_' + exerciseName) || 'null');
             if (!prData || weight > parseFloat(prData.weight)) {
-                localStorage.setItem('pr_' + exerciseName, JSON.stringify({ sets, reps, weight, date: today }));
+                pSet('pr_' + exerciseName, JSON.stringify({ sets, reps, weight, date: today }));
                 const banner = document.getElementById(`pr-banner-${idx}`);
                 if (banner) {
                     banner.classList.remove('show');
@@ -1124,7 +1170,7 @@
     }
 
     function renderOLHistory(exerciseName, idx) {
-        const hist = JSON.parse(localStorage.getItem('ol_hist_' + exerciseName) || '[]');
+        const hist = JSON.parse(pGet('ol_hist_' + exerciseName) || '[]');
         const el = document.getElementById(`ol-hist-${idx}`);
         if (!el) return;
         if (hist.length === 0) { el.innerHTML = '<div style="color:var(--dim); font-size:0.75rem;">No history yet.</div>'; return; }
@@ -1220,13 +1266,13 @@
     // ============================================================
     function pushProgressHistory(weight, waist) {
         const today = new Date().toISOString().split('T')[0];
-        let history = JSON.parse(localStorage.getItem('weight_history') || '[]');
+        let history = JSON.parse(pGet('weight_history') || '[]');
         const idx = history.findIndex(h => h.date === today);
         const entry = { date: today, weight: parseFloat(weight) || 0, waist: parseFloat(waist) || 0 };
         if (idx >= 0) history[idx] = entry;
         else history.push(entry);
         if (history.length > 180) history = history.slice(-180);
-        localStorage.setItem('weight_history', JSON.stringify(history));
+        pSet('weight_history', JSON.stringify(history));
     }
 
     // ============================================================
@@ -1236,21 +1282,40 @@
         const container = document.getElementById('phaseProgressCard');
         if (!container) return;
 
-        const startStr = localStorage.getItem('challenge_start');
+        const startStr = pGet('challenge_start');
 
         if (!startStr) {
+            const isSunday = new Date().getDay() === 0;
             container.innerHTML = `
                 <div style="text-align:center; padding:4px 0 6px;">
                     <div style="font-size:0.85rem; color:var(--primary); font-weight:700; margin-bottom:6px;">📅 6-Month Challenge Tracker</div>
-                    <div style="font-size:0.78rem; color:var(--dim); margin-bottom:14px; line-height:1.5;">Set your start date once and the app will track which phase you're in, how many weeks have passed, and when you'll hit your 210 lb goal.</div>
-                    <button class="start-challenge-btn" onclick="startChallenge()">🚀 Start Challenge — Day 1 Today</button>
-                    <div class="start-challenge-note">Saves to your device · won't reset unless you clear browser data</div>
+                    <div style="font-size:0.78rem; color:var(--dim); margin-bottom:14px; line-height:1.5;">Set your start date once. On Sunday, use <strong>Start Tomorrow</strong> to prep groceries for the week ahead.</div>
+                    <div class="start-challenge-row">
+                        <button class="start-challenge-btn" onclick="startChallengeToday()">🚀 Start Today</button>
+                        <button class="start-challenge-btn" onclick="startChallengeTomorrow()" style="background:var(--success); color:#000;">📅 Start Tomorrow${isSunday ? ' (recommended)' : ''}</button>
+                    </div>
+                    <div class="start-challenge-note">Saves to your profile · won't reset unless you clear browser data</div>
                 </div>`;
             return;
         }
 
-        const start = new Date(startStr);
+        const start = parseDateStr(startStr);
         const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        start.setHours(0, 0, 0, 0);
+
+        if (today < start) {
+            const fmt = d => d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            const daysUntil = Math.ceil((start - today) / 86400000);
+            container.innerHTML = `
+                <div style="text-align:center; padding:8px 0;">
+                    <div style="font-size:0.85rem; color:var(--primary); font-weight:700;">📅 Challenge starts ${fmt(start)}</div>
+                    <div style="font-size:0.78rem; color:var(--dim); margin:8px 0 12px;">${daysUntil} day${daysUntil !== 1 ? 's' : ''} until Day 1 · Plan meals in Kitchen &amp; Shop for that week</div>
+                    <button class="action-btn btn-outline" style="margin-top:0;" onclick="if(confirm('Change start date?')){ pRemove('challenge_start'); renderPhaseProgress(); }">Change start date</button>
+                </div>`;
+            return;
+        }
+
         const daysSince  = Math.max(0, Math.floor((today - start) / 86400000));
         const weeksSince = Math.floor(daysSince / 7);
         const weekNum    = Math.min(weeksSince + 1, 26);
@@ -1319,17 +1384,12 @@
     }
 
     function startChallenge() {
-        const today = new Date().toISOString().split('T')[0];
-        localStorage.setItem('challenge_start', today);
-        renderPhaseProgress();
-        // Auto-switch workout selector to Phase 1
-        const ws = document.getElementById('weekSelect');
-        if (ws) { ws.value = '1'; localStorage.setItem('sm_week', '1'); renderWorkoutDay(); }
+        startChallengeToday();
     }
 
     function jumpToPhase(phaseKey) {
         const ws = document.getElementById('weekSelect');
-        if (ws) { ws.value = phaseKey; localStorage.setItem('sm_week', phaseKey); renderWorkoutDay(); }
+        if (ws) { ws.value = phaseKey; pSet('sm_week', phaseKey); renderWorkoutDay(); }
         renderPhaseProgress();
     }
 
@@ -1337,7 +1397,7 @@
         const canvas = document.getElementById('trendCanvas');
         if (!canvas || canvas.offsetWidth === 0) return;
 
-        const history = JSON.parse(localStorage.getItem('weight_history') || '[]');
+        const history = JSON.parse(pGet('weight_history') || '[]');
         const dpr = window.devicePixelRatio || 1;
         const w = canvas.offsetWidth;
         const h = 160;
@@ -1508,8 +1568,8 @@
         const neck   = parseFloat(document.getElementById('currentNeck').value)   || 0;
         const height = parseFloat(document.getElementById('currentHeight').value) || 0;
 
-        if (neck   > 0) localStorage.setItem('bf_neck', neck);
-        if (height > 0) localStorage.setItem('bf_height', height);
+        if (neck   > 0) pSet('bf_neck', neck);
+        if (height > 0) pSet('bf_height', height);
 
         const card = document.getElementById('bfCard');
         if (waist > neck && neck > 0 && height > 0) {
@@ -1577,7 +1637,31 @@
 
     // Recipe data is now in recipes.json — loaded by loadRecipes() above
 
-    let activeWeeklyPrep = { breakfast: [], mains: [], snacks: [] };
+    let activeWeeklyPrep = { breakfast: [], mains: [], snacks: [], preworkout: [], postworkout: [] };
+
+    function renderMealWeekBanner() {
+        const el = document.getElementById('mealWeekBanner');
+        if (!el) return;
+        const weekKey = getActiveMealWeekKey();
+        const hasPrep = activeWeeklyPrep.mains && activeWeeklyPrep.mains.length;
+        el.style.display = 'block';
+        el.innerHTML = hasPrep
+            ? `📅 Meal plan week: <strong>${formatMealWeekRange(weekKey)}</strong>`
+            : `📅 Plan meals for <strong>${formatMealWeekRange(weekKey)}</strong> — tap Shuffle Weekly Bulk Prep below`;
+    }
+
+    function ensureWeeklyPrep() {
+        const saved = loadWeeklyPrep();
+        if (saved && saved.mains && saved.mains.length) {
+            activeWeeklyPrep = saved;
+            renderWeeklyPrepUI();
+            generateDailyShuffle();
+            renderMealWeekBanner();
+            return true;
+        }
+        renderMealWeekBanner();
+        return false;
+    }
 
     // ============================================================
     // INITIALIZATION
@@ -1590,21 +1674,29 @@
         const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         currentSelectedDay = days[new Date().getDay()];
 
-        const savedWeek = localStorage.getItem('sm_week') || 1;
+        const savedWeek = pGet('sm_week') || '1';
         document.getElementById('weekSelect').value = savedWeek;
 
-        const savedVbDay = localStorage.getItem('vb_day') || '';
+        const savedVbDay = pGet('vb_day') || '';
         document.getElementById('volleyballDay').value = savedVbDay;
 
-        if (!activeWeeklyPrep.mains.length) shuffleWeeklyPrep();
+        if (!ensureWeeklyPrep()) {
+            const container = document.getElementById('sample-day-container');
+            if (container && !container.innerHTML) {
+                container.innerHTML = `<p style="color:var(--dim); font-size:0.85rem;">No meal plan for this week yet. Tap <strong>Shuffle Weekly Bulk Prep</strong> to build your grocery list.</p>`;
+            }
+        }
+
+        renderMacroDisplay();
+        renderProfileSettings();
 
         selectDay(currentSelectedDay);
 
         // Restore saved weight/waist/neck/height
-        const savedWeight = localStorage.getItem('currentWeight');
-        const savedWaist  = localStorage.getItem('currentWaist');
-        const savedNeck   = localStorage.getItem('bf_neck');
-        const savedHeight = localStorage.getItem('bf_height');
+        const savedWeight = pGet('currentWeight');
+        const savedWaist  = pGet('currentWaist');
+        const savedNeck   = pGet('bf_neck');
+        const savedHeight = pGet('bf_height');
         if (savedWeight) document.getElementById('currentWeight').value = savedWeight;
         if (savedWaist)  document.getElementById('currentWaist').value  = savedWaist;
         if (savedNeck)   document.getElementById('currentNeck').value   = savedNeck;
@@ -1615,7 +1707,7 @@
         updateStepsUI();
 
         // Restore photo check
-        const savedPhoto = localStorage.getItem('photo_check');
+        const savedPhoto = pGet('photo_check');
         if (savedPhoto) {
             document.getElementById('photoCheck').checked = true;
             document.getElementById('photoDate').innerText = `Last taken: ${savedPhoto}`;
@@ -1646,7 +1738,8 @@
         document.getElementById(tabId).classList.add('active');
         const idx = ['workout', 'nutrition', 'grocery', 'guide'].indexOf(tabId);
         document.querySelectorAll('.nav-item')[idx].classList.add('active');
-        if (tabId === 'grocery')   renderGroceryList();
+        if (tabId === 'grocery')   { renderMealWeekBanner(); renderGroceryList(); }
+        if (tabId === 'nutrition') { renderMealWeekBanner(); }
         if (tabId === 'workout')   { setTimeout(renderPhaseProgress, 40); setTimeout(renderTrendChart, 50); setTimeout(updateDeficitCard, 60); }
         if (tabId === 'guide')     { setTimeout(renderSleepChart, 50); setTimeout(renderHeatmap, 60); setTimeout(renderHabitChecklist, 70); }
     }
@@ -1660,6 +1753,7 @@
             document.getElementById('btn-' + m).className = m === mode ? 'tab-btn active-sub' : 'tab-btn';
         });
         if (mode === 'track') { updateTracking(); updateWaterUI(); updateStepsUI(); }
+        renderMealWeekBanner();
     }
 
     function shuffleWeeklyPrep() {
@@ -1669,8 +1763,11 @@
         activeWeeklyPrep.snacks     = getRandom(mealDatabase.prepRecipes.snacks, 1);
         activeWeeklyPrep.preworkout = getRandom(mealDatabase.prepRecipes.preworkout, 1);
         activeWeeklyPrep.postworkout= getRandom(mealDatabase.prepRecipes.postworkout, 1);
+        saveWeeklyPrep(activeWeeklyPrep);
         renderWeeklyPrepUI();
+        renderMealWeekBanner();
         generateDailyShuffle();
+        if (document.getElementById('grocery').classList.contains('active')) renderGroceryList();
     }
 
     function renderWeeklyPrepUI() {
@@ -1690,29 +1787,39 @@
         activeWeeklyPrep.breakfast.forEach(i => html += renderItem(i, 'Breakfast Prep'));
         activeWeeklyPrep.mains.forEach(i => html += renderItem(i, 'Main Meal Prep (Lunch/Dinner)'));
         activeWeeklyPrep.snacks.forEach(i => html += renderItem(i, 'Snack Prep'));
+        if (activeWeeklyPrep.preworkout) activeWeeklyPrep.preworkout.forEach(i => html += renderItem(i, 'Pre-Workout'));
+        if (activeWeeklyPrep.postworkout) activeWeeklyPrep.postworkout.forEach(i => html += renderItem(i, 'Post-Workout'));
         container.innerHTML = html;
     }
 
     function generateDailyShuffle() {
         const container = document.getElementById('daily-container');
-        const getRand = arr => arr[Math.floor(Math.random() * arr.length)];
+        const getRand = arr => (arr && arr.length) ? arr[Math.floor(Math.random() * arr.length)] : null;
         const db = mealDatabase.prepRecipes;
+        const prep = (activeWeeklyPrep.mains && activeWeeklyPrep.mains.length) ? activeWeeklyPrep : null;
+        const pool = (key, fallback) => {
+            const fromPrep = prep && prep[key] && prep[key].length ? prep[key] : null;
+            return fromPrep || fallback;
+        };
 
-        // 6 time-based slots for a 5:45 AM workout day
+        if (!prep) {
+            container.innerHTML = `<p style="color:var(--dim); font-size:0.9rem; padding:12px;">Shuffle <strong>Weekly Bulk Prep</strong> first — daily meals pull from that week's locked plan.</p>`;
+            return;
+        }
+
+        const mainsPool = pool('mains', db.mains);
+        const lunchItem = getRand(mainsPool);
+        const dinnerPool = mainsPool.filter(m => m.name !== lunchItem?.name);
         const todayMenu = [
-            { slot: '⚡ Pre-Workout',   time: '5:15 AM',  color: 'var(--steps)',   item: getRand(db.preworkout) },
-            { slot: '🥤 Post-Workout',  time: '7:00 AM',  color: 'var(--water)',   item: getRand(db.postworkout) },
-            { slot: '🍳 Breakfast',     time: '9:30 AM',  color: 'var(--primary)', item: getRand(db.breakfast) },
-            { slot: '🍛 Lunch',         time: '12:30 PM', color: 'var(--success)', item: getRand(db.mains) },
-            { slot: '🥜 Afternoon Snack', time: '4:00 PM', color: 'var(--purple)', item: getRand(db.snacks) },
-            { slot: '🍽️ Dinner',        time: '7:30 PM',  color: 'var(--success)', item: getRand(db.mains) }
+            { slot: '⚡ Pre-Workout',   time: '5:15 AM',  color: 'var(--steps)',   item: getRand(pool('preworkout', db.preworkout)) },
+            { slot: '🥤 Post-Workout',  time: '7:00 AM',  color: 'var(--water)',   item: getRand(pool('postworkout', db.postworkout)) },
+            { slot: '🍳 Breakfast',     time: '9:30 AM',  color: 'var(--primary)', item: getRand(pool('breakfast', db.breakfast)) },
+            { slot: '🍛 Lunch',         time: '12:30 PM', color: 'var(--success)', item: lunchItem },
+            { slot: '🥜 Afternoon Snack', time: '4:00 PM', color: 'var(--purple)', item: getRand(pool('snacks', db.snacks)) },
+            { slot: '🍽️ Dinner',        time: '7:30 PM',  color: 'var(--success)', item: getRand(dinnerPool.length ? dinnerPool : mainsPool) }
         ];
 
-        // Ensure dinner differs from lunch
-        const lunchName = todayMenu[3].item?.name;
-        const dinnerPool = db.mains.filter(m => m.name !== lunchName);
-        todayMenu[5].item = getRand(dinnerPool.length ? dinnerPool : db.mains);
-
+        const g = getMacroGoals();
         let html = ''; let totalCal = 0; let totalPro = 0; let totalCarb = 0; let totalFat = 0;
         todayMenu.forEach(meal => {
             if (!meal.item) return;
@@ -1737,10 +1844,10 @@
             </div>`;
         });
 
-        const calPct  = Math.round((totalCal  / 2200) * 100);
-        const proPct  = Math.round((totalPro  / 210)  * 100);
-        const carbPct = Math.round((totalCarb / 180)  * 100);
-        const fatPct  = Math.round((totalFat  / 70)   * 100);
+        const calPct  = Math.round((totalCal  / g.calories) * 100);
+        const proPct  = Math.round((totalPro  / g.protein)  * 100);
+        const carbPct = Math.round((totalCarb / g.carbs)  * 100);
+        const fatPct  = Math.round((totalFat  / g.fat)   * 100);
         const calColor  = calPct  > 110 ? 'var(--danger)' : calPct  > 95 ? 'var(--success)' : 'var(--text)';
         const proColor  = proPct  >= 95 ? 'var(--success)' : 'var(--primary)';
 
@@ -1750,22 +1857,22 @@
                 <div style="background:var(--bg); padding:10px; border-radius:8px; text-align:center;">
                     <div style="font-size:0.65rem; color:var(--dim); text-transform:uppercase; font-weight:700;">Calories</div>
                     <div style="font-size:1.3rem; font-weight:900; color:${calColor};">${totalCal}</div>
-                    <div style="font-size:0.65rem; color:var(--dim);">/ 2200 · ${calPct}%</div>
+                    <div style="font-size:0.65rem; color:var(--dim);">/ ${g.calories} · ${calPct}%</div>
                 </div>
                 <div style="background:var(--bg); padding:10px; border-radius:8px; text-align:center;">
                     <div style="font-size:0.65rem; color:var(--dim); text-transform:uppercase; font-weight:700;">Protein</div>
                     <div style="font-size:1.3rem; font-weight:900; color:${proColor};">${totalPro}g</div>
-                    <div style="font-size:0.65rem; color:var(--dim);">/ 210g · ${proPct}%</div>
+                    <div style="font-size:0.65rem; color:var(--dim);">/ ${g.protein}g · ${proPct}%</div>
                 </div>
                 <div style="background:var(--bg); padding:10px; border-radius:8px; text-align:center;">
                     <div style="font-size:0.65rem; color:var(--dim); text-transform:uppercase; font-weight:700;">Carbs</div>
                     <div style="font-size:1.3rem; font-weight:900; color:var(--water);">${totalCarb}g</div>
-                    <div style="font-size:0.65rem; color:var(--dim);">/ 180g · ${carbPct}%</div>
+                    <div style="font-size:0.65rem; color:var(--dim);">/ ${g.carbs}g · ${carbPct}%</div>
                 </div>
                 <div style="background:var(--bg); padding:10px; border-radius:8px; text-align:center;">
                     <div style="font-size:0.65rem; color:var(--dim); text-transform:uppercase; font-weight:700;">Fat</div>
                     <div style="font-size:1.3rem; font-weight:900; color:var(--steps);">${totalFat}g</div>
-                    <div style="font-size:0.65rem; color:var(--dim);">/ 70g · ${fatPct}%</div>
+                    <div style="font-size:0.65rem; color:var(--dim);">/ ${g.fat}g · ${fatPct}%</div>
                 </div>
             </div>
         </div>`;
@@ -1778,9 +1885,9 @@
     // ============================================================
     function addMealToTracking(name, cal, pro, carb, fat) {
         const today = new Date().toISOString().split('T')[0];
-        let tracked = JSON.parse(localStorage.getItem(`tracked_${today}`) || '[]');
+        let tracked = JSON.parse(pGet(`tracked_${today}`) || '[]');
         tracked.push({ name, cal, protein: pro, carbs: carb, fat: fat, id: Date.now() });
-        localStorage.setItem(`tracked_${today}`, JSON.stringify(tracked));
+        pSet(`tracked_${today}`, JSON.stringify(tracked));
         if (document.getElementById('track-view').style.display === 'block') updateTracking();
     }
 
@@ -1795,7 +1902,7 @@
 
     function updateTracking() {
         const today = new Date().toISOString().split('T')[0];
-        let tracked = JSON.parse(localStorage.getItem(`tracked_${today}`) || '[]');
+        let tracked = JSON.parse(pGet(`tracked_${today}`) || '[]');
         let tCal = 0, tPro = 0, tCarb = 0, tFat = 0;
         tracked.forEach(m => { tCal += m.cal; tPro += m.protein; tCarb += m.carbs; tFat += m.fat; });
 
@@ -1804,10 +1911,11 @@
         document.getElementById('trackCarb').innerText = tCarb + 'g';
         document.getElementById('trackFat').innerText  = tFat + 'g';
 
-        setMacroBar('barCal',  tCal,  2200, 'var(--primary)');
-        setMacroBar('barPro',  tPro,   210, 'var(--success)');
-        setMacroBar('barCarb', tCarb,  180, 'var(--water)');
-        setMacroBar('barFat',  tFat,    70, '#fb923c');
+        const g = getMacroGoals();
+        setMacroBar('barCal',  tCal,  g.calories, 'var(--primary)');
+        setMacroBar('barPro',  tPro,   g.protein, 'var(--success)');
+        setMacroBar('barCarb', tCarb,  g.carbs, 'var(--water)');
+        setMacroBar('barFat',  tFat,   g.fat, '#fb923c');
 
         document.getElementById('tracked-meals').innerHTML = tracked.map(m => `
             <div class="meal-card" style="display:flex; justify-content:space-between; align-items:center;">
@@ -1821,22 +1929,22 @@
 
     function removeMealTracking(id) {
         const today = new Date().toISOString().split('T')[0];
-        let tracked = JSON.parse(localStorage.getItem(`tracked_${today}`) || '[]');
-        localStorage.setItem(`tracked_${today}`, JSON.stringify(tracked.filter(m => m.id !== id)));
+        let tracked = JSON.parse(pGet(`tracked_${today}`) || '[]');
+        pSet(`tracked_${today}`, JSON.stringify(tracked.filter(m => m.id !== id)));
         updateTracking();
     }
 
     function updateWater(amount) {
         const today = new Date().toISOString().split('T')[0];
-        let current = parseInt(localStorage.getItem(`water_${today}`) || '0');
+        let current = parseInt(pGet(`water_${today}`) || '0');
         current = Math.max(0, Math.min(200, current + amount));
-        localStorage.setItem(`water_${today}`, current);
+        pSet(`water_${today}`, current);
         updateWaterUI();
     }
 
     function updateWaterUI() {
         const today = new Date().toISOString().split('T')[0];
-        const current = parseInt(localStorage.getItem(`water_${today}`) || '0');
+        const current = parseInt(pGet(`water_${today}`) || '0');
         document.getElementById('waterDisplay').innerText = `${current} oz`;
         document.getElementById('waterFillBar').style.width = `${Math.min(100, (current / 128) * 100)}%`;
         renderHabitChecklist();
@@ -1847,9 +1955,9 @@
     // ============================================================
     function updateSteps(amount) {
         const today = new Date().toISOString().split('T')[0];
-        let current = parseInt(localStorage.getItem(`steps_${today}`) || '0');
+        let current = parseInt(pGet(`steps_${today}`) || '0');
         current = Math.max(0, Math.min(99999, current + amount));
-        localStorage.setItem(`steps_${today}`, current);
+        pSet(`steps_${today}`, current);
         updateStepsUI();
     }
 
@@ -1858,7 +1966,7 @@
         const val = parseInt(input.value);
         if (!isNaN(val) && val >= 0) {
             const today = new Date().toISOString().split('T')[0];
-            localStorage.setItem(`steps_${today}`, Math.min(99999, val));
+            pSet(`steps_${today}`, Math.min(99999, val));
             input.value = '';
             updateStepsUI();
         }
@@ -1866,7 +1974,7 @@
 
     function updateStepsUI() {
         const today = new Date().toISOString().split('T')[0];
-        const current = parseInt(localStorage.getItem(`steps_${today}`) || '0');
+        const current = parseInt(pGet(`steps_${today}`) || '0');
         const goal = 10000;
         const pct = Math.min(100, (current / goal) * 100);
         const disp = document.getElementById('stepsDisplay');
@@ -1889,9 +1997,9 @@
     function clearDayTracking() {
         if (confirm('Clear all meals, water, and steps for today?')) {
             const today = new Date().toISOString().split('T')[0];
-            localStorage.removeItem(`tracked_${today}`);
-            localStorage.removeItem(`water_${today}`);
-            localStorage.removeItem(`steps_${today}`);
+            pRemove(`tracked_${today}`);
+            pRemove(`water_${today}`);
+            pRemove(`steps_${today}`);
             updateTracking(); updateWaterUI(); updateStepsUI();
         }
     }
@@ -1902,8 +2010,8 @@
         const pro   = document.getElementById('trackPro').innerText.replace('g', '');
         const carb  = document.getElementById('trackCarb').innerText.replace('g', '');
         const fat   = document.getElementById('trackFat').innerText.replace('g', '');
-        const water = parseInt(localStorage.getItem(`water_${today}`) || '0');
-        const steps = parseInt(localStorage.getItem(`steps_${today}`) || '0');
+        const water = parseInt(pGet(`water_${today}`) || '0');
+        const steps = parseInt(pGet(`steps_${today}`) || '0');
         const weight = document.getElementById('currentWeight').value || '';
         const waist  = document.getElementById('currentWaist').value  || '';
         const tsv = `${today}\t${weight}\t${waist}\t${cal}\t${pro}\t${carb}\t${fat}\t${water}\t${steps}`;
@@ -1923,11 +2031,11 @@
         const dateEl = document.getElementById('photoDate');
         if (isChecked) {
             const d = new Date().toLocaleDateString();
-            localStorage.setItem('photo_check', d);
+            pSet('photo_check', d);
             dateEl.innerText = `Last taken: ${d}`;
             dateEl.style.display = 'block';
         } else {
-            localStorage.removeItem('photo_check');
+            pRemove('photo_check');
             dateEl.style.display = 'none';
         }
     }
@@ -1937,20 +2045,43 @@
     // ============================================================
     function renderGroceryList() {
         const container = document.getElementById('dynamic-grocery-list');
+        const weekKey = getActiveMealWeekKey();
         let combined = [];
-        [...activeWeeklyPrep.breakfast, ...activeWeeklyPrep.mains, ...activeWeeklyPrep.snacks].forEach(meal => {
+        const mealSlots = [
+            ...(activeWeeklyPrep.breakfast || []),
+            ...(activeWeeklyPrep.mains || []),
+            ...(activeWeeklyPrep.snacks || []),
+            ...(activeWeeklyPrep.preworkout || []),
+            ...(activeWeeklyPrep.postworkout || [])
+        ];
+        mealSlots.forEach(meal => {
             if (meal.ingredients) meal.ingredients.forEach(ing => combined.push(`${ing.item} (${ing.qty})`));
         });
-        let html = `<div class="grocery-list"><div class="grocery-category">📦 HUEL & STAPLES</div><div class="grocery-item"><span>Huel Black Edition</span></div><div class="grocery-item"><span>Huel Hot & Savory</span></div><div class="grocery-item"><span>Cosmic Protein</span></div></div>
+        const staples = mealDatabase.staples && mealDatabase.staples.length
+            ? mealDatabase.staples
+            : [{ name: 'Huel Black Edition' }, { name: 'Huel Hot & Savory' }, { name: 'Cosmic Protein' }];
+        let staplesHtml = staples.map(s => `<div class="grocery-item"><span>${s.name}</span></div>`).join('');
+        let html = `<div class="meal-week-banner">🛒 Shopping for <strong>${formatMealWeekRange(weekKey)}</strong></div>`;
+        if (!mealSlots.length) {
+            html += `<p style="color:var(--dim); font-size:0.88rem; margin-bottom:14px;">No weekly prep locked yet. Go to Kitchen → Weekly Bulk → <strong>Shuffle Weekly Bulk Prep</strong>.</p>`;
+        }
+        html += `<div class="grocery-list"><div class="grocery-category">📦 HUEL & STAPLES</div>${staplesHtml}</div>
             <div class="grocery-list"><div class="grocery-category">🔪 PREP INGREDIENTS</div>`;
-        [...new Set(combined)].forEach(item => html += `<div class="grocery-item"><span>${item}</span></div>`);
+        if (combined.length) {
+            [...new Set(combined)].forEach(item => html += `<div class="grocery-item"><span>${item}</span></div>`);
+        } else {
+            html += `<div class="grocery-item"><span style="color:var(--dim);">Shuffle weekly prep to populate ingredients</span></div>`;
+        }
         html += `</div><div class="grocery-list"><div class="grocery-category">💊 SUPPLEMENTS</div><div class="grocery-item"><span>Kaged Pre-Workout Elite (Stim Free)</span><span style="color:var(--dim); font-size:0.8rem;">incl. Creatine + Beta-Alanine</span></div><div class="grocery-item"><span>Multivitamin</span></div></div>`;
         container.innerHTML = html;
     }
 
     function exportGroceryCSV() {
-        let csv = 'data:text/csv;charset=utf-8,Category,Item\nStaples,Huel Black Edition\nStaples,Huel Hot & Savory\nStaples,Cosmic Protein\nSupplements,Kaged Pre-Workout Elite (Stim Free)\nSupplements,Multivitamin\n';
-        [...activeWeeklyPrep.breakfast, ...activeWeeklyPrep.mains, ...activeWeeklyPrep.snacks].forEach(meal => {
+        const staples = mealDatabase.staples && mealDatabase.staples.length ? mealDatabase.staples : [{ name: 'Huel Black Edition' }, { name: 'Huel Hot & Savory' }, { name: 'Cosmic Protein' }];
+        let csv = 'data:text/csv;charset=utf-8,Category,Item\n';
+        staples.forEach(s => { csv += `Staples,${s.name}\n`; });
+        csv += 'Supplements,Kaged Pre-Workout Elite (Stim Free)\nSupplements,Multivitamin\n';
+        [...(activeWeeklyPrep.breakfast || []), ...(activeWeeklyPrep.mains || []), ...(activeWeeklyPrep.snacks || []), ...(activeWeeklyPrep.preworkout || []), ...(activeWeeklyPrep.postworkout || [])].forEach(meal => {
             if (meal.ingredients) meal.ingredients.forEach(ing => csv += `Prep Recipe (${meal.name}),${ing.item} - ${ing.qty}\n`);
         });
         const link = document.createElement('a');
@@ -1963,19 +2094,20 @@
     // PROGRESS UPDATE (weight + waist logging)
     // ============================================================
     function updateProgress() {
-        const currentWeight = parseFloat(document.getElementById('currentWeight').value) || 250;
+        const g = getMacroGoals();
+        const currentWeight = parseFloat(document.getElementById('currentWeight').value) || g.startWeight;
         const currentWaist  = parseFloat(document.getElementById('currentWaist').value)  || 0;
 
-        localStorage.setItem('currentWeight', currentWeight);
-        if (currentWaist > 0) localStorage.setItem('currentWaist', currentWaist);
+        pSet('currentWeight', currentWeight);
+        if (currentWaist > 0) pSet('currentWaist', currentWaist);
 
-        // Push to history and re-render chart
-        if (currentWeight !== 250 || currentWaist > 0) {
+        if (currentWeight !== g.startWeight || currentWaist > 0) {
             pushProgressHistory(currentWeight, currentWaist);
             setTimeout(renderTrendChart, 50);
         }
 
-        const progress = Math.min(100, Math.max(0, ((250 - currentWeight) / 40) * 100));
+        const range = g.startWeight - g.goalWeight;
+        const progress = range > 0 ? Math.min(100, Math.max(0, ((g.startWeight - currentWeight) / range) * 100)) : 100;
         setTimeout(() => {
             document.getElementById('progressCircle').style.strokeDashoffset = 376.99 - (progress / 100 * 376.99);
         }, 100);
@@ -1998,7 +2130,7 @@
     function logSleep() {
         const val = parseFloat(document.getElementById('sleepSlider').value);
         const today = new Date().toISOString().split('T')[0];
-        localStorage.setItem('sleep_' + today, val);
+        pSet('sleep_' + today, val);
         renderSleepChart();
         const fb = val >= 7 ? '✅ Great sleep! Recovery maximized.' : val >= 6 ? '⚠️ Aim for 7+ hours — cortisol spikes under 7.' : '❌ Poor recovery — prioritize sleep tonight.';
         document.getElementById('sleepFeedback').innerText = fb;
@@ -2007,7 +2139,7 @@
 
     function loadSleepForToday() {
         const today = new Date().toISOString().split('T')[0];
-        const saved = parseFloat(localStorage.getItem('sleep_' + today) || '0');
+        const saved = parseFloat(pGet('sleep_' + today) || '0');
         if (saved) {
             document.getElementById('sleepSlider').value = saved;
             document.getElementById('sleepDisplay').innerHTML = `${saved} <span>hrs</span>`;
@@ -2038,7 +2170,7 @@
             const d = new Date();
             d.setDate(d.getDate() - i);
             const dateStr = d.toISOString().split('T')[0];
-            const hrs = parseFloat(localStorage.getItem('sleep_' + dateStr) || '0');
+            const hrs = parseFloat(pGet('sleep_' + dateStr) || '0');
             const label = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'][d.getDay()];
             days.push({ label, hrs });
         }
@@ -2096,7 +2228,7 @@
 
     function checkWeeklyCheckin() {
         if (new Date().getDay() !== 0) return; // Sunday only
-        if (localStorage.getItem('checkin_' + getWeekKey())) return; // Already done
+        if (pGet('checkin_' + getWeekKey())) return; // Already done
         setTimeout(() => {
             const modal = document.getElementById('checkinModal');
             modal.style.display = 'flex';
@@ -2128,7 +2260,7 @@
             togglePhotoCheck();
         }
 
-        localStorage.setItem('checkin_' + getWeekKey(), new Date().toISOString());
+        pSet('checkin_' + getWeekKey(), new Date().toISOString());
         dismissCheckin();
         setTimeout(() => alert('✅ Weekly check-in saved! You are ' + Math.round(((250 - parseFloat(weight)) / 40) * 100) + '% of the way to goal. Keep grinding.'), 350);
     }
@@ -2146,11 +2278,12 @@
         const container = document.getElementById('deficitContent');
         if (!container) return;
 
-        const currentWeight = parseFloat(localStorage.getItem('currentWeight') || '250');
-        const weightToLose = currentWeight - 210;
+        const g = getMacroGoals();
+        const currentWeight = parseFloat(pGet('currentWeight') || String(g.startWeight));
+        const weightToLose = currentWeight - g.goalWeight;
 
         if (weightToLose <= 0) {
-            container.innerHTML = `<div style="color:var(--success); font-weight:800; font-size:1.1rem; text-align:center;">🎉 Goal Reached! You hit 210 lbs!</div>`;
+            container.innerHTML = `<div style="color:var(--success); font-weight:800; font-size:1.1rem; text-align:center;">🎉 Goal Reached! You hit ${g.goalWeight} lbs!</div>`;
             return;
         }
 
@@ -2160,7 +2293,7 @@
             const d = new Date();
             d.setDate(d.getDate() - i);
             const dateStr = d.toISOString().split('T')[0];
-            const tracked = JSON.parse(localStorage.getItem(`tracked_${dateStr}`) || '[]');
+            const tracked = JSON.parse(pGet(`tracked_${dateStr}`) || '[]');
             if (tracked.length > 0) {
                 totalCals += tracked.reduce((sum, m) => sum + (m.cal || 0), 0);
                 loggedDays++;
@@ -2173,11 +2306,12 @@
         }
 
         const avgCals    = Math.round(totalCals / loggedDays);
-        const avgDeficit = 2200 - avgCals;
+        const calGoal    = getMacroGoals().calories;
+        const avgDeficit = calGoal - avgCals;
         const weeklyLoss = (avgDeficit * 7) / 3500;
 
         if (avgDeficit <= 50) {
-            container.innerHTML = `<div style="color:var(--primary); font-size:0.85rem;">⚠️ Avg <strong>${avgCals}</strong> cal/day — barely in a deficit. Hit the 2200 cal goal and push cardio to accelerate.</div>`;
+            container.innerHTML = `<div style="color:var(--primary); font-size:0.85rem;">⚠️ Avg <strong>${avgCals}</strong> cal/day — barely in a deficit. Hit the ${calGoal} cal goal and push cardio to accelerate.</div>`;
             return;
         }
 
@@ -2265,7 +2399,7 @@
                     const dayNames = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
                     for (const wk of ['1','2','5']) {
                         const key = `wo_${dateStr}_${wk}_${dayNames[row]}`;
-                        const state = JSON.parse(localStorage.getItem(key) || '{}');
+                        const state = JSON.parse(pGet(key) || '{}');
                         if (Object.values(state).some(v => v === true)) { done = true; break; }
                     }
                 }
@@ -2285,24 +2419,25 @@
     const HABITS = [
         { id: 'creatine', label: 'Kaged Pre-Workout taken',   note: 'Creatine + Beta-Alanine included · Tap to check', auto: false },
         { id: 'vitamin',  label: 'Multivitamin taken',       note: 'Tap to check',               auto: false },
-        { id: 'protein',  label: 'Hit protein goal (200g+)', note: '⚡ Auto — from meal log',     auto: true,
+        { id: 'protein',  label: 'Hit protein goal', note: '⚡ Auto — from meal log',     auto: true,
           check: () => {
               const today = new Date().toISOString().split('T')[0];
-              const tracked = JSON.parse(localStorage.getItem(`tracked_${today}`) || '[]');
-              return tracked.reduce((s, m) => s + (m.protein || 0), 0) >= 200;
+              const tracked = JSON.parse(pGet(`tracked_${today}`) || '[]');
+              const goal = getMacroGoals().protein;
+              return tracked.reduce((s, m) => s + (m.protein || 0), 0) >= goal;
           }
         },
         { id: 'sleep',    label: '7+ hrs sleep',             note: '⚡ Auto — from sleep log',    auto: true,
-          check: () => parseFloat(localStorage.getItem('sleep_' + new Date().toISOString().split('T')[0]) || '0') >= 7
+          check: () => parseFloat(pGet('sleep_' + new Date().toISOString().split('T')[0]) || '0') >= 7
         },
         { id: 'water',    label: 'Drank 128oz water',        note: '⚡ Auto — from water log',    auto: true,
-          check: () => parseInt(localStorage.getItem('water_' + new Date().toISOString().split('T')[0]) || '0') >= 128
+          check: () => parseInt(pGet('water_' + new Date().toISOString().split('T')[0]) || '0') >= 128
         },
         { id: 'photo',    label: 'Progress photo this week', note: '⚡ Auto — from Weekly Flex',  auto: true,
-          check: () => !!localStorage.getItem('photo_check')
+          check: () => !!pGet('photo_check')
         },
         { id: 'steps',    label: '10,000 steps walked',      note: '⚡ Auto — from steps log',    auto: true,
-          check: () => parseInt(localStorage.getItem('steps_' + new Date().toISOString().split('T')[0]) || '0') >= 10000
+          check: () => parseInt(pGet('steps_' + new Date().toISOString().split('T')[0]) || '0') >= 10000
         }
     ];
 
@@ -2314,11 +2449,11 @@
 
         const today = new Date().toISOString().split('T')[0];
         const key = `habits_${today}`;
-        let habitData = JSON.parse(localStorage.getItem(key) || '{}');
+        let habitData = JSON.parse(pGet(key) || '{}');
 
         // Auto-evaluate
         HABITS.forEach(h => { if (h.auto && h.check) habitData[h.id] = h.check(); });
-        localStorage.setItem(key, JSON.stringify(habitData));
+        pSet(key, JSON.stringify(habitData));
 
         const checked = HABITS.filter(h => habitData[h.id]).length;
         const total   = HABITS.length;
@@ -2343,9 +2478,9 @@
     function toggleHabit(habitId) {
         const today = new Date().toISOString().split('T')[0];
         const key = `habits_${today}`;
-        let habitData = JSON.parse(localStorage.getItem(key) || '{}');
+        let habitData = JSON.parse(pGet(key) || '{}');
         habitData[habitId] = !habitData[habitId];
-        localStorage.setItem(key, JSON.stringify(habitData));
+        pSet(key, JSON.stringify(habitData));
         renderHabitChecklist();
     }
 
@@ -2364,7 +2499,7 @@
         const link = document.createElement('a');
         const today = new Date().toISOString().split('T')[0];
         link.setAttribute('href', url);
-        link.setAttribute('download', `6pack_backup_${today}.json`);
+        link.setAttribute('download', `visible_abs_backup_${today}.json`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -2386,7 +2521,7 @@
                     location.reload();
                 }
             } catch (err) {
-                alert('Error reading file. Make sure it\'s a valid 6-Pack Challenge backup (.json).');
+                alert('Error reading file. Make sure it\'s a valid Visible Abs Challenge backup (.json).');
             }
         };
         reader.readAsText(file);
