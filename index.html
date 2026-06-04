@@ -19,6 +19,7 @@
             --purple: #c084fc;
             --steps: #fb923c;
             --border-radius: 12px;
+            --nav-bar-height: 78px;
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -36,7 +37,14 @@
         .streak-badge { background: rgba(167, 139, 250, 0.15); color: var(--primary); padding: 6px 12px; border-radius: 20px; font-weight: 800; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; border: 1px solid rgba(167, 139, 250, 0.3); }
 
         /* --- NAVIGATION --- */
-        .nav-bar { position: fixed; bottom: 0; width: 100%; background: rgba(10, 10, 18, 0.95); backdrop-filter: blur(10px); display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; border-top: 1px solid #252534; z-index: 1000; padding-bottom: env(safe-area-inset-bottom); }
+        .nav-bar {
+            position: fixed; bottom: 0; width: 100%; min-height: var(--nav-bar-height);
+            background: rgba(10, 10, 18, 0.95); backdrop-filter: blur(10px);
+            display: grid; grid-template-columns: 1fr 1fr 1fr 1fr;
+            border-top: 1px solid #252534; z-index: 1000;
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+            box-sizing: border-box;
+        }
         .nav-item { padding: 15px 0; text-align: center; font-size: 0.75rem; color: #4a4a60; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; transition: all 0.2s; }
         .nav-item.active { color: var(--primary); border-top: 2px solid var(--primary); background: linear-gradient(to top, rgba(167, 139, 250, 0.08), transparent); text-shadow: 0 0 12px rgba(167,139,250,0.4); }
         .page { display: none; padding: 20px; }
@@ -289,36 +297,52 @@
         ============================================================ */
         .rest-sticky-bar {
             position: fixed;
-            bottom: 56px;
             left: 0;
             right: 0;
-            z-index: 900;
+            bottom: calc(var(--nav-bar-height) + env(safe-area-inset-bottom, 0px));
+            z-index: 1001;
             display: none;
             background: rgba(12, 12, 20, 0.98);
             border-top: 1px solid rgba(167,139,250,0.28);
-            padding: 10px 12px 8px;
+            padding: 8px 10px 10px;
             backdrop-filter: blur(12px);
             box-shadow: 0 -4px 24px rgba(0,0,0,0.45);
+            box-sizing: border-box;
         }
         .rest-sticky-bar.show { display: block; }
-        #workout.has-rest-sticky { padding-bottom: 138px; }
-        .rest-sticky-inner { display: flex; flex-direction: column; gap: 5px; }
-        .rest-sticky-row { display: flex; align-items: center; gap: 6px; width: 100%; }
+        #workout.has-rest-sticky {
+            padding-bottom: calc(var(--nav-bar-height) + 118px + env(safe-area-inset-bottom, 0px));
+        }
+        .rest-sticky-inner { display: flex; flex-direction: column; gap: 6px; }
+        .rest-sticky-row {
+            display: flex; align-items: center; gap: 5px; width: 100%;
+        }
         .rest-sticky-countdown {
-            font-size: 1.2rem; font-weight: 900; color: var(--primary);
-            flex: 0 0 auto; min-width: 48px; text-align: center; font-variant-numeric: tabular-nums;
+            font-size: 1.15rem; font-weight: 900; color: var(--primary);
+            flex: 0 0 auto; min-width: 44px; text-align: center; font-variant-numeric: tabular-nums;
         }
         .rest-sticky-countdown.go { color: var(--success); animation: pulse 0.5s ease 3; }
-        .rest-sticky-presets { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; flex: 1 1 auto; min-width: 0; justify-content: flex-end; }
+        .rest-sticky-presets {
+            display: flex; gap: 4px; flex-wrap: nowrap; align-items: center;
+            flex: 0 1 auto; min-width: 0; overflow-x: auto; scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+        }
+        .rest-sticky-presets::-webkit-scrollbar { display: none; }
         .rest-sticky-hint {
-            width: 100%; font-size: 0.6rem; line-height: 1.35; color: var(--dim);
-            letter-spacing: 0.2px; text-align: center; padding: 0 2px; box-sizing: border-box;
+            flex: 1 1 0; min-width: 0; font-size: 0.62rem; line-height: 1.3;
+            color: var(--dim); letter-spacing: 0.1px; text-align: left;
+            padding-left: 4px; overflow: hidden;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
         }
         .rest-preset { padding: 6px 10px; border-radius: 8px; background: #1e1e2c; border: 1px solid #3a3a3a; color: var(--dim); font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: all 0.15s; }
         .rest-preset.active, .rest-preset:active { background: var(--primary); color: #000; border-color: var(--primary); }
         .rest-preset:disabled { opacity: 0.4; cursor: not-allowed; }
         .rest-suggested-preset { border-color: rgba(167,139,250,0.35); color: var(--primary); }
-        .rest-cancel-inline { background: none; border: 1px solid rgba(248,113,113,0.35); color: var(--danger); font-size: 0.75rem; font-weight: 700; cursor: pointer; padding: 6px 10px; border-radius: 8px; }
+        .rest-cancel-inline {
+            flex-shrink: 0; background: none; border: 1px solid rgba(248,113,113,0.35);
+            color: var(--danger); font-size: 0.75rem; font-weight: 700; cursor: pointer;
+            padding: 6px 10px; border-radius: 8px;
+        }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
 
         /* ============================================================
@@ -569,10 +593,10 @@
                     <button type="button" class="rest-preset" onclick="startRestTimer(120, this)">2m</button>
                     <button type="button" class="rest-preset" onclick="startRestTimer(180, this)">3m</button>
                     <button type="button" class="rest-preset rest-suggested-preset" id="restSuggestedBtn" onclick="startSuggestedRestTimer()" disabled>Suggested</button>
-                    <button type="button" class="rest-cancel-inline" onclick="cancelRestTimer()">✕</button>
                 </div>
+                <button type="button" class="rest-cancel-inline" onclick="cancelRestTimer()">✕</button>
             </div>
-            <span class="rest-sticky-hint" id="restStickyHint">Tap Rest on an exercise · compounds 2–3m · accessories 60–90s</span>
+            <span class="rest-sticky-hint" id="restStickyHint">Tap Rest on an exercise for suggested time · compounds 2–3m · accessories 60–90s</span>
         </div>
     </div>
 
