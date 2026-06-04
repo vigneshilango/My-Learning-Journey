@@ -286,6 +286,202 @@
         return sections;
     }
 
+    const GROCERY_CATEGORY_ORDER = [
+        { id: 'produce', label: '🥬 Produce' },
+        { id: 'dairy', label: '🥛 Dairy' },
+        { id: 'protein_legumes', label: '🫘 Beans, lentils & meat alternatives' },
+        { id: 'grains', label: '🌾 Rice, grains & pasta' },
+        { id: 'shakes', label: '💪 Protein powders & shakes' },
+        { id: 'pantry', label: '🧂 Pantry, sauces & spices' },
+        { id: 'other', label: '📦 Other' }
+    ];
+
+    const INGREDIENT_DISPLAY_NAMES = {
+        paneer: 'Paneer (low-fat)',
+        greek_yogurt: 'Greek Yogurt (0% fat)',
+        rajma: 'Rajma / kidney beans (cooked)',
+        black_beans: 'Black beans (cooked)',
+        pinto_beans: 'Pinto beans (cooked)',
+        chickpeas: 'Chickpeas (cooked)',
+        brown_rice: 'Brown rice (cooked)',
+        pasta: 'Whole wheat pasta (dry)',
+        spinach: 'Spinach',
+        beyond_beef: 'Beyond Beef (ground)',
+        tomato_passata: 'Tomato passata / crushed tomatoes',
+        whey: 'Whey protein',
+        cosmic_protein: 'Cosmic Protein',
+        huel_black: 'Huel Black powder',
+        huel_hot: 'Huel Hot & Savory',
+        oats: 'Oats',
+        besan: 'Besan (gram flour)',
+        eggs: 'Egg whites',
+        seitan: 'Seitan',
+        soy_chunks: 'Soy chunks (dry)',
+        urad_dal: 'Whole urad dal (dry)',
+        dosa_rice: 'Dosa / idli rice (dry)',
+        lentils_mixed: 'Lentils (dry)',
+        tortillas: 'Corn / whole wheat tortillas',
+        salsa: 'Salsa',
+        enchilada_sauce: 'Enchilada sauce',
+        almond_milk: 'Almond milk',
+        milk: 'Milk (low-fat)'
+    };
+
+    function shouldSkipGroceryLine(item, qty) {
+        const t = (String(item) + ' ' + String(qty)).toLowerCase();
+        if (/per dosa|per scoop batter|per plated/.test(t)) return true;
+        if (/^(cold )?water$|^boiling water$|^ice cube/i.test(t.trim())) return true;
+        return false;
+    }
+
+    function normalizeIngredientKey(item) {
+        const raw = String(item || '').toLowerCase();
+        if (/per dosa|per scoop/.test(raw)) return null;
+        const rules = [
+            [/paneer/, 'paneer'],
+            [/greek yogurt|greek yoghurt/, 'greek_yogurt'],
+            [/rajma|kidney bean/, 'rajma'],
+            [/black bean/, 'black_beans'],
+            [/pinto bean/, 'pinto_beans'],
+            [/chickpea/, 'chickpeas'],
+            [/brown rice/, 'brown_rice'],
+            [/whole wheat pasta|whole wheat roti|pasta/, 'pasta'],
+            [/corn tortilla|tortilla/, 'tortillas'],
+            [/spinach/, 'spinach'],
+            [/beyond beef/, 'beyond_beef'],
+            [/seitan/, 'seitan'],
+            [/soy chunk/, 'soy_chunks'],
+            [/passata|crushed tomato/, 'tomato_passata'],
+            [/enchilada sauce/, 'enchilada_sauce'],
+            [/whey protein|whey/, 'whey'],
+            [/cosmic protein/, 'cosmic_protein'],
+            [/huel black/, 'huel_black'],
+            [/huel hot/, 'huel_hot'],
+            [/oats/, 'oats'],
+            [/besan|gram flour/, 'besan'],
+            [/egg white/, 'eggs'],
+            [/urad dal|black lentil/, 'urad_dal'],
+            [/dosa rice|idli rice|parboiled/, 'dosa_rice'],
+            [/masoor|moong|red lentil|masoor dal|moong dal/, 'lentils_mixed'],
+            [/almond milk/, 'almond_milk'],
+            [/milk \(low|low-fat milk/, 'milk'],
+            [/salsa/, 'salsa'],
+            [/banana/, 'banana'],
+            [/berry|berries/, 'berries'],
+            [/onion/, 'onion'],
+            [/tomato/, 'tomato'],
+            [/garlic/, 'garlic'],
+            [/ginger/, 'ginger']
+        ];
+        for (const [re, key] of rules) {
+            if (re.test(raw)) return key;
+        }
+        return raw.replace(/\s*\([^)]*\)/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || null;
+    }
+
+    function prettifyIngredientLabel(item, key) {
+        if (key && INGREDIENT_DISPLAY_NAMES[key]) return INGREDIENT_DISPLAY_NAMES[key];
+        return String(item || '')
+            .replace(/\s*\([^)]*\)/g, '')
+            .replace(/\b\w/g, c => c.toUpperCase())
+            .trim() || key;
+    }
+
+    function categorizeGroceryItem(key, item) {
+        const s = (key + ' ' + item).toLowerCase();
+        if (/kaged|pre-workout|whey|cosmic|huel|protein powder|multivitamin/.test(s)) return 'shakes';
+        if (/paneer|yogurt|milk|butter|ghee|cream/.test(s)) return 'dairy';
+        if (/onion|tomato|spinach|garlic|ginger|lime|lemon|pepper|capsicum|cilantro|coriander|jalape|mango|berr|banana|date|cucumber|carrot|celery|green pea|frozen pea|sweet potato|potato|mint|basil|herb|corn\b/.test(s)) return 'produce';
+        if (/chickpea|rajma|bean|lentil|dal|urad|moong|masoor|beyond|seitan|soy|egg|beef/.test(s)) return 'protein_legumes';
+        if (/rice|oats|pasta|tortilla|roti|poha|besan|flour|cake|bread|murmura|puffed/.test(s)) return 'grains';
+        if (/cumin|turmeric|masala|paprika|sauce|salsa|oil|honey|chia|peanut|almond|cashew|capser|olive|pesto|yeast|stock|vinegar|spice|salt|mustard|curry|fenugreek|chipotle|oregano|basil|nutritional/.test(s)) return 'pantry';
+        return 'other';
+    }
+
+    function formatMergedTotals(totals) {
+        const parts = [];
+        const order = ['kg', 'g', 'l', 'ml', 'scoop', 'cup', 'tbsp', 'tsp', 'oz', 'banana', 'date', 'cake', 'pouch', 'unit'];
+        order.forEach(unit => {
+            if (totals[unit] == null) return;
+            parts.push(formatScaledQty({ value: totals[unit], unit }, 1));
+        });
+        Object.keys(totals).forEach(unit => {
+            if (!order.includes(unit)) {
+                parts.push(formatScaledQty({ value: totals[unit], unit }, 1));
+            }
+        });
+        return parts.join(' + ');
+    }
+
+    /** Shop list: merge same ingredients across all weekly prep recipes, grouped by store section. */
+    function buildAggregatedWeeklyGrocery(prep) {
+        const buckets = new Map();
+
+        const pools = [
+            { key: 'breakfast', label: 'Breakfast' },
+            { key: 'mains', label: 'Mains' },
+            { key: 'snacks', label: 'Snacks' },
+            { key: 'preworkout', label: 'Pre-Workout' },
+            { key: 'postworkout', label: 'Post-Workout' }
+        ];
+
+        pools.forEach(({ key }) => {
+            (prep[key] || []).forEach(meal => {
+                getBatchIngredients(meal, key).forEach(line => {
+                    if (shouldSkipGroceryLine(line.item, line.qty)) return;
+                    const mergeKey = normalizeIngredientKey(line.item);
+                    if (!mergeKey) return;
+
+                    if (!buckets.has(mergeKey)) {
+                        buckets.set(mergeKey, {
+                            key: mergeKey,
+                            label: prettifyIngredientLabel(line.item, mergeKey),
+                            category: categorizeGroceryItem(mergeKey, line.item),
+                            totals: {},
+                            fallback: [],
+                            sources: []
+                        });
+                    }
+                    const b = buckets.get(mergeKey);
+                    if (b.sources.indexOf(meal.name) === -1) b.sources.push(meal.name);
+
+                    const parsed = parseScalableQty(line.qty);
+                    if (parsed) {
+                        b.totals[parsed.unit] = (b.totals[parsed.unit] || 0) + parsed.value;
+                    } else if (isBatchTotalQty(line.qty)) {
+                        if (b.fallback.indexOf(line.qty) === -1) b.fallback.push(line.qty);
+                    } else {
+                        const fb = line.qty.replace(/\s*\(×\d+ for batch\)/gi, '').trim();
+                        if (b.fallback.indexOf(fb) === -1) b.fallback.push(fb);
+                    }
+                });
+            });
+        });
+
+        const byCategory = {};
+        GROCERY_CATEGORY_ORDER.forEach(c => { byCategory[c.id] = []; });
+
+        buckets.forEach(b => {
+            let qty = formatMergedTotals(b.totals);
+            if (!qty && b.fallback.length) qty = b.fallback.join(' · ');
+            if (!qty) qty = 'see recipes';
+            if (!byCategory[b.category]) byCategory[b.category] = [];
+            byCategory[b.category].push({
+                item: b.label,
+                qty,
+                sources: b.sources.slice().sort()
+            });
+        });
+
+        return GROCERY_CATEGORY_ORDER
+            .map(cat => ({
+                id: cat.id,
+                label: cat.label,
+                items: (byCategory[cat.id] || []).sort((a, b) => a.item.localeCompare(b.item))
+            }))
+            .filter(sec => sec.items.length > 0);
+    }
+
     global.MealPlanner = {
         WEEKDAYS,
         SLOT_DEFS,
@@ -294,6 +490,7 @@
         scaleIngredientQty,
         getBatchIngredients,
         buildWeeklyGroceryPlan,
+        buildAggregatedWeeklyGrocery,
         buildWeeklyDailyMenu,
         loadDailyMenu,
         saveDailyMenu,

@@ -125,7 +125,9 @@
         .grocery-category { color: var(--primary); font-weight: bold; margin-bottom: 10px; font-size: 0.95rem; border-bottom: 1px solid #2e2e3e; padding-bottom: 5px; }
         .grocery-item { padding: 8px 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #333; }
         .grocery-item:last-child { border-bottom: none; }
-        .grocery-qty { color: var(--dim); font-size: 0.85rem; }
+        .grocery-qty { color: var(--dim); font-size: 0.85rem; text-align: right; flex-shrink: 0; margin-left: 8px; }
+        .grocery-item-main { flex: 1; min-width: 0; }
+        .grocery-item-sources { font-size: 0.65rem; color: var(--dim); margin-top: 2px; line-height: 1.3; }
 
         .meal-card { background: #1e1e2c; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid var(--primary); }
         .meal-time { color: var(--primary); font-weight: 800; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
@@ -2635,7 +2637,7 @@
             { key: 'postworkout', meals: activeWeeklyPrep.postworkout }
         ];
         const hasPrep = prepPools.some(p => p.meals && p.meals.length);
-        const grocerySections = hasPrep ? MealPlanner.buildWeeklyGroceryPlan(activeWeeklyPrep) : [];
+        const groceryBySection = hasPrep ? MealPlanner.buildAggregatedWeeklyGrocery(activeWeeklyPrep) : [];
         const staples = mealDatabase.staples && mealDatabase.staples.length
             ? mealDatabase.staples
             : [{ name: 'Huel Black Edition' }, { name: 'Huel Hot & Savory' }, { name: 'Cosmic Protein' }];
@@ -2644,45 +2646,40 @@
         if (!hasPrep) {
             html += `<p style="color:var(--dim); font-size:0.88rem; margin-bottom:14px;">No weekly prep locked yet. Go to Kitchen → Weekly Bulk → <strong>Shuffle Weekly Bulk Prep</strong>.</p>`;
         } else {
-            html += `<p style="color:var(--dim); font-size:0.78rem; margin-bottom:12px; line-height:1.45;">Amounts are <strong>full batch totals</strong> (servings × recipe). Cook once, then split into containers for the daily menu.</p>`;
+            html += `<p style="color:var(--dim); font-size:0.78rem; margin-bottom:12px; line-height:1.45;">Combined <strong>full-week shop list</strong> — same ingredient across recipes is totaled (e.g. all paneer added together). Batch amounts from your weekly prep plan.</p>`;
         }
-        html += `<div class="grocery-list"><div class="grocery-category">📦 HUEL & STAPLES</div>${staplesHtml}</div>
-            <div class="grocery-list"><div class="grocery-category">🔪 PREP INGREDIENTS (full batch)</div>`;
-        if (grocerySections.length) {
-            grocerySections.forEach(sec => {
-                html += `<div class="grocery-recipe-block">
-                    <div class="grocery-recipe-title">${sec.mealName}</div>
-                    <div class="grocery-recipe-meta">${sec.poolLabel} · makes ${sec.servings} servings</div>`;
-                sec.lines.forEach(line => {
-                    html += `<div class="grocery-item"><span>${line.item}</span><span class="grocery-qty">${line.qty}</span></div>`;
+        html += `<div class="grocery-list"><div class="grocery-category">📦 HUEL & STAPLES</div>${staplesHtml}</div>`;
+        if (groceryBySection.length) {
+            groceryBySection.forEach(sec => {
+                html += `<div class="grocery-list"><div class="grocery-category">${sec.label}</div>`;
+                sec.items.forEach(row => {
+                    const src = row.sources && row.sources.length
+                        ? `<div class="grocery-item-sources">${row.sources.join(' · ')}</div>` : '';
+                    html += `<div class="grocery-item">
+                        <div class="grocery-item-main"><span>${row.item}</span>${src}</div>
+                        <span class="grocery-qty">${row.qty}</span>
+                    </div>`;
                 });
                 html += `</div>`;
             });
-        } else {
-            html += `<div class="grocery-item"><span style="color:var(--dim);">Shuffle weekly prep to populate ingredients</span></div>`;
+        } else if (!hasPrep) {
+            html += `<div class="grocery-list"><div class="grocery-item"><span style="color:var(--dim);">Shuffle weekly prep to populate ingredients</span></div></div>`;
         }
-        html += `</div><div class="grocery-list"><div class="grocery-category">💊 SUPPLEMENTS</div><div class="grocery-item"><span>Kaged Pre-Workout Elite (Stim Free)</span><span style="color:var(--dim); font-size:0.8rem;">incl. Creatine + Beta-Alanine</span></div><div class="grocery-item"><span>Multivitamin</span></div></div>`;
+        html += `<div class="grocery-list"><div class="grocery-category">💊 SUPPLEMENTS</div><div class="grocery-item"><span>Kaged Pre-Workout Elite (Stim Free)</span><span style="color:var(--dim); font-size:0.8rem;">incl. Creatine + Beta-Alanine</span></div><div class="grocery-item"><span>Multivitamin</span></div></div>`;
         container.innerHTML = html;
     }
 
     function exportGroceryCSV() {
         const staples = mealDatabase.staples && mealDatabase.staples.length ? mealDatabase.staples : [{ name: 'Huel Black Edition' }, { name: 'Huel Hot & Savory' }, { name: 'Cosmic Protein' }];
-        let csv = 'data:text/csv;charset=utf-8,Category,Item\n';
-        staples.forEach(s => { csv += `Staples,${s.name}\n`; });
-        csv += 'Supplements,Kaged Pre-Workout Elite (Stim Free)\nSupplements,Multivitamin\n';
-        const prepForCsv = [
-            { key: 'breakfast', meals: activeWeeklyPrep.breakfast },
-            { key: 'mains', meals: activeWeeklyPrep.mains },
-            { key: 'snacks', meals: activeWeeklyPrep.snacks },
-            { key: 'preworkout', meals: activeWeeklyPrep.preworkout },
-            { key: 'postworkout', meals: activeWeeklyPrep.postworkout }
-        ];
-        prepForCsv.forEach(({ key, meals }) => {
-            (meals || []).forEach(meal => {
-                const servings = MealPlanner.getServingsPerBatch(meal, key);
-                MealPlanner.getBatchIngredients(meal, key).forEach(ing => {
-                    csv += `Prep (${meal.name}, ${servings} srv),${ing.item},${ing.qty}\n`;
-                });
+        let csv = 'data:text/csv;charset=utf-8,Category,Item,Quantity,Used in\n';
+        staples.forEach(s => { csv += `Staples,${s.name},,\n`; });
+        csv += 'Supplements,Kaged Pre-Workout Elite (Stim Free),,\nSupplements,Multivitamin,,\n';
+        const sections = MealPlanner.buildAggregatedWeeklyGrocery(activeWeeklyPrep);
+        const esc = v => '"' + String(v || '').replace(/"/g, '""') + '"';
+        sections.forEach(sec => {
+            sec.items.forEach(row => {
+                const src = (row.sources || []).join('; ');
+                csv += `${esc(sec.label)},${esc(row.item)},${esc(row.qty)},${esc(src)}\n`;
             });
         });
         const link = document.createElement('a');
