@@ -18,12 +18,12 @@
       "details": "Squat · hinge · band finisher · no jump impact yet",
       "time": "60 min",
       "exercises": [
+        "TKE Band (3x15)",
+        "Lateral Band Walks (3x12)",
         "Squats (4x6)",
         "Deadlifts (3x5)",
         "Leg Press (3x8)",
-        "Calf Raises (3x20)",
-        "TKE Band (3x15)",
-        "Lateral Band Walks (3x12)"
+        "Calf Raises (3x20)"
       ]
     },
     "cardioA": {
@@ -95,14 +95,14 @@
       "details": "Heavy lower · step-ups · wall sits · band prehab",
       "time": "65 min",
       "exercises": [
+        "TKE Band (3x15)",
+        "Lateral Band Walks (3x12)",
         "Squats (4x6)",
         "Deadlifts (3x5)",
         "Leg Press (3x8)",
         "Step-ups (4x12 each)",
         "Wall Sit (4x45s)",
-        "Calf Raises (3x20)",
-        "TKE Band (3x15)",
-        "Lateral Band Walks (3x12)"
+        "Calf Raises (3x20)"
       ]
     },
     "cardioA": {
@@ -176,14 +176,14 @@
       "details": "Squat · hinge · squat jumps · lateral hops · clamshells",
       "time": "65 min",
       "exercises": [
+        "TKE Band (3x15)",
+        "Lateral Band Walks (3x12)",
         "Squats (4x8)",
         "Deadlifts (3x5)",
         "Leg Press (3x10)",
         "Squat Jumps (3x8)",
         "Lateral Hops (3x10 each)",
         "Calf Raises (3x20)",
-        "TKE Band (3x15)",
-        "Lateral Band Walks (3x12)",
         "Clamshells (3x15)"
       ]
     },
@@ -257,6 +257,7 @@
       "details": "Heavy lower · tuck jumps · broad jumps · lateral bounds",
       "time": "70 min",
       "exercises": [
+        "TKE Band (3x15)",
         "Squats (4x6)",
         "Deadlifts (4x4)",
         "Leg Press (3x10)",
@@ -264,7 +265,6 @@
         "Broad Jumps (3x6)",
         "Lateral Bounds (3x8 each)",
         "Calf Raises (4x20)",
-        "TKE Band (3x15)",
         "Band Hip Thrust (3x15)",
         "Clamshells (3x15)"
       ]
@@ -340,6 +340,8 @@
       "details": "Heavy lower · vertical jumps · split squat jumps · approach jumps",
       "time": "70 min",
       "exercises": [
+        "TKE Band (3x15)",
+        "Lateral Band Walks (3x15)",
         "Squats (4x6)",
         "Deadlifts (4x4)",
         "Leg Press (4x10)",
@@ -347,9 +349,7 @@
         "Split Squat Jumps (3x8 each)",
         "Approach Jumps (3x5)",
         "Calf Raises (4x20)",
-        "Band Hip Thrust (4x15)",
-        "Lateral Band Walks (3x15)",
-        "TKE Band (3x15)"
+        "Band Hip Thrust (4x15)"
       ]
     },
     "cardioA": {
@@ -424,6 +424,7 @@
       "details": "Peak strength · max vertical · single-leg jumps · approach jumps",
       "time": "70 min",
       "exercises": [
+        "TKE Band (3x15)",
         "Squats (4x5)",
         "Deadlifts (4x3)",
         "Leg Press (4x10)",
@@ -432,8 +433,7 @@
         "Approach Jumps (4x5)",
         "Tuck Jumps (3x8)",
         "Calf Raises (4x25)",
-        "Band Hip Thrust (4x15)",
-        "TKE Band (3x15)"
+        "Band Hip Thrust (4x15)"
       ]
     },
     "cardioA": {

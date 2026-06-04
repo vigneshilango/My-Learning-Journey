@@ -301,15 +301,19 @@
             box-shadow: 0 -4px 24px rgba(0,0,0,0.45);
         }
         .rest-sticky-bar.show { display: block; }
-        #workout.has-rest-sticky { padding-bottom: 155px; }
-        .rest-sticky-inner { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        #workout.has-rest-sticky { padding-bottom: 138px; }
+        .rest-sticky-inner { display: flex; flex-direction: column; gap: 5px; }
+        .rest-sticky-row { display: flex; align-items: center; gap: 6px; width: 100%; }
         .rest-sticky-countdown {
-            font-size: 1.35rem; font-weight: 900; color: var(--primary);
-            min-width: 72px; text-align: center; font-variant-numeric: tabular-nums;
+            font-size: 1.2rem; font-weight: 900; color: var(--primary);
+            flex: 0 0 auto; min-width: 48px; text-align: center; font-variant-numeric: tabular-nums;
         }
         .rest-sticky-countdown.go { color: var(--success); animation: pulse 0.5s ease 3; }
-        .rest-sticky-presets { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; flex: 1; }
-        .rest-sticky-hint { font-size: 0.65rem; color: var(--dim); margin-top: 6px; text-align: center; letter-spacing: 0.3px; }
+        .rest-sticky-presets { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; flex: 1 1 auto; min-width: 0; justify-content: flex-end; }
+        .rest-sticky-hint {
+            width: 100%; font-size: 0.6rem; line-height: 1.35; color: var(--dim);
+            letter-spacing: 0.2px; text-align: center; padding: 0 2px; box-sizing: border-box;
+        }
         .rest-preset { padding: 6px 10px; border-radius: 8px; background: #1e1e2c; border: 1px solid #3a3a3a; color: var(--dim); font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: all 0.15s; }
         .rest-preset.active, .rest-preset:active { background: var(--primary); color: #000; border-color: var(--primary); }
         .rest-preset:disabled { opacity: 0.4; cursor: not-allowed; }
@@ -458,6 +462,12 @@
         .meal-slot-card { cursor: pointer; transition: transform 0.15s, border-color 0.15s; }
         .meal-slot-card:active { transform: scale(0.98); }
         .meal-portion-badge { display: inline-block; background: rgba(167,139,250,0.15); color: var(--primary); font-size: 0.72rem; font-weight: 800; padding: 3px 8px; border-radius: 12px; margin-top: 6px; }
+        .meal-batch-yields { font-size: 0.78rem; color: var(--success); font-weight: 700; margin: 6px 0 8px; line-height: 1.4; }
+        .meal-batch-yields-note { font-size: 0.72rem; color: var(--dim); margin: -4px 0 10px; line-height: 1.4; }
+        .grocery-recipe-block { margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px dashed #333; }
+        .grocery-recipe-block:last-child { border-bottom: none; margin-bottom: 0; }
+        .grocery-recipe-title { font-size: 0.82rem; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+        .grocery-recipe-meta { font-size: 0.72rem; color: var(--success); font-weight: 700; margin-bottom: 6px; }
         .cheat-day-card { border-left: 4px solid var(--steps) !important; text-align: center; padding: 24px 16px; }
         .daily-view-label { font-size: 0.82rem; color: var(--primary); font-weight: 700; margin: 10px 0; }
     </style>
@@ -550,18 +560,20 @@
     <!-- STICKY REST TIMER (workout tab, above nav) -->
     <div id="restStickyBar" class="rest-sticky-bar">
         <div class="rest-sticky-inner">
-            <span class="rest-sticky-countdown" id="restStickyCountdown">—</span>
-            <div class="rest-sticky-presets">
-                <button type="button" class="rest-preset" onclick="startRestTimer(30, this)">30s</button>
-                <button type="button" class="rest-preset" onclick="startRestTimer(60, this)">1m</button>
-                <button type="button" class="rest-preset" onclick="startRestTimer(90, this)">90s</button>
-                <button type="button" class="rest-preset" onclick="startRestTimer(120, this)">2m</button>
-                <button type="button" class="rest-preset" onclick="startRestTimer(180, this)">3m</button>
-                <button type="button" class="rest-preset rest-suggested-preset" id="restSuggestedBtn" onclick="startSuggestedRestTimer()" disabled>Suggested</button>
-                <button type="button" class="rest-cancel-inline" onclick="cancelRestTimer()">✕</button>
+            <div class="rest-sticky-row">
+                <span class="rest-sticky-countdown" id="restStickyCountdown">—</span>
+                <div class="rest-sticky-presets">
+                    <button type="button" class="rest-preset" onclick="startRestTimer(30, this)">30s</button>
+                    <button type="button" class="rest-preset" onclick="startRestTimer(60, this)">1m</button>
+                    <button type="button" class="rest-preset" onclick="startRestTimer(90, this)">90s</button>
+                    <button type="button" class="rest-preset" onclick="startRestTimer(120, this)">2m</button>
+                    <button type="button" class="rest-preset" onclick="startRestTimer(180, this)">3m</button>
+                    <button type="button" class="rest-preset rest-suggested-preset" id="restSuggestedBtn" onclick="startSuggestedRestTimer()" disabled>Suggested</button>
+                    <button type="button" class="rest-cancel-inline" onclick="cancelRestTimer()">✕</button>
+                </div>
             </div>
+            <span class="rest-sticky-hint" id="restStickyHint">Tap Rest on an exercise · compounds 2–3m · accessories 60–90s</span>
         </div>
-        <div class="rest-sticky-hint">Compounds 2–3m · Accessories 60–90s · Core 45–60s · tap Rest on an exercise for suggested time</div>
     </div>
 
     <!-- PROFILE SETUP (first run) -->
@@ -2093,10 +2105,17 @@
                 <div style="font-size:1.2rem; font-weight:800; color:var(--steps); margin-bottom:8px;">🎉 Flexible / Cheat Day</div>
                 <p style="color:var(--dim); font-size:0.88rem; line-height:1.5; margin:0 0 14px;">No assigned bulk-prep meals today. Rest, meal prep for next week, and eat flexibly. Log anything you want in Track.</p>
                 <div style="display:flex; flex-direction:column; gap:8px;">
-                    ${(mealDatabase.staples || []).map(s => {
-                        const sn = s.name.replace(/'/g, "\\'");
-                        return `<button class="add-meal-btn" onclick="addMealToTracking('${sn}', ${s.cal}, ${s.protein}, ${s.carbs}, ${s.fat})">+ Log ${s.name}</button>`;
-                    }).join('')}
+                    ${(() => {
+                        const dosa = (mealDatabase.prepRecipes && mealDatabase.prepRecipes.breakfast || []).find(r => r.name === 'Homemade Dosa');
+                        const dosaBtn = dosa
+                            ? `<button class="add-meal-btn" onclick="addMealToTracking('Homemade Dosa', ${dosa.cal}, ${dosa.protein}, ${dosa.carbs}, ${dosa.fat})">+ Log Homemade Dosa (1 scoop batter)</button>`
+                            : '';
+                        const stapleBtns = (mealDatabase.staples || []).map(s => {
+                            const sn = s.name.replace(/'/g, "\\'");
+                            return `<button class="add-meal-btn" onclick="addMealToTracking('${sn}', ${s.cal}, ${s.protein}, ${s.carbs}, ${s.fat})">+ Log ${s.name}</button>`;
+                        }).join('');
+                        return dosaBtn + stapleBtns;
+                    })()}
                 </div>
             </div>`;
             if (shuffleBtn) shuffleBtn.disabled = true;
@@ -2207,10 +2226,10 @@
         document.getElementById('mealPreviewTitle').textContent = item.name;
         const portionEl = document.getElementById('mealPreviewPortion');
         if (portion && slotDef.isMain) {
-            portionEl.textContent = `Bulk prep portion ${portion.portion} of ${portion.total} · ${portion.remaining} servings left this week`;
+            portionEl.textContent = `Container ${portion.portion} of ${portion.total} from bulk batch · ${portion.remaining} left this week · recipe weights are per serving`;
             portionEl.style.display = 'inline-block';
         } else if (portion) {
-            portionEl.textContent = `Batch yields ${portion.total} servings`;
+            portionEl.textContent = `Bulk batch makes ${portion.total} servings (1 scoop = 1 serving for dosa)`;
             portionEl.style.display = 'inline-block';
         } else {
             portionEl.style.display = 'none';
@@ -2220,7 +2239,7 @@
         if (item.desc) body += `<p style="font-style:italic; color:var(--dim); margin-bottom:12px;">${item.desc}</p>`;
         body += `<div style="font-size:0.82rem; margin-bottom:14px;">🔥 ${item.cal} cal · P ${item.protein}g · C ${item.carbs}g · F ${item.fat}g</div>`;
         if (item.ingredients && item.ingredients.length) {
-            body += `<div style="font-weight:800; margin-bottom:8px;">📋 Ingredients</div>`;
+            body += `<div style="font-weight:800; margin-bottom:8px;">📋 Ingredients <span style="font-weight:600; color:var(--dim);">(one plated serving)</span></div>`;
             item.ingredients.forEach(ing => {
                 body += `<div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px dashed #333; font-size:0.85rem;"><span>${ing.item}</span><span style="color:var(--dim);">${ing.qty}</span></div>`;
             });
@@ -2388,22 +2407,30 @@
         if (isWeekFrozen(wk)) {
             html += `<p style="color:var(--dim); font-size:0.78rem; margin-bottom:12px;">🔒 Frozen plan — ingredients and recipes for this week (view only).</p>`;
         }
-        const renderItem = (item, cat) => {
-            let s = `<div class="meal-card"><div class="meal-time">${cat}</div><div class="meal-name">${item.name}</div><div class="meal-macros" style="margin-bottom:10px;">P: ${item.protein}g | C: ${item.carbs}g | F: ${item.fat}g | ${item.cal} cal</div>`;
-            if (item.ingredients) {
-                s += `<div class="recipe-card"><div class="recipe-header">📋 Ingredients</div>`;
-                item.ingredients.forEach(ing => s += `<div class="ingredient-row"><span>${ing.item}</span><span style="color:var(--dim);">${ing.qty}</span></div>`);
+        const renderItem = (item, cat, poolKey) => {
+            const servings = MealPlanner.getServingsPerBatch(item, poolKey);
+            const batchIngs = MealPlanner.getBatchIngredients(item, poolKey);
+            const prepNote = item.batchPrepNote
+                ? `<div class="meal-batch-yields-note">${item.batchPrepNote}</div>`
+                : `<div class="meal-batch-yields-note">Shop &amp; cook the batch totals below. Daily menu = one container per meal.</div>`;
+            const yieldsHtml = servings
+                ? `<div class="meal-batch-yields">📦 Makes ${servings} servings — cook once, split into ${servings} containers</div>${prepNote}`
+                : '';
+            let s = `<div class="meal-card"><div class="meal-time">${cat}</div><div class="meal-name">${item.name}</div>${yieldsHtml}<div class="meal-macros" style="margin-bottom:10px;">P: ${item.protein}g | C: ${item.carbs}g | F: ${item.fat}g | ${item.cal} cal <span style="color:var(--dim); font-weight:400;">(per container)</span></div>`;
+            if (batchIngs.length) {
+                s += `<div class="recipe-card"><div class="recipe-header">📋 Full batch — shop &amp; cook (${servings} servings)</div>`;
+                batchIngs.forEach(ing => s += `<div class="ingredient-row"><span>${ing.item}</span><span style="color:var(--dim);">${ing.qty}</span></div>`);
                 s += `<div class="recipe-steps" style="margin-top:10px;"><div class="recipe-header">Steps</div>`;
                 item.steps.forEach(step => s += `<div class="recipe-step">${step}</div>`);
                 s += `</div></div>`;
             }
             return s + `</div>`;
         };
-        activeWeeklyPrep.breakfast.forEach(i => html += renderItem(i, 'Breakfast Prep'));
-        activeWeeklyPrep.mains.forEach(i => html += renderItem(i, 'Main Meal Prep (Lunch/Dinner)'));
-        activeWeeklyPrep.snacks.forEach(i => html += renderItem(i, 'Snack Prep'));
-        if (activeWeeklyPrep.preworkout) activeWeeklyPrep.preworkout.forEach(i => html += renderItem(i, 'Pre-Workout'));
-        if (activeWeeklyPrep.postworkout) activeWeeklyPrep.postworkout.forEach(i => html += renderItem(i, 'Post-Workout'));
+        activeWeeklyPrep.breakfast.forEach(i => html += renderItem(i, 'Breakfast Prep', 'breakfast'));
+        activeWeeklyPrep.mains.forEach(i => html += renderItem(i, 'Main Meal Prep (Lunch/Dinner)', 'mains'));
+        activeWeeklyPrep.snacks.forEach(i => html += renderItem(i, 'Snack Prep', 'snacks'));
+        if (activeWeeklyPrep.preworkout) activeWeeklyPrep.preworkout.forEach(i => html += renderItem(i, 'Pre-Workout', 'preworkout'));
+        if (activeWeeklyPrep.postworkout) activeWeeklyPrep.postworkout.forEach(i => html += renderItem(i, 'Post-Workout', 'postworkout'));
         container.innerHTML = html;
     }
 
@@ -2576,29 +2603,37 @@
         const saved = loadWeeklyPrepForKey(weekKey);
         if (saved && saved.mains && saved.mains.length) activeWeeklyPrep = saved;
         renderMealWeekSelector();
-        let combined = [];
-        const mealSlots = [
-            ...(activeWeeklyPrep.breakfast || []),
-            ...(activeWeeklyPrep.mains || []),
-            ...(activeWeeklyPrep.snacks || []),
-            ...(activeWeeklyPrep.preworkout || []),
-            ...(activeWeeklyPrep.postworkout || [])
+        const prepPools = [
+            { key: 'breakfast', meals: activeWeeklyPrep.breakfast },
+            { key: 'mains', meals: activeWeeklyPrep.mains },
+            { key: 'snacks', meals: activeWeeklyPrep.snacks },
+            { key: 'preworkout', meals: activeWeeklyPrep.preworkout },
+            { key: 'postworkout', meals: activeWeeklyPrep.postworkout }
         ];
-        mealSlots.forEach(meal => {
-            if (meal.ingredients) meal.ingredients.forEach(ing => combined.push(`${ing.item} (${ing.qty})`));
-        });
+        const hasPrep = prepPools.some(p => p.meals && p.meals.length);
+        const grocerySections = hasPrep ? MealPlanner.buildWeeklyGroceryPlan(activeWeeklyPrep) : [];
         const staples = mealDatabase.staples && mealDatabase.staples.length
             ? mealDatabase.staples
             : [{ name: 'Huel Black Edition' }, { name: 'Huel Hot & Savory' }, { name: 'Cosmic Protein' }];
         let staplesHtml = staples.map(s => `<div class="grocery-item"><span>${s.name}</span></div>`).join('');
         let html = `<div class="meal-week-banner">🛒 Shopping for <strong>${formatMealWeekRange(weekKey)}</strong>${isWeekFrozen(weekKey) ? ' · 🔒 locked' : ''}</div>`;
-        if (!mealSlots.length) {
+        if (!hasPrep) {
             html += `<p style="color:var(--dim); font-size:0.88rem; margin-bottom:14px;">No weekly prep locked yet. Go to Kitchen → Weekly Bulk → <strong>Shuffle Weekly Bulk Prep</strong>.</p>`;
+        } else {
+            html += `<p style="color:var(--dim); font-size:0.78rem; margin-bottom:12px; line-height:1.45;">Amounts are <strong>full batch totals</strong> (servings × recipe). Cook once, then split into containers for the daily menu.</p>`;
         }
         html += `<div class="grocery-list"><div class="grocery-category">📦 HUEL & STAPLES</div>${staplesHtml}</div>
-            <div class="grocery-list"><div class="grocery-category">🔪 PREP INGREDIENTS</div>`;
-        if (combined.length) {
-            [...new Set(combined)].forEach(item => html += `<div class="grocery-item"><span>${item}</span></div>`);
+            <div class="grocery-list"><div class="grocery-category">🔪 PREP INGREDIENTS (full batch)</div>`;
+        if (grocerySections.length) {
+            grocerySections.forEach(sec => {
+                html += `<div class="grocery-recipe-block">
+                    <div class="grocery-recipe-title">${sec.mealName}</div>
+                    <div class="grocery-recipe-meta">${sec.poolLabel} · makes ${sec.servings} servings</div>`;
+                sec.lines.forEach(line => {
+                    html += `<div class="grocery-item"><span>${line.item}</span><span class="grocery-qty">${line.qty}</span></div>`;
+                });
+                html += `</div>`;
+            });
         } else {
             html += `<div class="grocery-item"><span style="color:var(--dim);">Shuffle weekly prep to populate ingredients</span></div>`;
         }
@@ -2611,8 +2646,20 @@
         let csv = 'data:text/csv;charset=utf-8,Category,Item\n';
         staples.forEach(s => { csv += `Staples,${s.name}\n`; });
         csv += 'Supplements,Kaged Pre-Workout Elite (Stim Free)\nSupplements,Multivitamin\n';
-        [...(activeWeeklyPrep.breakfast || []), ...(activeWeeklyPrep.mains || []), ...(activeWeeklyPrep.snacks || []), ...(activeWeeklyPrep.preworkout || []), ...(activeWeeklyPrep.postworkout || [])].forEach(meal => {
-            if (meal.ingredients) meal.ingredients.forEach(ing => csv += `Prep Recipe (${meal.name}),${ing.item} - ${ing.qty}\n`);
+        const prepForCsv = [
+            { key: 'breakfast', meals: activeWeeklyPrep.breakfast },
+            { key: 'mains', meals: activeWeeklyPrep.mains },
+            { key: 'snacks', meals: activeWeeklyPrep.snacks },
+            { key: 'preworkout', meals: activeWeeklyPrep.preworkout },
+            { key: 'postworkout', meals: activeWeeklyPrep.postworkout }
+        ];
+        prepForCsv.forEach(({ key, meals }) => {
+            (meals || []).forEach(meal => {
+                const servings = MealPlanner.getServingsPerBatch(meal, key);
+                MealPlanner.getBatchIngredients(meal, key).forEach(ing => {
+                    csv += `Prep (${meal.name}, ${servings} srv),${ing.item},${ing.qty}\n`;
+                });
+            });
         });
         const link = document.createElement('a');
         link.setAttribute('href', encodeURI(csv));

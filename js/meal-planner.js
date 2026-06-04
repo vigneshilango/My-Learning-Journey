@@ -185,11 +185,115 @@
         return names[new Date().getDay()];
     }
 
+    /** Qty strings that are already full-batch amounts (do not multiply). */
+    function isBatchTotalQty(qty) {
+        const q = String(qty || '').toLowerCase();
+        return /full batch|— full batch|per dosa|per serving|per plated/.test(q);
+    }
+
+    /** Count-based items that cannot be auto-summed — annotate ×N instead. */
+    function isCountBasedQty(qty) {
+        const q = String(qty || '').toLowerCase();
+        if (/\([\d.]+\s*g\b/.test(q)) return false;
+        return /to taste|handful|optional|pinch|as needed|each\)| each|small each|medium each|large each|\d+\s+(small|medium|large)\b/.test(q);
+    }
+
+    function parseScalableQty(qty) {
+        let s = String(qty || '').trim().toLowerCase();
+        if (!s || isBatchTotalQty(s) || isCountBasedQty(s)) return null;
+        const rangeMl = s.match(/^([\d.]+)\s*[–-]\s*([\d.]+)\s*ml\b/);
+        if (rangeMl) {
+            return { value: (parseFloat(rangeMl[1]) + parseFloat(rangeMl[2])) / 2, unit: 'ml' };
+        }
+        let m = s.match(/^([\d.]+)\s*g\b/);
+        if (m) return { value: parseFloat(m[1]), unit: 'g' };
+        m = s.match(/\(([\d.]+)\s*g\b/);
+        if (m) return { value: parseFloat(m[1]), unit: 'g' };
+        m = s.match(/^([\d.]+)\s*(kg|ml|l)\b/);
+        if (m) return { value: parseFloat(m[1]), unit: m[2] };
+        m = s.match(/^([\d.]+)\s*\/\s*([\d.]+)\s*(scoop|scoops|cup|cups|tbsp|tsp)\b/i);
+        if (m) return { value: parseFloat(m[1]) / parseFloat(m[2]), unit: m[3].replace(/s$/i, '').toLowerCase() };
+        m = s.match(/^([\d.]+)\s*(scoop|scoops|cup|cups|tbsp|tsp|oz)\b/i);
+        if (m) return { value: parseFloat(m[1]), unit: m[2].replace(/s$/i, '').toLowerCase() };
+        m = s.match(/^([\d.]+)\s*(cakes?|bananas?|dates?|pouches?)\b/);
+        if (m) return { value: parseFloat(m[1]), unit: m[2].replace(/s$/, '') };
+        m = s.match(/^([\d.]+)\s*\(/);
+        if (m) return { value: parseFloat(m[1]), unit: 'unit' };
+        return null;
+    }
+
+    function formatScaledNumber(v) {
+        if (v >= 100) return String(Math.round(v));
+        return String(Math.round(v * 10) / 10);
+    }
+
+    function formatScaledQty(parsed, mult) {
+        let v = parsed.value * mult;
+        let unit = parsed.unit;
+        if (unit === 'g' && v >= 1000) {
+            v = Math.round((v / 1000) * 10) / 10;
+            unit = 'kg';
+        } else if (unit === 'ml' && v >= 1000) {
+            v = Math.round((v / 1000) * 10) / 10;
+            unit = 'l';
+        }
+        const n = formatScaledNumber(v);
+        if (unit === 'g' || unit === 'kg' || unit === 'ml' || unit === 'l') return n + unit;
+        if (unit === 'unit') return n + ' units';
+        const plural = v === 1 ? unit : unit + 's';
+        return n + ' ' + plural;
+    }
+
+    /** Scale a recipe line qty for bulk prep / grocery (per-serving → full batch). */
+    function scaleIngredientQty(qty, servings) {
+        const mult = servings > 0 ? servings : 1;
+        if (mult <= 1 || isBatchTotalQty(qty)) return qty;
+        if (isCountBasedQty(qty)) return qty + ' (×' + mult + ' for batch)';
+        const p = parseScalableQty(qty);
+        if (!p) return qty + ' (×' + mult + ' for batch)';
+        return formatScaledQty(p, mult);
+    }
+
+    /** Full-batch shopping/cook list for Weekly Bulk Prep. */
+    function getBatchIngredients(recipe, poolKey) {
+        const servings = getServingsPerBatch(recipe, poolKey);
+        if (!recipe || !recipe.ingredients) return [];
+        return recipe.ingredients.map(ing => ({
+            item: ing.item,
+            qty: scaleIngredientQty(ing.qty, servings),
+            perServingQty: ing.qty
+        }));
+    }
+
+    /** Grouped grocery sections: one block per prepped recipe with batch totals. */
+    function buildWeeklyGroceryPlan(prep) {
+        const sections = [];
+        const pools = [
+            { key: 'breakfast', label: 'Breakfast' },
+            { key: 'mains', label: 'Mains' },
+            { key: 'snacks', label: 'Snacks' },
+            { key: 'preworkout', label: 'Pre-Workout' },
+            { key: 'postworkout', label: 'Post-Workout' }
+        ];
+        pools.forEach(({ key, label }) => {
+            (prep[key] || []).forEach(meal => {
+                const servings = getServingsPerBatch(meal, key);
+                const lines = getBatchIngredients(meal, key);
+                if (!lines.length) return;
+                sections.push({ mealName: meal.name, poolLabel: label, servings, lines });
+            });
+        });
+        return sections;
+    }
+
     global.MealPlanner = {
         WEEKDAYS,
         SLOT_DEFS,
         getRecipeFamily,
         getServingsPerBatch,
+        scaleIngredientQty,
+        getBatchIngredients,
+        buildWeeklyGroceryPlan,
         buildWeeklyDailyMenu,
         loadDailyMenu,
         saveDailyMenu,

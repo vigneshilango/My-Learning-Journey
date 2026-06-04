@@ -59,7 +59,10 @@
           "Mix Kaged Pre-Workout in water and drink 20 min before training",
           "Mix whey with cold water and shake",
           "Eat banana alongside"
-        ]
+        ],
+        "servingsPerBatch": 7,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per training day (one pre-workout pack). Shop list multiplies for the full week."
       },
       {
         "name": "Rice Cakes + PB + Honey",
@@ -90,7 +93,10 @@
           "Mix Kaged Pre-Workout in water and drink 20 min before training",
           "Spread PB on rice cakes",
           "Drizzle honey and eat"
-        ]
+        ],
+        "servingsPerBatch": 7,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per training day (one pre-workout pack). Shop list multiplies for the full week."
       },
       {
         "name": "Date + Almond Butter + Whey Shot",
@@ -125,7 +131,10 @@
           "Mix Kaged Pre-Workout in water and drink 20 min before training",
           "Pit dates and spread with almond butter",
           "Shake whey with water, drink alongside dates"
-        ]
+        ],
+        "servingsPerBatch": 7,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per training day (one pre-workout pack). Shop list multiplies for the full week."
       }
     ],
     "postworkout": [
@@ -150,7 +159,10 @@
           "Add water to shaker, add scoop, shake 15–20 seconds",
           "Drink within 30 min of finishing workout"
         ],
-        "family": "cosmic"
+        "family": "cosmic",
+        "servingsPerBatch": 7,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per workout day. Shop list multiplies for the full week (e.g. 7 shakes)."
       },
       {
         "name": "Huel Black Recovery Shake",
@@ -174,7 +186,9 @@
           "Drink within 30 min of finishing workout"
         ],
         "family": "huel",
-        "servingsPerBatch": 7
+        "servingsPerBatch": 7,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per workout day. Shop list multiplies for the full week (e.g. 7 shakes)."
       },
       {
         "name": "Cosmic Shake + Banana",
@@ -201,7 +215,10 @@
           "Blend all with ice",
           "Drink immediately after workout"
         ],
-        "family": "cosmic"
+        "family": "cosmic",
+        "servingsPerBatch": 7,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per workout day. Shop list multiplies for the full week (e.g. 7 shakes)."
       },
       {
         "name": "Huel Black + Greek Yogurt Stack",
@@ -233,7 +250,10 @@
           "Serve Greek yogurt in a bowl, drizzle honey",
           "Drink shake first, eat yogurt within 15 min — casein extends recovery window"
         ],
-        "family": "huel"
+        "family": "huel",
+        "servingsPerBatch": 7,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per workout day. Shop list multiplies for the full week (e.g. 7 shakes)."
       },
       {
         "name": "Greek Yogurt Berry Recovery Bowl",
@@ -266,7 +286,9 @@
           "Spoon Greek yogurt into a bowl",
           "Top with berries, granola and drizzle of honey",
           "Eat within 30 min of finishing workout"
-        ]
+        ],
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per workout day. Shop list multiplies for the full week (e.g. 7 shakes)."
       }
     ],
     "breakfast": [
@@ -299,7 +321,10 @@
           "Cook oats in milk on stove or microwave",
           "Stir in whey once slightly cooled",
           "Top with berries"
-        ]
+        ],
+        "servingsPerBatch": 4,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per breakfast container. Shop list = full batch (typically 4 containers)."
       },
       {
         "name": "Greek Yogurt Power Bowl",
@@ -330,7 +355,10 @@
           "Layer yogurt in a bowl",
           "Top with berries and granola",
           "Drizzle honey"
-        ]
+        ],
+        "servingsPerBatch": 4,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per breakfast container. Shop list = full batch (typically 4 containers)."
       },
       {
         "name": "Besan Chilla + Greek Yogurt",
@@ -361,7 +389,10 @@
           "Mix besan with water, veggies and spices into thick batter",
           "Cook 3–4 thin chillas on non-stick pan with minimal oil",
           "Serve with Greek yogurt as dip/side"
-        ]
+        ],
+        "servingsPerBatch": 4,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per breakfast container. Shop list = full batch (typically 4 containers)."
       },
       {
         "name": "Besan Breakfast Burrito",
@@ -406,7 +437,10 @@
           "Warm black beans separately with a pinch of cumin",
           "Place beans, salsa, cilantro and jalapeño on the chilla",
           "Fold over burrito-style, serve with Greek yogurt as sour cream and extra lime"
-        ]
+        ],
+        "servingsPerBatch": 4,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per breakfast container. Shop list = full batch (typically 4 containers)."
       },
       {
         "name": "Huel Black Morning Shake",
@@ -435,7 +469,9 @@
           "Add ice if blending — transforms it into a proper thick shake"
         ],
         "family": "huel",
-        "servingsPerBatch": 4
+        "servingsPerBatch": 4,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per breakfast container. Shop list = full batch (typically 4 containers)."
       },
       {
         "name": "Overnight Oats + Whey",
@@ -479,7 +515,10 @@
           "Stir in whey protein and mix well",
           "Seal and refrigerate overnight",
           "In the morning, top with berries and eat cold — no reheating needed"
-        ]
+        ],
+        "servingsPerBatch": 4,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per breakfast container. Shop list = full batch (typically 4 containers)."
       },
       {
         "name": "Protein Smoothie Bowl",
@@ -521,7 +560,9 @@
           "Eat immediately before it melts"
         ],
         "family": "cosmic",
-        "servingsPerBatch": 4
+        "servingsPerBatch": 4,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per breakfast container. Shop list = full batch (typically 4 containers)."
       },
       {
         "name": "Masala Oats (Savoury)",
@@ -567,7 +608,10 @@
           "Add oats and water — stir everything together",
           "Cook on medium heat stirring frequently until oats absorb water (4–5 min)",
           "Finish with turmeric, chilli, lemon juice and salt"
-        ]
+        ],
+        "servingsPerBatch": 4,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per breakfast container. Shop list = full batch (typically 4 containers)."
       },
       {
         "name": "Paneer Poha",
@@ -610,7 +654,51 @@
           "Add paneer crumbles and toss 2 min — they'll get slightly golden",
           "Add poha, turmeric and salt — toss gently for 3 min",
           "Finish with lemon juice and fresh coriander"
-        ]
+        ],
+        "servingsPerBatch": 4,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per breakfast container. Shop list = full batch (typically 4 containers)."
+      },
+      {
+        "name": "Homemade Dosa",
+        "cal": 108,
+        "protein": 5,
+        "carbs": 21,
+        "fat": 2,
+        "family": "dosa",
+        "servingsPerBatch": 12,
+        "desc": "🫓 Batter from 4 portions rice + 2 portions urad dal (soaked & fermented). One scoop/ladle of batter = one dosa — light protein from urad, mostly carbs.",
+        "ingredients": [
+          {
+            "item": "Dosa rice (parboiled / idli rice), dry",
+            "qty": "4 portions (~240g dry) — full batch"
+          },
+          {
+            "item": "Whole urad dal, dry",
+            "qty": "2 portions (~120g dry) — full batch"
+          },
+          {
+            "item": "Per dosa (1 scoop batter)",
+            "qty": "~90–100g batter; optional light oil spray"
+          },
+          {
+            "item": "Fenugreek seeds (optional)",
+            "qty": "1/2 tsp in soak"
+          },
+          {
+            "item": "Salt",
+            "qty": "to taste in batter"
+          }
+        ],
+        "steps": [
+          "Soak rice (4 portions) and urad (2 portions) 6–8 hours; optional fenugreek with urad",
+          "Grind to smooth pourable batter; ferment overnight or 8+ hours",
+          "Stir fermented batter — one scoop/ladle spreads to one dosa on a medium-hot tawa",
+          "Cook until edges lift and base is golden; flip 10 sec if you like both sides crisp",
+          "Log one serving per dosa in Track"
+        ],
+        "batchPrep": "batterBatch",
+        "batchPrepNote": "Soak/grind lines are the full batter (12 dosas). Daily menu & Track = 1 scoop per dosa."
       },
       {
         "name": "Mango Lassi Protein Bowl",
@@ -650,7 +738,10 @@
           "Add cardamom and honey, mix well",
           "Pour into a bowl, top with mango chunks and granola",
           "Serve cold — pairs great with a black coffee"
-        ]
+        ],
+        "servingsPerBatch": 4,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per breakfast container. Shop list = full batch (typically 4 containers)."
       },
       {
         "name": "Egg White Enchilada Skillet",
@@ -688,11 +779,13 @@
           }
         ],
         "steps": [
-          "Warm beans with enchilada sauce in a non-stick pan",
+          "Cook full batch (4 servings) in one pot/dish, then divide into 4 equal containers. Warm beans with enchilada sauce in a non-stick pan",
           "Pour in egg whites, scramble gently until just set",
           "Fold in torn tortilla and salsa off heat",
           "Top with Greek yogurt and eat immediately"
-        ]
+        ],
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per breakfast container. Shop list = full batch (typically 4 containers)."
       }
     ],
     "mains": [
@@ -738,12 +831,15 @@
           }
         ],
         "steps": [
-          "Cook Beyond Beef in a hot dry pan — break it apart like ground meat, cook 5–6 min",
+          "Batch-cook full quantity (shop list), portion into 6 containers. Cook Beyond Beef in a hot dry pan — break it apart like ground meat, cook 5–6 min",
           "Season with chipotle, paprika, cumin, garlic powder — it should smell like a taco truck",
           "Sauté onion separately, add to the beef once cooked",
           "Build bowl: rice base, black beans, Beyond Beef on top",
           "Finish with salsa, Greek yogurt crema, jalapeño, lime and cilantro"
-        ]
+        ],
+        "servingsPerBatch": 6,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per lunch/dinner container. Shop list = full batch (typically 6 containers)."
       },
       {
         "name": "Paneer Tikka Quesadilla",
@@ -783,12 +879,15 @@
           }
         ],
         "steps": [
-          "Cube paneer, marinate in tikka spices + 2 tbsp Greek yogurt for 15 min",
+          "Batch-cook full quantity (shop list), portion into 6 containers. Cube paneer, marinate in tikka spices + 2 tbsp Greek yogurt for 15 min",
           "Pan-grill paneer cubes on high heat until charred spots appear",
           "Lay tortilla flat, add paneer + black beans, fold in half",
           "Toast quesadilla on dry pan until golden and crispy on both sides",
           "Serve with remaining Greek yogurt as crema, salsa and lime squeeze"
-        ]
+        ],
+        "servingsPerBatch": 6,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per lunch/dinner container. Shop list = full batch (typically 6 containers)."
       },
       {
         "name": "Rajma Enchilada Bowl",
@@ -828,13 +927,15 @@
           }
         ],
         "steps": [
-          "Cook rajma with tomato passata and the enchilada spice blend",
+          "Cook full batch (6 servings) in one pot/dish, then divide into 6 equal containers. Cook rajma with tomato passata and the enchilada spice blend",
           "Simmer 15 min until thick and saucy — same as rajma masala, different spices",
           "Serve over brown rice",
           "Top with crumbled paneer, Greek yogurt dollop, jalapeño and lime"
         ],
         "family": "enchilada",
-        "servingsPerBatch": 6
+        "servingsPerBatch": 6,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per lunch/dinner container. Shop list = full batch (typically 6 containers)."
       },
       {
         "name": "Black Bean Enchilada Bake",
@@ -876,11 +977,13 @@
           }
         ],
         "steps": [
-          "Warm black beans with cumin, smoked paprika and half the enchilada sauce",
+          "Cook full batch (6 servings) in one pot/dish, then divide into 6 equal containers. Warm black beans with cumin, smoked paprika and half the enchilada sauce",
           "Layer tortillas, beans, sauce and crumbled paneer in an oven-safe dish",
           "Top with remaining sauce and paneer, bake 15 min at 200°C until bubbling",
           "Serve with Greek yogurt crema, jalapeño and cilantro"
-        ]
+        ],
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per lunch/dinner container. Shop list = full batch (typically 6 containers)."
       },
       {
         "name": "Sweet Potato & Pinto Enchiladas",
@@ -922,12 +1025,14 @@
           }
         ],
         "steps": [
-          "Roast sweet potato cubes until tender with cumin and smoked paprika",
+          "Cook full batch (6 servings) in one pot/dish, then divide into 6 equal containers. Roast sweet potato cubes until tender with cumin and smoked paprika",
           "Mash pinto beans lightly with lime and salt",
           "Fill warmed tortillas with sweet potato and beans, roll and place seam-down",
           "Pour enchilada sauce over, top with paneer, bake 12 min at 200°C",
           "Finish with Greek yogurt and fresh coriander"
-        ]
+        ],
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per lunch/dinner container. Shop list = full batch (typically 6 containers)."
       },
       {
         "name": "Chickpea Enchilada Skillet",
@@ -969,11 +1074,13 @@
           }
         ],
         "steps": [
-          "Sauté paneer cubes until golden in a non-stick skillet",
+          "Cook full batch (6 servings) in one pot/dish, then divide into 6 equal containers. Sauté paneer cubes until golden in a non-stick skillet",
           "Add chickpeas, chipotle, cumin and enchilada sauce — simmer 5 min",
           "Stir in torn tortillas and spinach until wilted and sauce thickens",
           "Top with Greek yogurt and serve from the pan"
-        ]
+        ],
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per lunch/dinner container. Shop list = full batch (typically 6 containers)."
       },
       {
         "name": "Paneer Enchilada Casserole",
@@ -1015,11 +1122,13 @@
           }
         ],
         "steps": [
-          "Cube and pan-sear paneer until golden",
+          "Cook full batch (6 servings) in one pot/dish, then divide into 6 equal containers. Cube and pan-sear paneer until golden",
           "Layer rice, beans, paneer, torn tortillas and enchilada sauce in a dish",
           "Bake 18 min at 200°C until edges bubble",
           "Serve with Greek yogurt, salsa and lime"
-        ]
+        ],
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per lunch/dinner container. Shop list = full batch (typically 6 containers)."
       },
       {
         "name": "Beyond Beef Arrabiata Pasta",
@@ -1059,13 +1168,16 @@
           }
         ],
         "steps": [
-          "Cook pasta al dente — save 50ml pasta water",
+          "Batch-cook full quantity (shop list), portion into 6 containers. Cook pasta al dente — save 50ml pasta water",
           "Cook Beyond Beef in a hot pan, breaking it apart — 5 min until browned",
           "Push beef to the side, add olive oil and garlic — fry 1 min until golden",
           "Add passata, chilli flakes and Italian herbs — stir everything together, simmer 10 min",
           "Toss with pasta using pasta water to loosen the sauce",
           "Top with nutritional yeast and black pepper"
-        ]
+        ],
+        "servingsPerBatch": 6,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per lunch/dinner container. Shop list = full batch (typically 6 containers)."
       },
       {
         "name": "Chickpea Paneer Pesto Bowl",
@@ -1105,12 +1217,15 @@
           }
         ],
         "steps": [
-          "Cook pasta al dente",
+          "Batch-cook full quantity (shop list), portion into 6 containers. Cook pasta al dente",
           "Pan-sear paneer cubes until golden on each side",
           "Toss warm pasta with pesto immediately off heat",
           "Add chickpeas, cherry tomatoes and spinach — residual heat wilts it perfectly",
           "Add seared paneer on top, squeeze lemon, hit with chilli flakes"
-        ]
+        ],
+        "servingsPerBatch": 6,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per lunch/dinner container. Shop list = full batch (typically 6 containers)."
       },
       {
         "name": "Chickpea & Lentil Curry",
@@ -1142,11 +1257,14 @@
           }
         ],
         "steps": [
-          "Cook dal until completely soft",
+          "Batch-cook full quantity (shop list), portion into 6 containers. Cook dal until completely soft",
           "Add chickpeas, cumin, turmeric, coriander and chilli",
           "Stir in coconut milk",
           "Fold in spinach, simmer 10 min, serve with rice"
-        ]
+        ],
+        "servingsPerBatch": 6,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per lunch/dinner container. Shop list = full batch (typically 6 containers)."
       },
       {
         "name": "Paneer & Black Bean Tikka",
@@ -1178,11 +1296,14 @@
           }
         ],
         "steps": [
-          "Sauté paneer cubes until golden",
+          "Batch-cook full quantity (shop list), portion into 6 containers. Sauté paneer cubes until golden",
           "Add beans, sauce, yogurt and tikka spices",
           "Simmer 20 min",
           "Serve with rice"
-        ]
+        ],
+        "servingsPerBatch": 6,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per lunch/dinner container. Shop list = full batch (typically 6 containers)."
       },
       {
         "name": "Huel Hot & Savory",
@@ -1202,12 +1323,15 @@
           }
         ],
         "steps": [
-          "Add Huel Hot & Savory to bowl",
+          "Batch-cook full quantity (shop list), portion into 6 containers. Add Huel Hot & Savory to bowl",
           "Pour boiling water, stir well",
           "Cover and wait 5 min for best texture",
           "Add a squeeze of lemon or hot sauce if you want to jazz it up"
         ],
-        "family": "huel"
+        "family": "huel",
+        "servingsPerBatch": 6,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per lunch/dinner container. Shop list = full batch (typically 6 containers)."
       },
       {
         "name": "Saag Paneer + Chickpea + Brown Rice",
@@ -1247,12 +1371,15 @@
           }
         ],
         "steps": [
-          "Blanch spinach 2 min, blend into a smooth green paste",
+          "Batch-cook full quantity (shop list), portion into 6 containers. Blanch spinach 2 min, blend into a smooth green paste",
           "Sauté onion, garlic and ginger until deeply golden — add spices and cook 2 min",
           "Add spinach paste, cook 5 min until colour deepens",
           "Add chickpeas and paneer cubes, stir in Greek yogurt off the heat",
           "Simmer 8 min on low, serve with brown rice"
-        ]
+        ],
+        "servingsPerBatch": 6,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per lunch/dinner container. Shop list = full batch (typically 6 containers)."
       },
       {
         "name": "Paneer Soft Tacos with Pico de Gallo",
@@ -1292,12 +1419,15 @@
           }
         ],
         "steps": [
-          "Slice paneer into strips, season with cumin, paprika, chilli — pan-fry 3 min each side",
+          "Batch-cook full quantity (shop list), portion into 6 containers. Slice paneer into strips, season with cumin, paprika, chilli — pan-fry 3 min each side",
           "Make pico: dice tomato, onion, jalapeño, cilantro, mix with lime juice and salt",
           "Warm tortillas directly on gas flame or dry pan",
           "Assemble: black beans on tortilla first, paneer strips on top",
           "Finish with pico de gallo, a dollop of Greek yogurt crema, extra lime"
-        ]
+        ],
+        "servingsPerBatch": 6,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per lunch/dinner container. Shop list = full batch (typically 6 containers)."
       },
       {
         "name": "Dal Makhani Style Bowl",
@@ -1341,12 +1471,15 @@
           }
         ],
         "steps": [
-          "Sauté garlic-ginger paste in 1 tsp butter until golden",
+          "Batch-cook full quantity (shop list), portion into 6 containers. Sauté garlic-ginger paste in 1 tsp butter until golden",
           "Add tomato passata, garam masala, smoked paprika — cook 8 min until deep red",
           "Add cooked urad dal and rajma, simmer 20 min on low",
           "Stir in Greek yogurt off the heat — prevents curdling",
           "Serve over brown rice"
-        ]
+        ],
+        "servingsPerBatch": 6,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per lunch/dinner container. Shop list = full batch (typically 6 containers)."
       },
       {
         "name": "Beyond Beef Burrito Bowl",
@@ -1390,12 +1523,15 @@
           }
         ],
         "steps": [
-          "Cook Beyond Beef in hot pan, breaking apart — season with cumin, chipotle, garlic, paprika",
+          "Batch-cook full quantity (shop list), portion into 6 containers. Cook Beyond Beef in hot pan, breaking apart — season with cumin, chipotle, garlic, paprika",
           "Cook 5–6 min until properly browned and slightly crispy at the edges",
           "Build the bowl: rice base, then beans, corn, Beyond Beef on top",
           "Add salsa and Greek yogurt side by side",
           "Finish with jalapeño, a big lime squeeze and cilantro — mix before eating"
-        ]
+        ],
+        "servingsPerBatch": 6,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per lunch/dinner container. Shop list = full batch (typically 6 containers)."
       },
       {
         "name": "Chickpea Alla Puttanesca",
@@ -1439,13 +1575,16 @@
           }
         ],
         "steps": [
-          "Cook pasta al dente",
+          "Batch-cook full quantity (shop list), portion into 6 containers. Cook pasta al dente",
           "Heat olive oil, fry garlic until fragrant",
           "Add passata, capers, olives, chilli flakes and oregano — simmer 12 min",
           "Add chickpeas, cook 5 more min",
           "Toss with pasta, adjust seasoning",
           "No cheese needed — the capers and olives are the salty punch"
-        ]
+        ],
+        "servingsPerBatch": 6,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per lunch/dinner container. Shop list = full batch (typically 6 containers)."
       },
       {
         "name": "Beyond Bolognese + Whole Wheat Pasta",
@@ -1489,12 +1628,15 @@
           }
         ],
         "steps": [
-          "Finely dice carrot, celery and onion — don't skip this, it builds the flavour base",
+          "Batch-cook full quantity (shop list), portion into 6 containers. Finely dice carrot, celery and onion — don't skip this, it builds the flavour base",
           "Cook soffritto in olive oil on low heat 8 min until completely soft and sweet",
           "Add garlic, cook 1 min, add Beyond Beef — break apart and cook 5 min until browned",
           "Add passata, herbs and bay leaf — simmer 25 min on lowest heat",
           "Cook pasta al dente, toss with bolognese, top with nutritional yeast"
-        ]
+        ],
+        "servingsPerBatch": 6,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per lunch/dinner container. Shop list = full batch (typically 6 containers)."
       },
       {
         "name": "Palak Paneer Dal",
@@ -1534,13 +1676,16 @@
           }
         ],
         "steps": [
-          "Cook both lentils together until completely soft with turmeric and salt",
+          "Batch-cook full quantity (shop list), portion into 6 containers. Cook both lentils together until completely soft with turmeric and salt",
           "Cube paneer and pan-sear in a dry pan until golden — set aside",
           "Sauté onion and tomato with cumin, coriander and chilli",
           "Add cooked dal and spinach to the pan — simmer 8 min",
           "Stir in seared paneer cubes gently so they don't break",
           "Finish with lemon juice — thick enough to eat alone or serve over brown rice"
-        ]
+        ],
+        "servingsPerBatch": 6,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per lunch/dinner container. Shop list = full batch (typically 6 containers)."
       },
       {
         "name": "Beyond Keema Roti Wrap",
@@ -1580,13 +1725,16 @@
           }
         ],
         "steps": [
-          "Sauté onion, garlic and ginger until deep golden — add all keema masala spices",
+          "Batch-cook full quantity (shop list), portion into 6 containers. Sauté onion, garlic and ginger until deep golden — add all keema masala spices",
           "Add Beyond Beef, break it apart and cook 5 min with the spices until fragrant",
           "Add peas and tomato, cook 5 more min until thick and dry (not soupy)",
           "Mix Greek yogurt with chopped mint and lemon for raita",
           "Warm rotis on dry pan",
           "Load roti with keema, drizzle raita generously, roll tight and eat"
-        ]
+        ],
+        "servingsPerBatch": 6,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per lunch/dinner container. Shop list = full batch (typically 6 containers)."
       },
       {
         "name": "Chickpea Tikka Masala",
@@ -1622,13 +1770,16 @@
           }
         ],
         "steps": [
-          "Sauté onion, garlic and ginger until deeply golden — don't rush this step",
+          "Batch-cook full quantity (shop list), portion into 6 containers. Sauté onion, garlic and ginger until deeply golden — don't rush this step",
           "Add tikka spices and cook 2 min until fragrant",
           "Add tomato passata, simmer 10 min until thick and dark red",
           "Add chickpeas, stir in Greek yogurt off the heat",
           "Simmer 10 more min",
           "Serve over brown rice"
-        ]
+        ],
+        "servingsPerBatch": 6,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per lunch/dinner container. Shop list = full batch (typically 6 containers)."
       },
       {
         "name": "Seitan Chipotle Stew Bowl",
@@ -1672,13 +1823,16 @@
           }
         ],
         "steps": [
-          "Tear seitan into rough chunks for better texture — don't cut too neat",
+          "Batch-cook full quantity (shop list), portion into 6 containers. Tear seitan into rough chunks for better texture — don't cut too neat",
           "Sauté onion and garlic, add chipotle, cumin, oregano and paprika — cook 2 min",
           "Add passata and stock — bring to a simmer",
           "Add seitan and black beans, cook 15 min in the broth — it absorbs the flavours deeply",
           "Add cooked rice to thicken",
           "Finish with lime and cilantro — optional jalapeño for heat"
-        ]
+        ],
+        "servingsPerBatch": 6,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per lunch/dinner container. Shop list = full batch (typically 6 containers)."
       },
       {
         "name": "Rajma + Paneer Bowl",
@@ -1686,7 +1840,8 @@
         "protein": 38,
         "carbs": 46,
         "fat": 11,
-        "desc": "🫕 Classic Indian comfort meal. The rajma masala that heals everything.",
+        "servingsPerBatch": 6,
+        "desc": "🫕 Classic Indian comfort meal. Batch for 6 containers — amounts below are per serving when plated.",
         "ingredients": [
           {
             "item": "Rajma (Kidney Beans, cooked)",
@@ -1710,10 +1865,12 @@
           }
         ],
         "steps": [
-          "Cook rajma masala with onion, tomato and spices",
+          "Batch-cook full quantity (shop list), portion into 6 containers. Cook rajma masala with onion, tomato and spices",
           "Cube paneer and stir in last 5 min",
           "Serve over brown rice"
-        ]
+        ],
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per lunch/dinner container. Shop list = full batch (typically 6 containers)."
       },
       {
         "name": "Soy Chunk Masala + Brown Rice",
@@ -1741,11 +1898,14 @@
           }
         ],
         "steps": [
-          "Soak soy chunks 10 min in hot water, squeeze dry",
+          "Batch-cook full quantity (shop list), portion into 6 containers. Soak soy chunks 10 min in hot water, squeeze dry",
           "Sauté onion-tomato masala with spices",
           "Add chunks, cook 10 min",
           "Serve with brown rice"
-        ]
+        ],
+        "servingsPerBatch": 6,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per lunch/dinner container. Shop list = full batch (typically 6 containers)."
       }
     ],
     "snacks": [
@@ -1773,7 +1933,10 @@
         "steps": [
           "Shake whey with almond milk",
           "Eat roasted chana on the side"
-        ]
+        ],
+        "servingsPerBatch": 8,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per snack portion. Shop list = full week batch (typically 8 portions)."
       },
       {
         "name": "Cosmic Shake",
@@ -1796,7 +1959,10 @@
           "Shake scoop with cold water",
           "Drink immediately"
         ],
-        "family": "cosmic"
+        "family": "cosmic",
+        "servingsPerBatch": 8,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per snack portion. Shop list = full week batch (typically 8 portions)."
       },
       {
         "name": "Makhana + Mini Shake",
@@ -1831,7 +1997,10 @@
           "Dry roast makhana with ghee + seasoning till crispy",
           "Shake whey separately",
           "Enjoy together"
-        ]
+        ],
+        "servingsPerBatch": 8,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per snack portion. Shop list = full week batch (typically 8 portions)."
       },
       {
         "name": "Paneer Bites + Almonds",
@@ -1861,7 +2030,10 @@
         "steps": [
           "Cube paneer, season with chaat masala and lemon",
           "Eat with almonds"
-        ]
+        ],
+        "servingsPerBatch": 8,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per snack portion. Shop list = full week batch (typically 8 portions)."
       },
       {
         "name": "Chipotle Chickpea Crunch + Shake",
@@ -1901,7 +2073,10 @@
           "Immediately toss hot chickpeas with chipotle, paprika, cumin, lime zest and salt",
           "Shake whey with water or almond milk",
           "Eat chickpea crunch alongside shake — the crunch-shake combo is lowkey elite"
-        ]
+        ],
+        "servingsPerBatch": 8,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per snack portion. Shop list = full week batch (typically 8 portions)."
       },
       {
         "name": "Paneer Queso Bites + Salsa",
@@ -1937,7 +2112,10 @@
           "Toss with smoked paprika, cumin, chilli and lime juice",
           "Serve with salsa as dip and almonds on the side",
           "Optional: quick pan-sear paneer 1 min each side for a warm version"
-        ]
+        ],
+        "servingsPerBatch": 8,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per snack portion. Shop list = full week batch (typically 8 portions)."
       },
       {
         "name": "Huel Black Mini Shake",
@@ -1959,7 +2137,10 @@
         "steps": [
           "Shake vigorously with cold water for 20 seconds",
           "Drink within a few minutes for best texture"
-        ]
+        ],
+        "servingsPerBatch": 8,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per snack portion. Shop list = full week batch (typically 8 portions)."
       },
       {
         "name": "Spiced Edamame + Mini Shake",
@@ -1995,7 +2176,10 @@
           "Drain, season with chaat masala or cumin+chilli+salt+lemon",
           "Shake whey with almond milk",
           "Eat edamame pods (squeeze beans out as you go) alongside the shake"
-        ]
+        ],
+        "servingsPerBatch": 8,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per snack portion. Shop list = full week batch (typically 8 portions)."
       },
       {
         "name": "Chickpea Bhel",
@@ -2040,7 +2224,10 @@
           "Add diced onion, tomato and cucumber",
           "Drizzle chutneys, sprinkle chaat masala, squeeze lemon",
           "Toss with coriander and eat immediately — it goes soggy fast"
-        ]
+        ],
+        "servingsPerBatch": 8,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per snack portion. Shop list = full week batch (typically 8 portions)."
       },
       {
         "name": "Greek Yogurt Berry Bowl",
@@ -2075,7 +2262,10 @@
           "Stir whey into Greek yogurt until fully combined and thick",
           "Top with berries, crushed almonds and honey",
           "Eat cold — this also works as a dessert after dinner"
-        ]
+        ],
+        "servingsPerBatch": 8,
+        "batchPrep": "perServing",
+        "batchPrepNote": "Per snack portion. Shop list = full week batch (typically 8 portions)."
       }
     ]
   }
