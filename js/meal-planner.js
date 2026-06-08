@@ -175,6 +175,9 @@
             }, 0);
             const sameDayPrior = (slotKey === 'dinner' && menu.days[dayName].lunch && menu.days[dayName].lunch.name === recipe.name) ? 1 : 0;
             const portion = usedBefore + sameDayPrior + 1;
+            // #region agent log
+            fetch('http://127.0.0.1:7702/ingest/d2255588-ca7b-460f-90d0-ff1c3e586ac4',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'55cf22'},body:JSON.stringify({sessionId:'55cf22',location:'meal-planner.js:getPortionInfo',message:'H-B portion calc',data:{recipe:recipe.name,dayName,slotKey,total,usedBefore,sameDayPrior,portion,days_counted:WEEKDAYS.filter(d=>d!==dayName)},timestamp:Date.now()})}).catch(()=>{});
+            // #endregion
             return { portion, total, remaining: Math.max(0, total - portion) };
         }
         return { portion: 1, total, remaining: total - 1 };
