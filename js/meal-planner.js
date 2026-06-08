@@ -161,8 +161,11 @@
         if (!recipe || !menu) return null;
         const total = getServingsPerBatch(recipe, poolKey);
         if (slotKey === 'lunch' || slotKey === 'dinner') {
+            const dayIdx = WEEKDAYS.indexOf(dayName);
+            // Only count days that come BEFORE the current day in the week
             const usedBefore = WEEKDAYS.filter(d => {
-                if (d === dayName) return false;
+                const dIdx = WEEKDAYS.indexOf(d);
+                if (dIdx >= dayIdx) return false;
                 const dm = menu.days[d];
                 if (!dm) return false;
                 return (dm.lunch && dm.lunch.name === recipe.name) || (dm.dinner && dm.dinner.name === recipe.name);
@@ -173,11 +176,8 @@
                 if (dm.dinner && dm.dinner.name === recipe.name) c++;
                 return count + c;
             }, 0);
-            const sameDayPrior = (slotKey === 'dinner' && menu.days[dayName].lunch && menu.days[dayName].lunch.name === recipe.name) ? 1 : 0;
+            const sameDayPrior = (slotKey === 'dinner' && menu.days[dayName] && menu.days[dayName].lunch && menu.days[dayName].lunch.name === recipe.name) ? 1 : 0;
             const portion = usedBefore + sameDayPrior + 1;
-            // #region agent log
-            fetch('http://127.0.0.1:7702/ingest/d2255588-ca7b-460f-90d0-ff1c3e586ac4',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'55cf22'},body:JSON.stringify({sessionId:'55cf22',location:'meal-planner.js:getPortionInfo',message:'H-B portion calc',data:{recipe:recipe.name,dayName,slotKey,total,usedBefore,sameDayPrior,portion,days_counted:WEEKDAYS.filter(d=>d!==dayName)},timestamp:Date.now()})}).catch(()=>{});
-            // #endregion
             return { portion, total, remaining: Math.max(0, total - portion) };
         }
         return { portion: 1, total, remaining: total - 1 };
@@ -257,15 +257,29 @@
         return formatScaledQty(p, mult);
     }
 
-    /** Full-batch shopping/cook list for Weekly Bulk Prep. */
-    function getBatchIngredients(recipe, poolKey) {
-        const servings = getServingsPerBatch(recipe, poolKey);
+    /** Full-batch shopping/cook list for Weekly Bulk Prep. Optional servingsOverride bypasses DEFAULT_SERVINGS. */
+    function getBatchIngredients(recipe, poolKey, servingsOverride) {
+        const servings = servingsOverride !== undefined ? servingsOverride : getServingsPerBatch(recipe, poolKey);
         if (!recipe || !recipe.ingredients) return [];
         return recipe.ingredients.map(ing => ({
             item: ing.item,
             qty: scaleIngredientQty(ing.qty, servings),
             perServingQty: ing.qty
         }));
+    }
+
+    /** Compute how many times each main recipe is actually used across the week (lunch + dinner). */
+    function computeMainServingsMap(prep) {
+        const map = {};
+        if (!prep || !prep.mains || !prep.mains.length) return map;
+        const assignments = assignMainsAcrossWeek(prep.mains);
+        WEEKDAYS.forEach(day => {
+            const a = assignments[day];
+            if (!a) return;
+            if (a.lunch) map[a.lunch.name] = (map[a.lunch.name] || 0) + 1;
+            if (a.dinner) map[a.dinner.name] = (map[a.dinner.name] || 0) + 1;
+        });
+        return map;
     }
 
     /** Grouped grocery sections: one block per prepped recipe with batch totals. */
@@ -593,6 +607,8 @@
     /** Shop list: merge same ingredients across all weekly prep recipes, grouped by store section. */
     function buildAggregatedWeeklyGrocery(prep) {
         const buckets = new Map();
+        // Use actual weekly usage counts for mains so the shopping list matches what's needed
+        const mainServingsMap = computeMainServingsMap(prep);
 
         const pools = [
             { key: 'breakfast', label: 'Breakfast' },
@@ -604,7 +620,8 @@
 
         pools.forEach(({ key }) => {
             (prep[key] || []).forEach(meal => {
-                getBatchIngredients(meal, key).forEach(line => {
+                const servingsOverride = key === 'mains' ? (mainServingsMap[meal.name] || getServingsPerBatch(meal, key)) : undefined;
+                getBatchIngredients(meal, key, servingsOverride).forEach(line => {
                     expandCompoundIngredientLine(line.item, line.qty).forEach(part => {
                         addGroceryLineToBuckets(buckets, part.item, part.qty, meal.name);
                     });
@@ -654,6 +671,7 @@
         saveDailyMenu,
         ensureDailyMenu,
         getPortionInfo,
-        getTodayWeekdayName
+        getTodayWeekdayName,
+        computeMainServingsMap
     };
 })(window);

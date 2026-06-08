@@ -1144,6 +1144,21 @@
     let workoutDayIsRest = false;
     const WORKOUT_DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
+    // Returns the most recent calendar date for a given day name (or today if today matches).
+    // e.g. viewing Sunday on Monday returns yesterday's date.
+    function getEffectiveDateForDay(dayName) {
+        const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const targetIdx = dayNames.indexOf(dayName);
+        if (targetIdx === -1) return today.toISOString().split('T')[0];
+        let diff = today.getDay() - targetIdx;
+        if (diff < 0) diff += 7;
+        const d = new Date(today);
+        d.setDate(today.getDate() - diff);
+        return d.toISOString().split('T')[0];
+    }
+
     function renderWorkoutDayPills() {
         const el = document.getElementById('daySelector');
         if (!el) return;
@@ -1222,11 +1237,25 @@
         workoutDayIsRest = isRest;
 
         const todayDateStr = new Date().toISOString().split('T')[0];
-        const savedState = JSON.parse(pGet(`wo_${todayDateStr}_${week}_${currentSelectedDay}`) || '{}');
-        const isWorkoutComplete = pGet(`wo_complete_${todayDateStr}_${week}_${currentSelectedDay}`) === '1';
-        // #region agent log
-        fetch('http://127.0.0.1:7702/ingest/d2255588-ca7b-460f-90d0-ff1c3e586ac4',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'55cf22'},body:JSON.stringify({sessionId:'55cf22',location:'index.html:1224',message:'renderWorkoutDay key check',data:{todayDateStr,currentSelectedDay,stateKey:`wo_${todayDateStr}_${week}_${currentSelectedDay}`,completeKey:`wo_complete_${todayDateStr}_${week}_${currentSelectedDay}`,isWorkoutComplete,hasState:Object.keys(savedState).length>0},timestamp:Date.now()})}).catch(()=>{});
-        // #endregion
+        const effectiveDateStr = getEffectiveDateForDay(currentSelectedDay);
+        let savedState = JSON.parse(pGet(`wo_${effectiveDateStr}_${week}_${currentSelectedDay}`) || '{}');
+        let isWorkoutComplete = pGet(`wo_complete_${effectiveDateStr}_${week}_${currentSelectedDay}`) === '1';
+        // For past days, also check other phase/week numbers so history from a previous phase still shows
+        if (effectiveDateStr !== todayDateStr) {
+            for (const wk of ['1','2','3','4','5','6']) {
+                if (wk === String(week)) continue;
+                if (pGet(`wo_complete_${effectiveDateStr}_${wk}_${currentSelectedDay}`) === '1') {
+                    isWorkoutComplete = true;
+                    const altState = JSON.parse(pGet(`wo_${effectiveDateStr}_${wk}_${currentSelectedDay}`) || '{}');
+                    if (Object.keys(altState).length > Object.keys(savedState).length) savedState = altState;
+                    break;
+                }
+                if (!Object.keys(savedState).length) {
+                    const altState = JSON.parse(pGet(`wo_${effectiveDateStr}_${wk}_${currentSelectedDay}`) || '{}');
+                    if (Object.keys(altState).length) savedState = altState;
+                }
+            }
+        }
 
         let html = `
             <div class="workout-hero ${isWorkoutComplete ? 'workout-complete-state' : ''}" id="workoutHero" style="${isRest ? 'border-color: var(--dim); background: #0f0f1a;' : ''}">
@@ -1328,21 +1357,21 @@
     }
 
     function toggleExercise(idx, week, day) {
-        const todayDateStr = new Date().toISOString().split('T')[0];
-        const key = `wo_${todayDateStr}_${week}_${day}`;
+        const effectiveDateStr = getEffectiveDateForDay(day);
+        const key = `wo_${effectiveDateStr}_${week}_${day}`;
         let state = JSON.parse(pGet(key) || '{}');
         state[idx] = !state[idx];
         pSet(key, JSON.stringify(state));
         const el = document.getElementById(`ex-item-${idx}`);
         if (state[idx]) el.classList.add('completed');
         else el.classList.remove('completed');
-        pRemove(`wo_complete_${todayDateStr}_${week}_${day}`);
+        pRemove(`wo_complete_${effectiveDateStr}_${week}_${day}`);
     }
 
     function getWorkoutCompleteKey() {
         const week = document.getElementById('weekSelect').value;
-        const todayDateStr = new Date().toISOString().split('T')[0];
-        return `wo_complete_${todayDateStr}_${week}_${currentSelectedDay}`;
+        const effectiveDateStr = getEffectiveDateForDay(currentSelectedDay);
+        return `wo_complete_${effectiveDateStr}_${week}_${currentSelectedDay}`;
     }
 
     function saveOverload(exerciseName, idx) {
@@ -1407,7 +1436,7 @@
 
     function finishWorkout() {
         const week = document.getElementById('weekSelect').value;
-        const todayDateStr = new Date().toISOString().split('T')[0];
+        const todayDateStr = getEffectiveDateForDay(currentSelectedDay);
         const stateKey = `wo_${todayDateStr}_${week}_${currentSelectedDay}`;
         const completeKey = getWorkoutCompleteKey();
         const wasComplete = pGet(completeKey) === '1';
@@ -2186,6 +2215,7 @@
                 ? `<div class="meal-portion-badge">Portion ${portion.portion}/${portion.total}${portion.remaining >= 0 ? ` · ${portion.remaining} left in batch` : ''}</div>`
                 : '';
             const desc = item.desc ? `<div style="font-size:0.78rem; color:var(--dim); margin:4px 0 6px; font-style:italic;">${item.desc}</div>` : '';
+            const safeItemName = item.name.replace(/'/g, "\\'");
             html += `<div class="guide-card meal-slot-card" style="margin-bottom:10px; border-left:3px solid ${slotDef.color};" onclick="openMealPreviewFromSlot('${viewDay}', '${slotDef.key}')">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <div style="font-size:0.75rem; color:${slotDef.color}; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">${slotDef.slot}</div>
@@ -2194,11 +2224,14 @@
                 <div style="font-weight:bold; font-size:1.05rem; margin:5px 0 2px;">${item.name}</div>
                 ${portionHtml}
                 ${desc}
-                <div style="font-size:0.78rem; color:var(--dim); background:var(--bg); padding:6px 8px; border-radius:6px; display:flex; gap:10px; flex-wrap:wrap;">
-                    <span>🔥 ${item.cal} cal</span>
-                    <span style="color:var(--primary);">P: ${item.protein}g</span>
-                    <span style="color:var(--water);">C: ${item.carbs}g</span>
-                    <span style="color:var(--steps);">F: ${item.fat}g</span>
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+                    <div style="font-size:0.78rem; color:var(--dim); background:var(--bg); padding:6px 8px; border-radius:6px; display:flex; gap:10px; flex-wrap:wrap; flex:1;">
+                        <span>🔥 ${item.cal} cal</span>
+                        <span style="color:var(--primary);">P: ${item.protein}g</span>
+                        <span style="color:var(--water);">C: ${item.carbs}g</span>
+                        <span style="color:var(--steps);">F: ${item.fat}g</span>
+                    </div>
+                    <button class="add-meal-btn" style="flex-shrink:0; padding:6px 12px; font-size:0.78rem;" onclick="event.stopPropagation(); addMealToTracking('${safeItemName}', ${item.cal}, ${item.protein}, ${item.carbs}, ${item.fat})">+ Log</button>
                 </div>
                 <div style="font-size:0.72rem; color:var(--primary); margin-top:8px;">Tap for recipe &amp; prep details</div>
             </div>`;
@@ -2438,9 +2471,10 @@
         if (isWeekFrozen(wk)) {
             html += `<p style="color:var(--dim); font-size:0.78rem; margin-bottom:12px;">🔒 Frozen plan — ingredients and recipes for this week (view only).</p>`;
         }
+        const mainServMap = MealPlanner.computeMainServingsMap(activeWeeklyPrep);
         const renderItem = (item, cat, poolKey) => {
-            const servings = MealPlanner.getServingsPerBatch(item, poolKey);
-            const batchIngs = MealPlanner.getBatchIngredients(item, poolKey);
+            const servings = poolKey === 'mains' ? (mainServMap[item.name] || MealPlanner.getServingsPerBatch(item, poolKey)) : MealPlanner.getServingsPerBatch(item, poolKey);
+            const batchIngs = MealPlanner.getBatchIngredients(item, poolKey, poolKey === 'mains' ? servings : undefined);
             const prepNote = item.batchPrepNote
                 ? `<div class="meal-batch-yields-note">${item.batchPrepNote}</div>`
                 : `<div class="meal-batch-yields-note">Shop &amp; cook the batch totals below. Daily menu = one container per meal.</div>`;
