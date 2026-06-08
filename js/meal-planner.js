@@ -159,7 +159,11 @@
 
     function getPortionInfo(recipe, poolKey, menu, dayName, slotKey) {
         if (!recipe || !menu) return null;
-        const total = getServingsPerBatch(recipe, poolKey);
+        // For mains, use the actual number of times the recipe is used this week (from mainUsage)
+        // so the denominator matches the real batch size (e.g. 1/4 not 1/6)
+        const total = (slotKey === 'lunch' || slotKey === 'dinner') && menu.mainUsage && menu.mainUsage[recipe.name]
+            ? menu.mainUsage[recipe.name]
+            : getServingsPerBatch(recipe, poolKey);
         if (slotKey === 'lunch' || slotKey === 'dinner') {
             const dayIdx = WEEKDAYS.indexOf(dayName);
             // Only count days that come BEFORE the current day in the week

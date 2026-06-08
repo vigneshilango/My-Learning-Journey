@@ -774,7 +774,12 @@
             </select>
         </div>
 
-        <!-- Day Pills (rendered dynamically) -->
+        <!-- Week navigation + Day Pills (rendered dynamically) -->
+        <div id="workoutWeekNav" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; gap:6px;">
+            <button onclick="shiftWorkoutWeek(-1)" style="background:var(--card); border:1px solid #252534; color:var(--dim); padding:6px 12px; border-radius:8px; font-size:0.82rem; cursor:pointer;">← Prev</button>
+            <span id="workoutWeekLabel" style="font-size:0.78rem; color:var(--dim); font-weight:700; text-align:center; flex:1;"></span>
+            <button onclick="shiftWorkoutWeek(1)" id="workoutWeekNext" style="background:var(--card); border:1px solid #252534; color:var(--dim); padding:6px 12px; border-radius:8px; font-size:0.82rem; cursor:pointer;" disabled>→ Now</button>
+        </div>
         <div class="day-selector" id="daySelector"></div>
 
         <div id="workout-content"></div>
@@ -1144,9 +1149,11 @@
     let workoutDayIsRest = false;
     const WORKOUT_DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
-    // Returns the most recent calendar date for a given day name (or today if today matches).
-    // e.g. viewing Sunday on Monday returns yesterday's date.
-    function getEffectiveDateForDay(dayName) {
+    let workoutWeekOffset = 0; // 0 = current week, -1 = last week, etc.
+
+    // Returns the calendar date for a given day name within the offset week.
+    // e.g. 'Sunday' on Monday with offset 0 → yesterday; offset -1 → 8 days ago.
+    function getEffectiveDateForDay(dayName, offset) {
         const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -1154,9 +1161,38 @@
         if (targetIdx === -1) return today.toISOString().split('T')[0];
         let diff = today.getDay() - targetIdx;
         if (diff < 0) diff += 7;
+        const wkOff = (offset !== undefined ? offset : workoutWeekOffset);
         const d = new Date(today);
-        d.setDate(today.getDate() - diff);
+        d.setDate(today.getDate() - diff + wkOff * 7);
         return d.toISOString().split('T')[0];
+    }
+
+    function shiftWorkoutWeek(delta) {
+        if (workoutWeekOffset + delta > 0) return;
+        workoutWeekOffset += delta;
+        renderWorkoutWeekNav();
+        renderWorkoutDayPills();
+        renderWorkoutDay();
+    }
+
+    function renderWorkoutWeekNav() {
+        const label = document.getElementById('workoutWeekLabel');
+        const nextBtn = document.getElementById('workoutWeekNext');
+        if (!label) return;
+        if (workoutWeekOffset === 0) {
+            label.textContent = 'This week';
+            if (nextBtn) { nextBtn.disabled = true; nextBtn.style.opacity = '0.4'; }
+        } else {
+            const monDate = getEffectiveDateForDay('Monday', workoutWeekOffset);
+            const sunDate = getEffectiveDateForDay('Sunday', workoutWeekOffset - 1);
+            // Format: "Jun 1 – Jun 7"
+            const fmt = str => {
+                const [y, m, d] = str.split('-').map(Number);
+                return new Date(y, m - 1, d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            };
+            label.textContent = `${fmt(monDate)} – ${fmt(sunDate)}`;
+            if (nextBtn) { nextBtn.disabled = false; nextBtn.style.opacity = '1'; }
+        }
     }
 
     function renderWorkoutDayPills() {
@@ -1237,10 +1273,10 @@
         workoutDayIsRest = isRest;
 
         const todayDateStr = new Date().toISOString().split('T')[0];
-        const effectiveDateStr = getEffectiveDateForDay(currentSelectedDay);
+        const effectiveDateStr = getEffectiveDateForDay(currentSelectedDay); // uses workoutWeekOffset
         let savedState = JSON.parse(pGet(`wo_${effectiveDateStr}_${week}_${currentSelectedDay}`) || '{}');
         let isWorkoutComplete = pGet(`wo_complete_${effectiveDateStr}_${week}_${currentSelectedDay}`) === '1';
-        // For past days, also check other phase/week numbers so history from a previous phase still shows
+        // For any non-today date (past days or past weeks), also scan all phase week numbers
         if (effectiveDateStr !== todayDateStr) {
             for (const wk of ['1','2','3','4','5','6']) {
                 if (wk === String(week)) continue;
@@ -2369,6 +2405,7 @@
         renderMacroDisplay();
         renderProfileSettings();
 
+        renderWorkoutWeekNav();
         renderWorkoutDayPills();
         selectDay(currentSelectedDay);
 
@@ -2418,7 +2455,7 @@
         document.querySelectorAll('.nav-item')[idx].classList.add('active');
         if (tabId === 'grocery')   { renderMealWeekSelector(); renderGroceryList(); }
         if (tabId === 'nutrition') { renderMacroDisplay(); renderMealWeekBanner(); }
-        if (tabId === 'workout')   { renderMacroDisplay(); setTimeout(renderPhaseProgress, 40); setTimeout(renderTrendChart, 50); setTimeout(updateDeficitCard, 60); updateRestStickyVisibility(); }
+        if (tabId === 'workout')   { renderMacroDisplay(); renderWorkoutWeekNav(); setTimeout(renderPhaseProgress, 40); setTimeout(renderTrendChart, 50); setTimeout(updateDeficitCard, 60); updateRestStickyVisibility(); }
         if (tabId === 'guide')     { renderMacroDisplay(); setTimeout(renderSleepChart, 50); setTimeout(renderHeatmap, 60); setTimeout(renderHabitChecklist, 70); }
         if (tabId !== 'workout') updateRestStickyVisibility();
     }
