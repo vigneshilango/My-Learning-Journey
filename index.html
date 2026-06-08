@@ -2257,17 +2257,18 @@
                     <div style="font-size:0.75rem; color:${slotDef.color}; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">${slotDef.slot}</div>
                     <div style="font-size:0.78rem; color:var(--dim); font-weight:700;">${slotDef.time}</div>
                 </div>
-                <div style="font-weight:bold; font-size:1.05rem; margin:5px 0 2px;">${item.name}</div>
+                <div style="display:flex; align-items:center; gap:8px; margin:5px 0 2px;">
+                    <div style="font-weight:bold; font-size:1.05rem; flex:1;">${item.name}</div>
+                    <button onclick="event.stopPropagation(); toggleMealLog(this, '${safeItemName}', ${item.cal}, ${item.protein}, ${item.carbs}, ${item.fat})"
+                        style="width:26px; height:26px; border-radius:50%; border:2px solid var(--dim); background:transparent; color:var(--dim); font-size:1rem; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.2s; padding:0;">+</button>
+                </div>
                 ${portionHtml}
                 ${desc}
-                <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
-                    <div style="font-size:0.78rem; color:var(--dim); background:var(--bg); padding:6px 8px; border-radius:6px; display:flex; gap:10px; flex-wrap:wrap; flex:1;">
-                        <span>🔥 ${item.cal} cal</span>
-                        <span style="color:var(--primary);">P: ${item.protein}g</span>
-                        <span style="color:var(--water);">C: ${item.carbs}g</span>
-                        <span style="color:var(--steps);">F: ${item.fat}g</span>
-                    </div>
-                    <button class="add-meal-btn" style="flex-shrink:0; padding:6px 12px; font-size:0.78rem;" onclick="event.stopPropagation(); addMealToTracking('${safeItemName}', ${item.cal}, ${item.protein}, ${item.carbs}, ${item.fat})">+ Log</button>
+                <div style="font-size:0.78rem; color:var(--dim); background:var(--bg); padding:6px 8px; border-radius:6px; display:flex; gap:10px; flex-wrap:wrap;">
+                    <span>🔥 ${item.cal} cal</span>
+                    <span style="color:var(--primary);">P: ${item.protein}g</span>
+                    <span style="color:var(--water);">C: ${item.carbs}g</span>
+                    <span style="color:var(--steps);">F: ${item.fat}g</span>
                 </div>
                 <div style="font-size:0.72rem; color:var(--primary); margin-top:8px;">Tap for recipe &amp; prep details</div>
             </div>`;
@@ -2539,6 +2540,24 @@
     // ============================================================
     // TRACKING LOGIC
     // ============================================================
+    function toggleMealLog(btn, name, cal, pro, carb, fat) {
+        const isLogged = btn.dataset.logged === '1';
+        if (!isLogged) {
+            addMealToTracking(name, cal, pro, carb, fat);
+            btn.dataset.logged = '1';
+            btn.textContent = '✓';
+            btn.style.background = 'var(--success)';
+            btn.style.borderColor = 'var(--success)';
+            btn.style.color = '#000';
+        } else {
+            btn.dataset.logged = '0';
+            btn.textContent = '+';
+            btn.style.background = 'transparent';
+            btn.style.borderColor = 'var(--dim)';
+            btn.style.color = 'var(--dim)';
+        }
+    }
+
     function addMealToTracking(name, cal, pro, carb, fat) {
         const today = new Date().toISOString().split('T')[0];
         let tracked = JSON.parse(pGet(`tracked_${today}`) || '[]');
