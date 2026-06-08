@@ -778,7 +778,7 @@
         <div id="workoutWeekNav" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; gap:6px;">
             <button onclick="shiftWorkoutWeek(-1)" style="background:var(--card); border:1px solid #252534; color:var(--dim); padding:6px 12px; border-radius:8px; font-size:0.82rem; cursor:pointer;">← Prev</button>
             <span id="workoutWeekLabel" style="font-size:0.78rem; color:var(--dim); font-weight:700; text-align:center; flex:1;"></span>
-            <button onclick="shiftWorkoutWeek(1)" id="workoutWeekNext" style="background:var(--card); border:1px solid #252534; color:var(--dim); padding:6px 12px; border-radius:8px; font-size:0.82rem; cursor:pointer;" disabled>→ Now</button>
+            <button onclick="shiftWorkoutWeek(1)" id="workoutWeekNext" style="background:var(--card); border:1px solid #252534; color:var(--dim); padding:6px 12px; border-radius:8px; font-size:0.82rem; cursor:pointer;" disabled>Next →</button>
         </div>
         <div class="day-selector" id="daySelector"></div>
 
@@ -1152,18 +1152,23 @@
     let workoutWeekOffset = 0; // 0 = current week, -1 = last week, etc.
 
     // Returns the calendar date for a given day name within the offset week.
-    // e.g. 'Sunday' on Monday with offset 0 → yesterday; offset -1 → 8 days ago.
+    // Workout week = Mon–Sun. offset 0 = this week, -1 = last week, etc.
+    // e.g. 'Tuesday' offset 0 always = this week's Tuesday (may be future)
+    //      'Sunday'  offset -1 = last week's Sunday
     function getEffectiveDateForDay(dayName, offset) {
-        const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        const targetIdx = dayNames.indexOf(dayName);
-        if (targetIdx === -1) return today.toISOString().split('T')[0];
-        let diff = today.getDay() - targetIdx;
-        if (diff < 0) diff += 7;
+        // Find this week's Monday
+        const dow = today.getDay(); // 0=Sun, 1=Mon … 6=Sat
+        const daysToMonday = dow === 0 ? 6 : dow - 1;
+        const thisMonday = new Date(today);
+        thisMonday.setDate(today.getDate() - daysToMonday);
+        // WORKOUT_DAYS = [Mon, Tue, Wed, Thu, Fri, Sat, Sun] → index 0–6
+        const dayOffset = WORKOUT_DAYS.indexOf(dayName);
+        if (dayOffset === -1) return today.toISOString().split('T')[0];
         const wkOff = (offset !== undefined ? offset : workoutWeekOffset);
-        const d = new Date(today);
-        d.setDate(today.getDate() - diff + wkOff * 7);
+        const d = new Date(thisMonday);
+        d.setDate(thisMonday.getDate() + dayOffset + wkOff * 7);
         return d.toISOString().split('T')[0];
     }
 
@@ -1184,8 +1189,7 @@
             if (nextBtn) { nextBtn.disabled = true; nextBtn.style.opacity = '0.4'; }
         } else {
             const monDate = getEffectiveDateForDay('Monday', workoutWeekOffset);
-            const sunDate = getEffectiveDateForDay('Sunday', workoutWeekOffset - 1);
-            // Format: "Jun 1 – Jun 7"
+            const sunDate = getEffectiveDateForDay('Sunday', workoutWeekOffset);
             const fmt = str => {
                 const [y, m, d] = str.split('-').map(Number);
                 return new Date(y, m - 1, d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -1198,10 +1202,12 @@
     function renderWorkoutDayPills() {
         const el = document.getElementById('daySelector');
         if (!el) return;
-        const today = WORKOUT_DAYS[new Date().getDay()];
+        const todayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+        const todayName = todayNames[new Date().getDay()];
         el.innerHTML = WORKOUT_DAYS.map(d => {
             const short = d.substring(0, 3);
-            const isToday = d === today;
+            // Show · only when viewing the current week and the pill matches today
+            const isToday = workoutWeekOffset === 0 && d === todayName;
             const active = d === currentSelectedDay;
             return `<div class="day-pill${active ? ' active' : ''}" onclick="selectDay('${d}')">${short}${isToday ? ' ·' : ''}</div>`;
         }).join('');
