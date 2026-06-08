@@ -66,6 +66,19 @@
         .day-pill { padding: 10px 16px; border-radius: 20px; background: var(--card); border: 1px solid #252534; color: var(--dim); font-size: 0.9rem; font-weight: 600; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
         .day-pill.active { background: var(--primary); color: #000; border-color: var(--primary); box-shadow: 0 0 10px rgba(167, 139, 250, 0.3); }
 
+        /* --- SPORT PLANNER --- */
+        .sport-planner { background: var(--card); border: 1px solid #252534; border-radius: var(--border-radius); padding: 14px; margin-bottom: 20px; }
+        .sport-planner-header { display: flex; align-items: center; justify-content: space-between; font-size: 0.82rem; font-weight: 700; color: var(--text); margin-bottom: 12px; gap: 8px; }
+        .sport-add-btn { background: rgba(167,139,250,0.15); border: 1px solid rgba(167,139,250,0.4); color: var(--primary); border-radius: 16px; padding: 5px 12px; font-size: 0.72rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
+        .sport-add-btn:active { opacity: 0.7; }
+        .sport-planner-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        @media (max-width: 360px) { .sport-planner-grid { grid-template-columns: repeat(2, 1fr); } }
+        .sport-day { display: flex; flex-direction: column; gap: 4px; }
+        .sport-day-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--dim); font-weight: 700; padding-left: 2px; }
+        .sport-day select { padding: 8px 6px; font-size: 0.78rem; border-radius: 8px; }
+        .sport-day select.has-sport { border-color: var(--primary); color: var(--primary); font-weight: 700; }
+        .sport-planner-hint { font-size: 0.72rem; color: var(--dim); margin-top: 10px; line-height: 1.4; }
+
         .workout-hero { background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1a 100%); padding: 20px; border-radius: var(--border-radius); margin-bottom: 20px; border-left: 4px solid var(--primary); box-shadow: 0 2px 16px rgba(167,139,250,0.08); }
         .workout-hero-title { font-size: 1.4rem; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; }
         .workout-hero-meta { color: var(--dim); font-size: 0.9rem; display: flex; gap: 15px; align-items: center; }
@@ -753,8 +766,8 @@
         <!-- Phase Progress Tracker -->
         <div id="phaseProgressCard" class="phase-tracker"></div>
 
-        <!-- Phase + Volleyball Selectors -->
-        <div class="controls" style="grid-template-columns: 1fr 1fr; gap: 10px;">
+        <!-- Phase Selector -->
+        <div class="controls" style="grid-template-columns: 1fr; gap: 10px;">
             <select id="weekSelect" onchange="saveCurrentWeekConfig(); renderWorkoutDay()">
                 <option value="1">Phase 1 · Wks 1-4 · Foundation (~250 lbs)</option>
                 <option value="2">Phase 2 · Wks 5-8 · Build (~242 lbs)</option>
@@ -763,15 +776,16 @@
                 <option value="5">Phase 5 · Wks 17-20 · Running (~223 lbs)</option>
                 <option value="6">Phase 6 · Wks 21-26 · Peak · 5K (~216 lbs)</option>
             </select>
-            <select id="volleyballDay" onchange="saveCurrentWeekConfig(); renderWorkoutDay()" style="font-size:0.78rem;">
-                <option value="">🏐 No Volleyball This Week</option>
-                <option value="Monday">🏐 Volleyball: Monday</option>
-                <option value="Tuesday">🏐 Volleyball: Tuesday</option>
-                <option value="Wednesday">🏐 Volleyball: Wednesday</option>
-                <option value="Thursday">🏐 Volleyball: Thursday</option>
-                <option value="Friday">🏐 Volleyball: Friday</option>
-                <option value="Saturday">🏐 Volleyball: Saturday</option>
-            </select>
+        </div>
+
+        <!-- Per-day Sport Planner -->
+        <div class="sport-planner" id="sportPlanner">
+            <div class="sport-planner-header">
+                <span>🏐 Sports &amp; activities this week</span>
+                <button type="button" class="sport-add-btn" onclick="openAddSportPrompt()">+ Add activity</button>
+            </div>
+            <div class="sport-planner-grid" id="sportPlannerGrid"></div>
+            <div class="sport-planner-hint">Pick a sport on any day(s). High-impact sports auto-soften the day before/after; light recovery is scheduled around them.</div>
         </div>
 
         <!-- Week navigation + Day Pills (rendered dynamically) -->
@@ -1083,11 +1097,27 @@
         return false;
     }
 
+    // Local-calendar date key (YYYY-MM-DD). Avoids the UTC off-by-one that
+    // toISOString() causes for users in negative-UTC (e.g. US) timezones logging in the evening.
+    function isoDate(d) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+    }
+    function todayKey() { return isoDate(new Date()); }
+
+    // Safe JSON parse: never throws (corrupt localStorage shouldn't abort init/render).
+    function safeParse(raw, fallback) {
+        if (raw == null) return fallback;
+        try { return JSON.parse(raw); } catch (e) { return fallback; }
+    }
+
     // ============================================================
     // STREAK LOGIC
     // ============================================================
     function updateStreak() {
-        const todayStr = new Date().toISOString().split('T')[0];
+        const todayStr = todayKey();
         let lastLogin = pGet('last_login');
         let currentStreak = parseInt(pGet('app_streak') || '0');
 
@@ -1095,7 +1125,7 @@
             if (lastLogin) {
                 let yesterday = new Date();
                 yesterday.setDate(yesterday.getDate() - 1);
-                const yesterdayStr = yesterday.toISOString().split('T')[0];
+                const yesterdayStr = isoDate(yesterday);
                 currentStreak = lastLogin === yesterdayStr ? currentStreak + 1 : 1;
             } else {
                 currentStreak = 1;
@@ -1149,6 +1179,156 @@
     let workoutDayIsRest = false;
     const WORKOUT_DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
+    // ============================================================
+    // SPORTS CATALOG (built-in + per-profile custom activities)
+    // impact drives the auto-arranger: 'high' = protect-before + recover-after + lower 2 days later,
+    // 'medium' = recover-after only, 'low' = placed as-is with no surrounding rules.
+    // ============================================================
+    const BUILTIN_SPORTS = [
+        {
+            key: 'volleyball', name: 'Volleyball', emoji: '🏐', impact: 'high',
+            details: 'League match · stay light on feet · hydrate',
+            time: '60+ min',
+            exercises: ['Dynamic Warmup', 'Volleyball Match', 'Volleyball Mobility Cool-down']
+        },
+        {
+            key: 'basketball', name: 'Basketball', emoji: '🏀', impact: 'high',
+            details: 'Pickup / league · explosive cuts & jumps · hydrate',
+            time: '60+ min',
+            exercises: ['Dynamic Warmup', 'Basketball Game', 'Volleyball Mobility Cool-down']
+        },
+        {
+            key: 'soccer', name: 'Soccer', emoji: '⚽', impact: 'high',
+            details: 'Match · sprints & direction changes · hydrate',
+            time: '60+ min',
+            exercises: ['Dynamic Warmup', 'Soccer Match', 'Volleyball Mobility Cool-down']
+        },
+        {
+            key: 'tennis', name: 'Tennis', emoji: '🎾', impact: 'medium',
+            details: 'Singles / doubles · lateral movement · hydrate',
+            time: '60+ min',
+            exercises: ['Dynamic Warmup', 'Tennis Match', 'Volleyball Mobility Cool-down']
+        },
+        {
+            key: 'pickleball', name: 'Pickleball', emoji: '🥒', impact: 'medium',
+            details: 'Games · quick reactions · low impact paddle sport',
+            time: '60+ min',
+            exercises: ['Dynamic Warmup', 'Pickleball Match', 'Volleyball Mobility Cool-down']
+        }
+    ];
+
+    // Returns built-in + custom sports for the active profile, keyed list.
+    function getAllSports() {
+        let custom = [];
+        try { custom = JSON.parse(pGet('sport_custom') || '[]'); } catch (e) { custom = []; }
+        const customSports = (Array.isArray(custom) ? custom : []).map(c => ({
+            key: c.key,
+            name: c.name,
+            emoji: c.emoji || '⭐',
+            impact: c.impact || 'medium',
+            details: c.details || 'Custom activity · log it like a sport day',
+            time: c.time || '60+ min',
+            exercises: c.exercises && c.exercises.length
+                ? c.exercises
+                : ['Dynamic Warmup', `${c.name}`, 'Volleyball Mobility Cool-down'],
+            custom: true
+        }));
+        return BUILTIN_SPORTS.concat(customSports);
+    }
+
+    function getSportByKey(key) {
+        if (!key) return null;
+        return getAllSports().find(s => s.key === key) || null;
+    }
+
+    // Builds a workout-day object for a sport on a given phase (sports aren't phase-specific,
+    // but volleyball reuses the phase-tuned details text from workout-plans.json when available).
+    function sportDayData(sport, phase) {
+        if (!sport) return null;
+        if (sport.key === 'volleyball' && workoutPlans[phase] && workoutPlans[phase].volleyball) {
+            return Object.assign({}, workoutPlans[phase].volleyball, { _sportKey: 'volleyball', _impact: sport.impact });
+        }
+        return {
+            name: `${sport.emoji} ${sport.name}`,
+            details: sport.details,
+            time: sport.time,
+            exercises: sport.exercises.slice(),
+            _sportKey: sport.key,
+            _impact: sport.impact
+        };
+    }
+
+    // Adds a custom activity to the active profile's sport list.
+    function addCustomSport(name, impact) {
+        name = (name || '').trim();
+        if (!name) return false;
+        let custom = [];
+        try { custom = JSON.parse(pGet('sport_custom') || '[]'); } catch (e) { custom = []; }
+        if (!Array.isArray(custom)) custom = [];
+        const key = 'custom_' + name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+        if (!key || key === 'custom_') return false;
+        // Avoid clobbering built-ins or duplicate custom keys
+        if (BUILTIN_SPORTS.some(s => s.key === key) || custom.some(c => c.key === key)) return false;
+        custom.push({ key, name, impact: (impact === 'high' || impact === 'low') ? impact : 'medium' });
+        pSet('sport_custom', JSON.stringify(custom));
+        return key;
+    }
+
+    // In-memory sports map for the CURRENT week being edited: { Monday: 'volleyball', Tuesday: 'basketball', ... }
+    let currentSportsMap = {};
+    const SPORT_DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+    // Renders the per-day sport dropdowns from currentSportsMap.
+    function renderSportPlanner() {
+        const grid = document.getElementById('sportPlannerGrid');
+        if (!grid) return;
+        const sports = getAllSports();
+        const options = day => {
+            const selected = currentSportsMap[day] || '';
+            let html = `<option value="">— None —</option>`;
+            html += sports.map(s =>
+                `<option value="${s.key}" ${selected === s.key ? 'selected' : ''}>${s.emoji} ${s.name}</option>`
+            ).join('');
+            return html;
+        };
+        grid.innerHTML = SPORT_DAYS.map(day => {
+            const hasSport = !!currentSportsMap[day];
+            return `<div class="sport-day">
+                <span class="sport-day-label">${day.substring(0, 3)}</span>
+                <select class="${hasSport ? 'has-sport' : ''}" onchange="onSportDayChange('${day}', this.value)">${options(day)}</select>
+            </div>`;
+        }).join('');
+    }
+
+    function onSportDayChange(day, sportKey) {
+        if (sportKey) currentSportsMap[day] = sportKey;
+        else delete currentSportsMap[day];
+        saveCurrentWeekConfig();
+        renderSportPlanner();
+        renderWorkoutDay();
+    }
+
+    function openAddSportPrompt() {
+        const name = prompt('Name your custom activity (e.g. Rock Climbing, Spin Class):');
+        if (name === null) return;
+        const trimmed = name.trim();
+        if (!trimmed) return;
+        const impactInput = prompt(
+            'Impact level for "' + trimmed + '"?\n\n' +
+            'high   = hard on legs (jumping/sprinting) — softens day before & after\n' +
+            'medium = moderate — eases the next day only\n' +
+            'low    = easy — no schedule changes around it\n\n' +
+            'Type high, medium, or low:', 'medium');
+        if (impactInput === null) return;
+        const impact = impactInput.trim().toLowerCase();
+        const key = addCustomSport(trimmed, impact);
+        if (!key) {
+            alert('Could not add that activity (duplicate or invalid name).');
+            return;
+        }
+        renderSportPlanner();
+    }
+
     let workoutWeekOffset = 0; // 0 = current week, -1 = last week, etc.
 
     // Returns the calendar date for a given day name within the offset week.
@@ -1165,11 +1345,11 @@
         thisMonday.setDate(today.getDate() - daysToMonday);
         // WORKOUT_DAYS = [Mon, Tue, Wed, Thu, Fri, Sat, Sun] → index 0–6
         const dayOffset = WORKOUT_DAYS.indexOf(dayName);
-        if (dayOffset === -1) return today.toISOString().split('T')[0];
+        if (dayOffset === -1) return isoDate(today);
         const wkOff = (offset !== undefined ? offset : workoutWeekOffset);
         const d = new Date(thisMonday);
         d.setDate(thisMonday.getDate() + dayOffset + wkOff * 7);
-        return d.toISOString().split('T')[0];
+        return isoDate(d);
     }
 
     // Returns the Monday ISO date string for the given week offset (identifies the workout week)
@@ -1177,20 +1357,32 @@
         return getEffectiveDateForDay('Monday', offset !== undefined ? offset : workoutWeekOffset);
     }
 
-    // Saves volleyball day + phase for the current calendar week so past-week views are accurate
+    // Saves the per-day sports map + phase for the current calendar week so past-week views are accurate
     function saveCurrentWeekConfig() {
         const wk = getWorkoutWeekKey(0);
         pSet('wo_cfg_' + wk, JSON.stringify({
-            vbDay: document.getElementById('volleyballDay').value,
+            sports: Object.assign({}, currentSportsMap),
             phase: document.getElementById('weekSelect').value
         }));
     }
 
-    // Loads saved config for a past week; defaults to no volleyball if no record exists
+    // Loads saved config for a week; returns a normalized { sports, phase } or null.
+    // Back-compat: older configs stored { vbDay } — migrate that into a sports map.
     function loadWeekConfig(weekKey) {
         const raw = pGet('wo_cfg_' + weekKey);
-        if (raw) { try { return JSON.parse(raw); } catch (e) {} }
-        return null;
+        if (!raw) return null;
+        try {
+            const cfg = JSON.parse(raw);
+            return normalizeWeekConfig(cfg);
+        } catch (e) { return null; }
+    }
+
+    function normalizeWeekConfig(cfg) {
+        if (!cfg || typeof cfg !== 'object') return null;
+        let sports = (cfg.sports && typeof cfg.sports === 'object') ? Object.assign({}, cfg.sports) : {};
+        // Migrate legacy single volleyball-day config.
+        if (cfg.vbDay && !cfg.sports) sports[cfg.vbDay] = 'volleyball';
+        return { sports, phase: cfg.phase };
     }
 
     function shiftWorkoutWeek(delta) {
@@ -1239,44 +1431,98 @@
         return /complete rest|meal prep|stretching routine/.test(base);
     }
 
-    // Dynamically assigns named workout templates to Mon-Sat based on volleyball day.
-    // Rules: day-before VB = light cardio, day-after VB = active recovery, 2-days-after = lower.
-    function buildSchedule(vbDay, phase) {
-        const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    // Builds a Mon–Sun schedule from a per-day sports map.
+    // sportsMap: { Monday: 'volleyball', Tuesday: 'basketball', ... } (any subset of Mon–Sat).
+    // Auto-arrange rules per sport, by impact flag:
+    //   high   → light day before, active recovery day after, lower strength 2 days after
+    //   medium → active recovery day after only
+    //   low    → no surrounding rules
+    // Uses a full 7-day ring (Mon..Sun) so weekend boundaries don't wrap incorrectly.
+    // Conflict resolution: a real sport day is never overwritten; when two soft rules
+    // collide on one day, the safer (lighter) one wins (recovery/light beats lower-strength).
+    function buildSchedule(sportsMap, phase) {
+        const ring = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
         const p = workoutPlans[phase];
-        const schedule = { Sunday: p.rest };
+        const schedule = {};
+        sportsMap = sportsMap && typeof sportsMap === 'object' ? sportsMap : {};
 
-        if (!vbDay || !days.includes(vbDay)) {
-            // Default no-VB week: balanced strength + cardio distribution
+        // Normalize: only keep entries that map to a known sport on a valid Mon–Sat day.
+        const sportDays = {};
+        Object.keys(sportsMap).forEach(day => {
+            if (!SPORT_DAYS.includes(day)) return;
+            const sport = getSportByKey(sportsMap[day]);
+            if (sport) sportDays[day] = sport;
+        });
+
+        const sportDayNames = Object.keys(sportDays);
+
+        // No sports → balanced default week.
+        if (sportDayNames.length === 0) {
             schedule.Monday    = p.upperStrength;
             schedule.Tuesday   = p.cardioA;
             schedule.Wednesday = p.lowerStrength;
             schedule.Thursday  = p.cardioCore;
             schedule.Friday    = p.upperStrength;
             schedule.Saturday  = p.cardioB;
+            schedule.Sunday    = p.rest;
             return schedule;
         }
 
-        const vbIdx = days.indexOf(vbDay);
-        // Volleyball day
-        schedule[vbDay] = p.volleyball;
-        // Day before: light Peloton/cardio — protect legs
-        const beforeDay = days[(vbIdx - 1 + 6) % 6];
-        schedule[beforeDay] = Object.assign({}, p.cardioCore, {
-            _note: '⚡ Light day — protecting legs for tomorrow\'s volleyball'
+        // 1) Place sport days first — these are locked and never overwritten.
+        sportDayNames.forEach(day => {
+            schedule[day] = sportDayData(sportDays[day], phase);
         });
-        // Day after: active recovery — legs still fatigued
-        const afterDay = days[(vbIdx + 1) % 6];
-        schedule[afterDay] = Object.assign({}, p.cardioA, {
-            _note: '🔄 Active recovery — legs still tired from volleyball'
+
+        // Priority for soft rules so the safer option wins on collisions.
+        const PRIORITY = { before: 3, after: 3, lower: 1 };
+        const pending = {}; // day -> { kind, build }
+
+        const proposeRule = (day, kind, build) => {
+            if (schedule[day]) return;                 // never touch a locked sport day
+            const existing = pending[day];
+            if (existing && PRIORITY[existing.kind] >= PRIORITY[kind]) return; // keep safer rule
+            pending[day] = { kind, build };
+        };
+
+        const dayAt = (idx, delta) => ring[(idx + delta + 7) % 7];
+
+        // 2) Apply per-sport surrounding rules.
+        sportDayNames.forEach(day => {
+            const idx = ring.indexOf(day);
+            const impact = sportDays[day].impact || 'medium';
+            if (impact === 'high') {
+                proposeRule(dayAt(idx, -1), 'before', () => Object.assign({}, p.cardioCore, {
+                    _note: '⚡ Light day — protecting legs for tomorrow\'s game'
+                }));
+                proposeRule(dayAt(idx, 1), 'after', () => Object.assign({}, p.cardioA, {
+                    _note: '🔄 Active recovery — legs still tired from the game'
+                }));
+                proposeRule(dayAt(idx, 2), 'lower', () => p.lowerStrength);
+            } else if (impact === 'medium') {
+                proposeRule(dayAt(idx, 1), 'after', () => Object.assign({}, p.cardioA, {
+                    _note: '🔄 Active recovery — eased load after yesterday\'s activity'
+                }));
+            }
+            // low impact: no surrounding rules
         });
-        // 2 days after: Lower Strength — enough recovery gap
-        const lowerDay = days[(vbIdx + 2) % 6];
-        schedule[lowerDay] = p.lowerStrength;
-        // Remaining 2 days: Upper Strength + Endurance cardio
-        const remaining = days.filter(d => !schedule[d]);
-        schedule[remaining[0]] = p.upperStrength;
-        schedule[remaining[1]] = p.cardioB;
+
+        // 3) Commit pending soft rules (skip any day that became a sport day — already guarded).
+        Object.keys(pending).forEach(day => {
+            if (!schedule[day]) schedule[day] = pending[day].build();
+        });
+
+        // 4) Fill remaining Mon–Sat days with a balanced strength/cardio rotation.
+        const fillers = [p.upperStrength, p.lowerStrength, p.cardioB, p.cardioCore, p.upperStrength, p.cardioA];
+        let fi = 0;
+        SPORT_DAYS.forEach(day => {
+            if (schedule[day]) return;
+            schedule[day] = fillers[fi % fillers.length];
+            fi++;
+        });
+
+        // 5) Sunday: rest unless a sport was explicitly placed there (sports are Mon–Sat only),
+        //    but a recovery/light rule may have landed on Sunday — honor it; otherwise rest.
+        if (!schedule.Sunday) schedule.Sunday = p.rest;
 
         return schedule;
     }
@@ -1287,42 +1533,51 @@
         renderWorkoutDay();
     }
 
+    // Resolves the sports map + phase that applies to the week currently being viewed.
+    // For the current week we read live UI state; for past weeks we use the snapshot saved at the time.
+    function getEffectiveWeekConfig() {
+        const week = parseInt(document.getElementById('weekSelect').value, 10);
+        if (workoutWeekOffset === 0) {
+            return { sports: Object.assign({}, currentSportsMap), phase: week, hasSavedConfig: true };
+        }
+        const pastCfg = loadWeekConfig(getWorkoutWeekKey(workoutWeekOffset));
+        if (pastCfg) {
+            return {
+                sports: pastCfg.sports || {},
+                phase: parseInt(pastCfg.phase, 10) || week,
+                hasSavedConfig: true
+            };
+        }
+        return { sports: {}, phase: week, hasSavedConfig: false };
+    }
+
     function renderWorkoutDay() {
         const week = parseInt(document.getElementById('weekSelect').value, 10);
-        const vbDay = document.getElementById('volleyballDay').value;
         pSet('sm_week', week);
-        pSet('vb_day', vbDay);
         const container = document.getElementById('workout-content');
 
-        // For past weeks, use the config that was saved at the time (vbDay + phase)
-        let effectiveVbDay = vbDay;
-        let effectivePhase = week;
-        let pastWeekHasSavedConfig = true;
-        if (workoutWeekOffset !== 0) {
-            const pastCfg = loadWeekConfig(getWorkoutWeekKey(workoutWeekOffset));
-            if (pastCfg) {
-                effectiveVbDay = pastCfg.vbDay || '';
-                effectivePhase = parseInt(pastCfg.phase, 10) || week;
-            } else {
-                effectiveVbDay = ''; // no saved config → assume no volleyball
-                pastWeekHasSavedConfig = false;
-            }
-        }
+        const cfg = getEffectiveWeekConfig();
+        const effectiveSports = cfg.sports;
+        const effectivePhase = cfg.phase;
+        const pastWeekHasSavedConfig = cfg.hasSavedConfig;
 
-        const schedule = buildSchedule(effectiveVbDay, effectivePhase);
+        const schedule = buildSchedule(effectiveSports, effectivePhase);
         let dayData = schedule[currentSelectedDay] || workoutPlans[effectivePhase].rest;
         dayData = resolveWorkoutDay(dayData);
         const isRest = dayData.name && dayData.name.startsWith('REST');
         workoutDayIsRest = isRest;
 
-        const todayDateStr = new Date().toISOString().split('T')[0];
+        const todayDateStr = toDateStr(new Date());
         const effectiveDateStr = getEffectiveDateForDay(currentSelectedDay); // uses workoutWeekOffset
-        let savedState = JSON.parse(pGet(`wo_${effectiveDateStr}_${week}_${currentSelectedDay}`) || '{}');
-        let isWorkoutComplete = pGet(`wo_complete_${effectiveDateStr}_${week}_${currentSelectedDay}`) === '1';
-        // For any non-today date (past days or past weeks), also scan all phase week numbers
-        if (effectiveDateStr !== todayDateStr) {
+        // Storage keys are keyed by the EFFECTIVE phase (what's shown), not the raw dropdown,
+        // so completion stays consistent when viewing past weeks or after a phase change.
+        let savedState = JSON.parse(pGet(`wo_${effectiveDateStr}_${effectivePhase}_${currentSelectedDay}`) || '{}');
+        let isWorkoutComplete = pGet(`wo_complete_${effectiveDateStr}_${effectivePhase}_${currentSelectedDay}`) === '1';
+        // Reconcile completion saved under a different phase number for this same date+day.
+        // (Runs for today too, so changing the phase dropdown never hides a completed workout.)
+        if (!isWorkoutComplete || !Object.keys(savedState).length) {
             for (const wk of ['1','2','3','4','5','6']) {
-                if (wk === String(week)) continue;
+                if (wk === String(effectivePhase)) continue;
                 if (pGet(`wo_complete_${effectiveDateStr}_${wk}_${currentSelectedDay}`) === '1') {
                     isWorkoutComplete = true;
                     const altState = JSON.parse(pGet(`wo_${effectiveDateStr}_${wk}_${currentSelectedDay}`) || '{}');
@@ -1349,7 +1604,7 @@
             html += `<div class="workout-complete-banner">✓ Workout marked complete — tap Complete again after logging changes to sync.</div>`;
         }
         if (workoutWeekOffset !== 0 && !pastWeekHasSavedConfig) {
-            html += `<div style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.3);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:0.78rem;color:var(--steps);">📅 No saved config for this week — showing schedule with no volleyball. From this week forward, settings auto-save.</div>`;
+            html += `<div style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.3);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:0.78rem;color:var(--steps);">📅 No saved config for this week — showing schedule with no sports. From this week forward, settings auto-save.</div>`;
         }
 
         if (isRest) {
@@ -1408,12 +1663,12 @@
 
             html += `
                 <div class="exercise-item ${restActivity ? 'rest-day-item' : ''} ${isCompleted ? 'completed' : ''}" id="ex-item-${idx}">
-                    <div class="check-circle" onclick="toggleExercise(${idx}, '${week}', '${currentSelectedDay}')">
+                    <div class="check-circle" onclick="toggleExercise(${idx}, '${effectivePhase}', '${currentSelectedDay}')">
                         <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
                     </div>
                     <div class="ex-meta">
                         <div class="ex-header-row">
-                            <div class="ex-name" onclick="toggleExercise(${idx}, '${week}', '${currentSelectedDay}')">${displayEx}</div>
+                            <div class="ex-name" onclick="toggleExercise(${idx}, '${effectivePhase}', '${currentSelectedDay}')">${displayEx}</div>
                             <button class="info-btn" onclick="showExerciseTip('${safeExName}')">ⓘ</button>
                         </div>
                         ${restBadge}
@@ -1451,9 +1706,9 @@
     }
 
     function getWorkoutCompleteKey() {
-        const week = document.getElementById('weekSelect').value;
+        const phase = getEffectiveWeekConfig().phase;
         const effectiveDateStr = getEffectiveDateForDay(currentSelectedDay);
-        return `wo_complete_${effectiveDateStr}_${week}_${currentSelectedDay}`;
+        return `wo_complete_${effectiveDateStr}_${phase}_${currentSelectedDay}`;
     }
 
     function saveOverload(exerciseName, idx) {
@@ -1462,7 +1717,7 @@
         const weight = parseFloat(document.getElementById(`w_${idx}`).value) || 0;
         pSet('ol_' + exerciseName, JSON.stringify({ sets, reps, weight }));
 
-        const today = new Date().toISOString().split('T')[0];
+        const today = todayKey();
 
         // Save to per-exercise history (last 5 sessions)
         if (sets && reps && weight) {
@@ -1517,13 +1772,16 @@
     }
 
     function finishWorkout() {
-        const week = document.getElementById('weekSelect').value;
-        const todayDateStr = getEffectiveDateForDay(currentSelectedDay);
-        const stateKey = `wo_${todayDateStr}_${week}_${currentSelectedDay}`;
+        // Use the SAME effective config that renderWorkoutDay used, so completing while
+        // viewing a past week (or after a phase change) targets the workout actually shown.
+        const cfg = getEffectiveWeekConfig();
+        const phase = cfg.phase;
+        const effectiveDateStr = getEffectiveDateForDay(currentSelectedDay);
+        const stateKey = `wo_${effectiveDateStr}_${phase}_${currentSelectedDay}`;
         const completeKey = getWorkoutCompleteKey();
         const wasComplete = pGet(completeKey) === '1';
-        const schedule = buildSchedule(document.getElementById('volleyballDay').value, parseInt(week, 10));
-        let dayData = resolveWorkoutDay(schedule[currentSelectedDay] || workoutPlans[week].rest);
+        const schedule = buildSchedule(cfg.sports, phase);
+        let dayData = resolveWorkoutDay(schedule[currentSelectedDay] || workoutPlans[phase].rest);
         const exCount = (dayData.exercises || []).length;
 
         let state = JSON.parse(pGet(stateKey) || '{}');
@@ -1537,7 +1795,8 @@
             pSet(stateKey, JSON.stringify(state));
         }
         pSet(completeKey, '1');
-        saveCurrentWeekConfig(); // snapshot today's vbDay + phase so past-week views stay accurate
+        // Snapshot the current week's sports + phase only when viewing the current week.
+        if (workoutWeekOffset === 0) saveCurrentWeekConfig();
         renderWorkoutDay();
         renderHeatmap();
     }
@@ -1718,8 +1977,9 @@
     // TREND CHART
     // ============================================================
     function pushProgressHistory(weight, waist) {
-        const today = new Date().toISOString().split('T')[0];
-        let history = JSON.parse(pGet('weight_history') || '[]');
+        const today = todayKey();
+        let history = safeParse(pGet('weight_history'), []);
+        if (!Array.isArray(history)) history = [];
         const idx = history.findIndex(h => h.date === today);
         const entry = { date: today, weight: parseFloat(weight) || 0, waist: parseFloat(waist) || 0 };
         if (idx >= 0) history[idx] = entry;
@@ -1851,7 +2111,7 @@
         const canvas = document.getElementById('trendCanvas');
         if (!canvas || canvas.offsetWidth === 0) return;
 
-        const history = JSON.parse(pGet('weight_history') || '[]');
+        const history = safeParse(pGet('weight_history'), []);
         const dpr = window.devicePixelRatio || 1;
         const w = canvas.offsetWidth;
         const h = 160;
@@ -2288,6 +2548,14 @@
         let html = '';
         let totalCal = 0, totalPro = 0, totalCarb = 0, totalFat = 0;
 
+        // Logging only applies to the actual current day on the current calendar week.
+        const isLoggableToday = viewDay === today && wk === getCalendarWeekKey();
+        let loggedNames = [];
+        if (isLoggableToday) {
+            try { loggedNames = JSON.parse(pGet(`tracked_${todayKey()}`) || '[]').map(m => m.name); }
+            catch (e) { loggedNames = []; }
+        }
+
         MealPlanner.SLOT_DEFS.forEach(slotDef => {
             const item = dayMenu[slotDef.key];
             if (!item) return;
@@ -2306,8 +2574,16 @@
                 </div>
                 <div style="display:flex; align-items:center; gap:8px; margin:5px 0 2px;">
                     <div style="font-weight:bold; font-size:1.05rem; flex:1;">${item.name}</div>
-                    <button onclick="event.stopPropagation(); toggleMealLog(this, '${safeItemName}', ${item.cal}, ${item.protein}, ${item.carbs}, ${item.fat})"
-                        style="width:26px; height:26px; border-radius:50%; border:2px solid var(--dim); background:transparent; color:var(--dim); font-size:1rem; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.2s; padding:0;">+</button>
+                    ${(() => {
+                        const alreadyLogged = isLoggableToday && loggedNames.includes(item.name);
+                        const logged = alreadyLogged ? '1' : '0';
+                        const bg = alreadyLogged ? 'var(--success)' : 'transparent';
+                        const bc = alreadyLogged ? 'var(--success)' : 'var(--dim)';
+                        const fc = alreadyLogged ? '#000' : 'var(--dim)';
+                        const sym = alreadyLogged ? '✓' : '+';
+                        return `<button data-logged="${logged}" onclick="event.stopPropagation(); toggleMealLog(this, '${safeItemName}', ${item.cal}, ${item.protein}, ${item.carbs}, ${item.fat})"
+                        style="width:26px; height:26px; border-radius:50%; border:2px solid ${bc}; background:${bg}; color:${fc}; font-size:1rem; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.2s; padding:0;">${sym}</button>`;
+                    })()}
                 </div>
                 ${portionHtml}
                 ${desc}
@@ -2321,10 +2597,10 @@
             </div>`;
         });
 
-        const calPct = Math.round((totalCal / g.calories) * 100);
-        const proPct = Math.round((totalPro / g.protein) * 100);
-        const carbPct = Math.round((totalCarb / g.carbs) * 100);
-        const fatPct = Math.round((totalFat / g.fat) * 100);
+        const calPct = safeMacroPct(totalCal, g.calories);
+        const proPct = safeMacroPct(totalPro, g.protein);
+        const carbPct = safeMacroPct(totalCarb, g.carbs);
+        const fatPct = safeMacroPct(totalFat, g.fat);
         const calColor = calPct > 110 ? 'var(--danger)' : calPct > 95 ? 'var(--success)' : 'var(--text)';
         const proColor = proPct >= 95 ? 'var(--success)' : 'var(--primary)';
 
@@ -2434,14 +2710,26 @@
         await loadRecipes();
         updateStreak();
 
+        // Reset per-session view state so switching profiles never carries over the
+        // previous profile's week offset, selected meal day, or stale tracking view.
+        workoutWeekOffset = 0;
+        selectedMealDay = null;
+
         const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         currentSelectedDay = days[new Date().getDay()];
 
         const savedWeek = pGet('sm_week') || '1';
         document.getElementById('weekSelect').value = savedWeek;
 
-        const savedVbDay = pGet('vb_day') || '';
-        document.getElementById('volleyballDay').value = savedVbDay;
+        // Load this week's saved sports map (migrating legacy single volleyball-day config).
+        const thisWeekCfg = loadWeekConfig(getWorkoutWeekKey(0));
+        if (thisWeekCfg && thisWeekCfg.sports) {
+            currentSportsMap = Object.assign({}, thisWeekCfg.sports);
+        } else {
+            const legacyVbDay = pGet('vb_day') || '';
+            currentSportsMap = legacyVbDay ? { [legacyVbDay]: 'volleyball' } : {};
+        }
+        renderSportPlanner();
 
         if (!ensureWeeklyPrep()) {
             const container = document.getElementById('sample-day-container');
@@ -2469,6 +2757,9 @@
         updateProgress();
         updateWaterUI();
         updateStepsUI();
+        // Refresh the Track view if it's currently open so a profile switch doesn't leave stale macros.
+        const trackView = document.getElementById('track-view');
+        if (trackView && trackView.style.display === 'block') updateTracking();
 
         // Restore photo check
         const savedPhoto = pGet('photo_check');
@@ -2588,10 +2879,8 @@
     // ============================================================
     // TRACKING LOGIC
     // ============================================================
-    function toggleMealLog(btn, name, cal, pro, carb, fat) {
-        const isLogged = btn.dataset.logged === '1';
-        if (!isLogged) {
-            addMealToTracking(name, cal, pro, carb, fat);
+    function setMealLogBtnState(btn, logged) {
+        if (logged) {
             btn.dataset.logged = '1';
             btn.textContent = '✓';
             btn.style.background = 'var(--success)';
@@ -2599,6 +2888,7 @@
             btn.style.color = '#000';
         } else {
             btn.dataset.logged = '0';
+            btn.removeAttribute('data-meal-id');
             btn.textContent = '+';
             btn.style.background = 'transparent';
             btn.style.borderColor = 'var(--dim)';
@@ -2606,16 +2896,55 @@
         }
     }
 
+    function toggleMealLog(btn, name, cal, pro, carb, fat) {
+        const isLogged = btn.dataset.logged === '1';
+        if (!isLogged) {
+            const id = addMealToTracking(name, cal, pro, carb, fat);
+            btn.dataset.mealId = String(id);
+            setMealLogBtnState(btn, true);
+        } else {
+            // Remove the exact entry we logged (by id); fall back to first matching name.
+            const id = btn.dataset.mealId ? Number(btn.dataset.mealId) : null;
+            removeTrackedEntry(id, name);
+            setMealLogBtnState(btn, false);
+        }
+    }
+
     function addMealToTracking(name, cal, pro, carb, fat) {
-        const today = new Date().toISOString().split('T')[0];
-        let tracked = JSON.parse(pGet(`tracked_${today}`) || '[]');
-        tracked.push({ name, cal, protein: pro, carbs: carb, fat: fat, id: Date.now() });
+        const today = todayKey();
+        let tracked = [];
+        try { tracked = JSON.parse(pGet(`tracked_${today}`) || '[]'); } catch (e) { tracked = []; }
+        const id = Date.now() + Math.floor(Math.random() * 1000);
+        tracked.push({ name, cal, protein: pro, carbs: carb, fat: fat, id });
+        pSet(`tracked_${today}`, JSON.stringify(tracked));
+        if (document.getElementById('track-view').style.display === 'block') updateTracking();
+        return id;
+    }
+
+    // Removes a tracked entry by id, or (if id missing) the first entry matching the name.
+    function removeTrackedEntry(id, name) {
+        const today = todayKey();
+        let tracked = [];
+        try { tracked = JSON.parse(pGet(`tracked_${today}`) || '[]'); } catch (e) { tracked = []; }
+        let removed = false;
+        tracked = tracked.filter(m => {
+            if (removed) return true;
+            if (id != null ? m.id === id : m.name === name) { removed = true; return false; }
+            return true;
+        });
         pSet(`tracked_${today}`, JSON.stringify(tracked));
         if (document.getElementById('track-view').style.display === 'block') updateTracking();
     }
 
+    // Percentage of goal, guarded against zero/invalid goals (avoids NaN/Infinity in the UI).
+    function safeMacroPct(value, goal) {
+        const g = Number(goal);
+        if (!g || g <= 0 || !isFinite(g)) return 0;
+        return Math.round((value / g) * 100);
+    }
+
     function setMacroBar(barId, value, goal, color) {
-        const pct = Math.min(110, (value / goal) * 100);
+        const pct = Math.min(110, safeMacroPct(value, goal));
         const bar = document.getElementById(barId);
         if (bar) {
             bar.style.width = Math.min(100, pct) + '%';
@@ -2624,8 +2953,9 @@
     }
 
     function updateTracking() {
-        const today = new Date().toISOString().split('T')[0];
-        let tracked = JSON.parse(pGet(`tracked_${today}`) || '[]');
+        const today = todayKey();
+        let tracked = safeParse(pGet(`tracked_${today}`), []);
+        if (!Array.isArray(tracked)) tracked = [];
         let tCal = 0, tPro = 0, tCarb = 0, tFat = 0;
         tracked.forEach(m => { tCal += m.cal; tPro += m.protein; tCarb += m.carbs; tFat += m.fat; });
 
@@ -2651,14 +2981,15 @@
     }
 
     function removeMealTracking(id) {
-        const today = new Date().toISOString().split('T')[0];
-        let tracked = JSON.parse(pGet(`tracked_${today}`) || '[]');
+        const today = todayKey();
+        let tracked = safeParse(pGet(`tracked_${today}`), []);
+        if (!Array.isArray(tracked)) tracked = [];
         pSet(`tracked_${today}`, JSON.stringify(tracked.filter(m => m.id !== id)));
         updateTracking();
     }
 
     function updateWater(amount) {
-        const today = new Date().toISOString().split('T')[0];
+        const today = todayKey();
         let current = parseInt(pGet(`water_${today}`) || '0');
         current = Math.max(0, Math.min(200, current + amount));
         pSet(`water_${today}`, current);
@@ -2666,7 +2997,7 @@
     }
 
     function updateWaterUI() {
-        const today = new Date().toISOString().split('T')[0];
+        const today = todayKey();
         const current = parseInt(pGet(`water_${today}`) || '0');
         document.getElementById('waterDisplay').innerText = `${current} oz`;
         document.getElementById('waterFillBar').style.width = `${Math.min(100, (current / 128) * 100)}%`;
@@ -2677,7 +3008,7 @@
     //  STEPS TRACKER
     // ============================================================
     function updateSteps(amount) {
-        const today = new Date().toISOString().split('T')[0];
+        const today = todayKey();
         let current = parseInt(pGet(`steps_${today}`) || '0');
         current = Math.max(0, Math.min(99999, current + amount));
         pSet(`steps_${today}`, current);
@@ -2688,7 +3019,7 @@
         const input = document.getElementById('stepsManualInput');
         const val = parseInt(input.value);
         if (!isNaN(val) && val >= 0) {
-            const today = new Date().toISOString().split('T')[0];
+            const today = todayKey();
             pSet(`steps_${today}`, Math.min(99999, val));
             input.value = '';
             updateStepsUI();
@@ -2696,7 +3027,7 @@
     }
 
     function updateStepsUI() {
-        const today = new Date().toISOString().split('T')[0];
+        const today = todayKey();
         const current = parseInt(pGet(`steps_${today}`) || '0');
         const goal = 10000;
         const pct = Math.min(100, (current / goal) * 100);
@@ -2719,7 +3050,7 @@
 
     function clearDayTracking() {
         if (confirm('Clear all meals, water, and steps for today?')) {
-            const today = new Date().toISOString().split('T')[0];
+            const today = todayKey();
             pRemove(`tracked_${today}`);
             pRemove(`water_${today}`);
             pRemove(`steps_${today}`);
@@ -2728,7 +3059,7 @@
     }
 
     function copyToSheets() {
-        const today = new Date().toISOString().split('T')[0];
+        const today = todayKey();
         const cal   = document.getElementById('trackCal').innerText;
         const pro   = document.getElementById('trackPro').innerText.replace('g', '');
         const carb  = document.getElementById('trackCarb').innerText.replace('g', '');
@@ -2873,7 +3204,7 @@
 
     function logSleep() {
         const val = parseFloat(document.getElementById('sleepSlider').value);
-        const today = new Date().toISOString().split('T')[0];
+        const today = todayKey();
         pSet('sleep_' + today, val);
         renderSleepChart();
         const fb = val >= 7 ? '✅ Great sleep! Recovery maximized.' : val >= 6 ? '⚠️ Aim for 7+ hours — cortisol spikes under 7.' : '❌ Poor recovery — prioritize sleep tonight.';
@@ -2882,7 +3213,7 @@
     }
 
     function loadSleepForToday() {
-        const today = new Date().toISOString().split('T')[0];
+        const today = todayKey();
         const saved = parseFloat(pGet('sleep_' + today) || '0');
         if (saved) {
             document.getElementById('sleepSlider').value = saved;
@@ -2913,7 +3244,7 @@
         for (let i = 6; i >= 0; i--) {
             const d = new Date();
             d.setDate(d.getDate() - i);
-            const dateStr = d.toISOString().split('T')[0];
+            const dateStr = isoDate(d);
             const hrs = parseFloat(pGet('sleep_' + dateStr) || '0');
             const label = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'][d.getDay()];
             days.push({ label, hrs });
@@ -3041,9 +3372,9 @@
         for (let i = 0; i < 7; i++) {
             const d = new Date();
             d.setDate(d.getDate() - i);
-            const dateStr = d.toISOString().split('T')[0];
-            const tracked = JSON.parse(pGet(`tracked_${dateStr}`) || '[]');
-            if (tracked.length > 0) {
+            const dateStr = isoDate(d);
+            const tracked = safeParse(pGet(`tracked_${dateStr}`), []);
+            if (Array.isArray(tracked) && tracked.length > 0) {
                 totalCals += tracked.reduce((sum, m) => sum + (m.cal || 0), 0);
                 loggedDays++;
             }
@@ -3120,7 +3451,7 @@
 
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        const todayStr = today.toISOString().split('T')[0];
+        const todayStr = isoDate(today);
 
         // Start from the Monday 6 weeks before the current week's Monday
         const dayOfWeek = today.getDay(); // 0=Sun
@@ -3139,7 +3470,7 @@
             for (let row = 0; row < 7; row++) { // Mon–Sun (rows)
                 const date = new Date(startDate);
                 date.setDate(startDate.getDate() + col * 7 + row);
-                const dateStr = date.toISOString().split('T')[0];
+                const dateStr = isoDate(date);
                 const isFuture = date > today;
                 const isToday  = dateStr === todayStr;
 
@@ -3151,8 +3482,8 @@
                         const completeKey = `wo_complete_${dateStr}_${wk}_${dayName}`;
                         if (pGet(completeKey) === '1') { done = true; break; }
                         const key = `wo_${dateStr}_${wk}_${dayName}`;
-                        const state = JSON.parse(pGet(key) || '{}');
-                        if (Object.values(state).some(v => v === true)) { done = true; break; }
+                        const state = safeParse(pGet(key), {});
+                        if (state && Object.values(state).some(v => v === true)) { done = true; break; }
                     }
                 }
 
@@ -3173,23 +3504,24 @@
         { id: 'vitamin',  label: 'Multivitamin taken',       note: 'Tap to check',               auto: false },
         { id: 'protein',  label: 'Hit protein goal', note: '⚡ Auto — from meal log',     auto: true,
           check: () => {
-              const today = new Date().toISOString().split('T')[0];
-              const tracked = JSON.parse(pGet(`tracked_${today}`) || '[]');
+              const today = todayKey();
+              const tracked = safeParse(pGet(`tracked_${today}`), []);
+              if (!Array.isArray(tracked)) return false;
               const goal = getMacroGoals().protein;
               return tracked.reduce((s, m) => s + (m.protein || 0), 0) >= goal;
           }
         },
         { id: 'sleep',    label: '7+ hrs sleep',             note: '⚡ Auto — from sleep log',    auto: true,
-          check: () => parseFloat(pGet('sleep_' + new Date().toISOString().split('T')[0]) || '0') >= 7
+          check: () => parseFloat(pGet('sleep_' + todayKey()) || '0') >= 7
         },
         { id: 'water',    label: 'Drank 128oz water',        note: '⚡ Auto — from water log',    auto: true,
-          check: () => parseInt(pGet('water_' + new Date().toISOString().split('T')[0]) || '0') >= 128
+          check: () => parseInt(pGet('water_' + todayKey()) || '0') >= 128
         },
         { id: 'photo',    label: 'Progress photo this week', note: '⚡ Auto — from Weekly Flex',  auto: true,
           check: () => !!pGet('photo_check')
         },
         { id: 'steps',    label: '10,000 steps walked',      note: '⚡ Auto — from steps log',    auto: true,
-          check: () => parseInt(pGet('steps_' + new Date().toISOString().split('T')[0]) || '0') >= 10000
+          check: () => parseInt(pGet('steps_' + todayKey()) || '0') >= 10000
         }
     ];
 
@@ -3199,9 +3531,10 @@
         const barEl   = document.getElementById('habitBarFill');
         if (!listEl) return;
 
-        const today = new Date().toISOString().split('T')[0];
+        const today = todayKey();
         const key = `habits_${today}`;
-        let habitData = JSON.parse(pGet(key) || '{}');
+        let habitData = safeParse(pGet(key), {});
+        if (!habitData || typeof habitData !== 'object') habitData = {};
 
         // Auto-evaluate
         HABITS.forEach(h => { if (h.auto && h.check) habitData[h.id] = h.check(); });
@@ -3228,9 +3561,10 @@
     }
 
     function toggleHabit(habitId) {
-        const today = new Date().toISOString().split('T')[0];
+        const today = todayKey();
         const key = `habits_${today}`;
-        let habitData = JSON.parse(pGet(key) || '{}');
+        let habitData = safeParse(pGet(key), {});
+        if (!habitData || typeof habitData !== 'object') habitData = {};
         habitData[habitId] = !habitData[habitId];
         pSet(key, JSON.stringify(habitData));
         renderHabitChecklist();
@@ -3249,7 +3583,7 @@
         const blob = new Blob([json], { type: 'application/json' });
         const url  = URL.createObjectURL(blob);
         const link = document.createElement('a');
-        const today = new Date().toISOString().split('T')[0];
+        const today = todayKey();
         link.setAttribute('href', url);
         link.setAttribute('download', `visible_abs_backup_${today}.json`);
         document.body.appendChild(link);
