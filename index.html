@@ -755,7 +755,7 @@
 
         <!-- Phase + Volleyball Selectors -->
         <div class="controls" style="grid-template-columns: 1fr 1fr; gap: 10px;">
-            <select id="weekSelect" onchange="renderWorkoutDay()">
+            <select id="weekSelect" onchange="saveCurrentWeekConfig(); renderWorkoutDay()">
                 <option value="1">Phase 1 · Wks 1-4 · Foundation (~250 lbs)</option>
                 <option value="2">Phase 2 · Wks 5-8 · Build (~242 lbs)</option>
                 <option value="3">Phase 3 · Wks 9-12 · Walk/Run Intro (~235 lbs)</option>
@@ -763,7 +763,7 @@
                 <option value="5">Phase 5 · Wks 17-20 · Running (~223 lbs)</option>
                 <option value="6">Phase 6 · Wks 21-26 · Peak · 5K (~216 lbs)</option>
             </select>
-            <select id="volleyballDay" onchange="renderWorkoutDay()" style="font-size:0.78rem;">
+            <select id="volleyballDay" onchange="saveCurrentWeekConfig(); renderWorkoutDay()" style="font-size:0.78rem;">
                 <option value="">🏐 No Volleyball This Week</option>
                 <option value="Monday">🏐 Volleyball: Monday</option>
                 <option value="Tuesday">🏐 Volleyball: Tuesday</option>
@@ -1172,6 +1172,27 @@
         return d.toISOString().split('T')[0];
     }
 
+    // Returns the Monday ISO date string for the given week offset (identifies the workout week)
+    function getWorkoutWeekKey(offset) {
+        return getEffectiveDateForDay('Monday', offset !== undefined ? offset : workoutWeekOffset);
+    }
+
+    // Saves volleyball day + phase for the current calendar week so past-week views are accurate
+    function saveCurrentWeekConfig() {
+        const wk = getWorkoutWeekKey(0);
+        pSet('wo_cfg_' + wk, JSON.stringify({
+            vbDay: document.getElementById('volleyballDay').value,
+            phase: document.getElementById('weekSelect').value
+        }));
+    }
+
+    // Loads saved config for a past week; defaults to no volleyball if no record exists
+    function loadWeekConfig(weekKey) {
+        const raw = pGet('wo_cfg_' + weekKey);
+        if (raw) { try { return JSON.parse(raw); } catch (e) {} }
+        return null;
+    }
+
     function shiftWorkoutWeek(delta) {
         if (workoutWeekOffset + delta > 0) return;
         workoutWeekOffset += delta;
@@ -1272,8 +1293,24 @@
         pSet('sm_week', week);
         pSet('vb_day', vbDay);
         const container = document.getElementById('workout-content');
-        const schedule = buildSchedule(vbDay, week);
-        let dayData = schedule[currentSelectedDay] || workoutPlans[week].rest;
+
+        // For past weeks, use the config that was saved at the time (vbDay + phase)
+        let effectiveVbDay = vbDay;
+        let effectivePhase = week;
+        let pastWeekHasSavedConfig = true;
+        if (workoutWeekOffset !== 0) {
+            const pastCfg = loadWeekConfig(getWorkoutWeekKey(workoutWeekOffset));
+            if (pastCfg) {
+                effectiveVbDay = pastCfg.vbDay || '';
+                effectivePhase = parseInt(pastCfg.phase, 10) || week;
+            } else {
+                effectiveVbDay = ''; // no saved config → assume no volleyball
+                pastWeekHasSavedConfig = false;
+            }
+        }
+
+        const schedule = buildSchedule(effectiveVbDay, effectivePhase);
+        let dayData = schedule[currentSelectedDay] || workoutPlans[effectivePhase].rest;
         dayData = resolveWorkoutDay(dayData);
         const isRest = dayData.name && dayData.name.startsWith('REST');
         workoutDayIsRest = isRest;
@@ -1310,6 +1347,9 @@
 
         if (isWorkoutComplete) {
             html += `<div class="workout-complete-banner">✓ Workout marked complete — tap Complete again after logging changes to sync.</div>`;
+        }
+        if (workoutWeekOffset !== 0 && !pastWeekHasSavedConfig) {
+            html += `<div style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.3);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:0.78rem;color:var(--steps);">📅 No saved config for this week — showing schedule with no volleyball. From this week forward, settings auto-save.</div>`;
         }
 
         if (isRest) {
@@ -1497,6 +1537,7 @@
             pSet(stateKey, JSON.stringify(state));
         }
         pSet(completeKey, '1');
+        saveCurrentWeekConfig(); // snapshot today's vbDay + phase so past-week views stay accurate
         renderWorkoutDay();
         renderHeatmap();
     }
@@ -2412,6 +2453,7 @@
         renderMacroDisplay();
         renderProfileSettings();
 
+        saveCurrentWeekConfig();
         renderWorkoutWeekNav();
         renderWorkoutDayPills();
         selectDay(currentSelectedDay);
