@@ -415,6 +415,11 @@
         .goal-date-block { text-align: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid #1e1e2c; }
         .goal-date-lbl { font-size: 0.65rem; color: var(--dim); text-transform: uppercase; letter-spacing: 1px; }
         .goal-date-val { font-size: 1.4rem; font-weight: 900; color: var(--primary); margin-top: 3px; }
+        .deficit-setup-note { background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.3); border-radius: 8px; padding: 8px 10px; font-size: 0.75rem; color: var(--text); line-height: 1.45; margin-bottom: 10px; }
+        .deficit-bf-note { background: var(--bg); border-radius: 8px; padding: 8px 10px; font-size: 0.74rem; color: var(--dim); line-height: 1.45; margin-top: 10px; }
+        .deficit-status { border-radius: 8px; padding: 9px 11px; font-size: 0.8rem; line-height: 1.45; margin-top: 10px; }
+        .deficit-status.on-track { background: rgba(74,222,128,0.12); border: 1px solid rgba(74,222,128,0.35); color: var(--text); }
+        .deficit-status.behind { background: rgba(251,146,60,0.12); border: 1px solid rgba(251,146,60,0.4); color: var(--text); }
 
         /* ============================================================
            MACRO PROGRESS BARS
@@ -438,6 +443,20 @@
         .heatmap-day-label { text-align: center; font-size: 0.6rem; color: #2e2e3e; font-weight: bold; padding-bottom: 4px; }
         .heatmap-cell { aspect-ratio: 1; border-radius: 3px; transition: transform 0.1s; }
         .heatmap-cell:hover { transform: scale(1.3); }
+
+        /* --- CALORIE HISTORY --- */
+        .cal-heatmap-legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 12px; font-size: 0.7rem; color: var(--dim); }
+        .cal-heatmap-legend span { display: flex; align-items: center; gap: 5px; }
+        .cal-dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+        .heatmap-cell.clickable { cursor: pointer; }
+        .heatmap-cell.cal-selected { outline: 2px solid var(--primary); outline-offset: 1px; }
+        .dl-presets { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .dl-preset-btn { background: var(--input-bg); border: 1px solid #2e2e3e; color: var(--text); border-radius: 16px; padding: 6px 12px; font-size: 0.78rem; font-weight: 600; cursor: pointer; }
+        .dl-preset-btn:active { opacity: 0.7; }
+        .daylog-meal { display: flex; justify-content: space-between; align-items: center; background: var(--bg); padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; }
+        .daylog-meal .dl-name { font-weight: 700; font-size: 0.95rem; }
+        .daylog-meal .dl-macros { font-size: 0.75rem; color: var(--dim); margin-top: 2px; }
+        .daylog-total { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: 8px; margin-bottom: 10px; font-weight: 800; }
 
         /* ============================================================
            HABIT CHECKLIST
@@ -820,6 +839,7 @@
             <button class="tab-btn active-sub" id="btn-daily" onclick="showKitchenMode('daily')">Daily Menu</button>
             <button class="tab-btn" id="btn-weekly" onclick="showKitchenMode('weekly')">Weekly Bulk</button>
             <button class="tab-btn" id="btn-track" onclick="showKitchenMode('track')">📊 Track</button>
+            <button class="tab-btn" id="btn-history" onclick="showKitchenMode('history')">📅 History</button>
         </div>
 
         <div id="mealWeekBanner" class="meal-week-banner" style="display:none;">
@@ -935,9 +955,64 @@
                 </div>
             </div>
 
-            <h3 style="color:var(--primary); margin-top:20px;">Log History</h3>
+            <h3 style="color:var(--primary); margin-top:20px;">Today's Log</h3>
             <div id="tracked-meals"></div>
             <button class="action-btn clear-day-btn" style="width:100%; margin-top:20px;" onclick="clearDayTracking()">🗑️ Clear Today's Log</button>
+        </div>
+
+        <!-- HISTORY -->
+        <div id="history-view" style="display:none;">
+            <p style="color:var(--dim); font-size:0.85rem;">Your full meal &amp; calorie history. Tap any day in the grid to view or edit it — you can add custom foods or drinks to past days too.</p>
+
+            <!-- Calorie heatmap -->
+            <div class="tracker-card" style="margin-bottom:16px;">
+                <div class="tracker-header text-success">CALORIE HEATMAP (last 7 weeks)</div>
+                <div id="calHeatmapGrid" class="heatmap-grid" style="margin-top:10px;"></div>
+                <div class="cal-heatmap-legend">
+                    <span><span class="cal-dot" style="background:var(--success);"></span> At/under goal</span>
+                    <span><span class="cal-dot" style="background:var(--steps);"></span> Over goal</span>
+                    <span><span class="cal-dot" style="background:#1f1f1f;"></span> No log</span>
+                </div>
+            </div>
+
+            <!-- Calorie trend chart -->
+            <div class="tracker-card" style="margin-bottom:16px;">
+                <div class="tracker-header text-success">CALORIE TREND (last 21 days)</div>
+                <div class="trend-wrap" style="margin-top:10px;"><canvas id="calTrendCanvas"></canvas></div>
+            </div>
+
+            <!-- Per-day log -->
+            <div class="tracker-card">
+                <div id="dayLogNav" style="display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:10px;">
+                    <button onclick="shiftDayLog(-1)" style="background:var(--bg); border:1px solid #252534; color:var(--dim); padding:6px 12px; border-radius:8px; font-size:0.82rem; cursor:pointer;">← Prev</button>
+                    <span id="dayLogLabel" style="font-size:0.82rem; color:var(--text); font-weight:700; text-align:center; flex:1;"></span>
+                    <button onclick="shiftDayLog(1)" id="dayLogNextBtn" style="background:var(--bg); border:1px solid #252534; color:var(--dim); padding:6px 12px; border-radius:8px; font-size:0.82rem; cursor:pointer;">Next →</button>
+                </div>
+                <div id="dayLogContent"></div>
+
+                <!-- Any-day quick add -->
+                <div class="guide-card" style="margin-top:14px; margin-bottom:0;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleDayLogAdd()">
+                        <div style="font-size:0.8rem; color:var(--primary); font-weight:800; text-transform:uppercase; letter-spacing:1px;">➕ Add Food / Drink to This Day</div>
+                        <span id="dayLogAddToggle" style="color:var(--dim); font-size:1.4rem; line-height:1;">+</span>
+                    </div>
+                    <div id="dayLogAddForm" style="display:none; margin-top:12px;">
+                        <input type="text" id="dlName" class="cf-text-input" placeholder="Name (e.g. Beer, Pizza slice)">
+                        <div class="cf-grid">
+                            <input type="number" id="dlCal"  placeholder="Calories" style="padding:11px 12px; border-radius:8px; border:1px solid #252534; background:var(--input-bg); color:var(--text); font-size:0.95rem; width:100%; box-sizing:border-box;">
+                            <input type="number" id="dlPro"  placeholder="Protein (g)" style="padding:11px 12px; border-radius:8px; border:1px solid #252534; background:var(--input-bg); color:var(--text); font-size:0.95rem; width:100%; box-sizing:border-box;">
+                            <input type="number" id="dlCarb" placeholder="Carbs (g)" style="padding:11px 12px; border-radius:8px; border:1px solid #252534; background:var(--input-bg); color:var(--text); font-size:0.95rem; width:100%; box-sizing:border-box;">
+                            <input type="number" id="dlFat"  placeholder="Fat (g)" style="padding:11px 12px; border-radius:8px; border:1px solid #252534; background:var(--input-bg); color:var(--text); font-size:0.95rem; width:100%; box-sizing:border-box;">
+                        </div>
+                        <div class="dl-presets">
+                            <button type="button" class="dl-preset-btn" onclick="fillDayLogPreset('Beer', 150)">🍺 Beer 150</button>
+                            <button type="button" class="dl-preset-btn" onclick="fillDayLogPreset('Wine (glass)', 125)">🍷 Wine 125</button>
+                            <button type="button" class="dl-preset-btn" onclick="fillDayLogPreset('Cocktail / Shot', 175)">🍸 Cocktail 175</button>
+                        </div>
+                        <button class="add-meal-btn" style="margin-top:10px;" onclick="logDayLogFood()">+ Add to This Day</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -2804,11 +2879,12 @@
     // KITCHEN LOGIC
     // ============================================================
     function showKitchenMode(mode) {
-        ['daily', 'weekly', 'track'].forEach(m => {
+        ['daily', 'weekly', 'track', 'history'].forEach(m => {
             document.getElementById(m + '-view').style.display = m === mode ? 'block' : 'none';
             document.getElementById('btn-' + m).className = m === mode ? 'tab-btn active-sub' : 'tab-btn';
         });
         if (mode === 'track') { renderMacroDisplay(); updateTracking(); updateWaterUI(); updateStepsUI(); }
+        else if (mode === 'history') { renderMacroDisplay(); renderMealHistory(); }
         else if (mode === 'daily' || mode === 'weekly') renderMacroDisplay();
         renderMealWeekBanner();
     }
@@ -2910,30 +2986,38 @@
         }
     }
 
-    function addMealToTracking(name, cal, pro, carb, fat) {
-        const today = todayKey();
-        let tracked = [];
-        try { tracked = JSON.parse(pGet(`tracked_${today}`) || '[]'); } catch (e) { tracked = []; }
+    // Refreshes whichever tracking views are visible after a logged-meal change on `dateStr`.
+    function refreshTrackingViews(dateStr) {
+        const trackView = document.getElementById('track-view');
+        if (trackView && trackView.style.display === 'block' && dateStr === todayKey()) updateTracking();
+        const historyView = document.getElementById('history-view');
+        if (historyView && historyView.style.display === 'block') renderMealHistory();
+    }
+
+    function addMealToTracking(name, cal, pro, carb, fat, dateStr) {
+        const day = dateStr || todayKey();
+        let tracked = safeParse(pGet(`tracked_${day}`), []);
+        if (!Array.isArray(tracked)) tracked = [];
         const id = Date.now() + Math.floor(Math.random() * 1000);
         tracked.push({ name, cal, protein: pro, carbs: carb, fat: fat, id });
-        pSet(`tracked_${today}`, JSON.stringify(tracked));
-        if (document.getElementById('track-view').style.display === 'block') updateTracking();
+        pSet(`tracked_${day}`, JSON.stringify(tracked));
+        refreshTrackingViews(day);
         return id;
     }
 
     // Removes a tracked entry by id, or (if id missing) the first entry matching the name.
-    function removeTrackedEntry(id, name) {
-        const today = todayKey();
-        let tracked = [];
-        try { tracked = JSON.parse(pGet(`tracked_${today}`) || '[]'); } catch (e) { tracked = []; }
+    function removeTrackedEntry(id, name, dateStr) {
+        const day = dateStr || todayKey();
+        let tracked = safeParse(pGet(`tracked_${day}`), []);
+        if (!Array.isArray(tracked)) tracked = [];
         let removed = false;
         tracked = tracked.filter(m => {
             if (removed) return true;
             if (id != null ? m.id === id : m.name === name) { removed = true; return false; }
             return true;
         });
-        pSet(`tracked_${today}`, JSON.stringify(tracked));
-        if (document.getElementById('track-view').style.display === 'block') updateTracking();
+        pSet(`tracked_${day}`, JSON.stringify(tracked));
+        refreshTrackingViews(day);
     }
 
     // Percentage of goal, guarded against zero/invalid goals (avoids NaN/Infinity in the UI).
@@ -2980,12 +3064,8 @@
         renderHabitChecklist();
     }
 
-    function removeMealTracking(id) {
-        const today = todayKey();
-        let tracked = safeParse(pGet(`tracked_${today}`), []);
-        if (!Array.isArray(tracked)) tracked = [];
-        pSet(`tracked_${today}`, JSON.stringify(tracked.filter(m => m.id !== id)));
-        updateTracking();
+    function removeMealTracking(id, dateStr) {
+        removeTrackedEntry(id, null, dateStr || todayKey());
     }
 
     function updateWater(amount) {
@@ -3046,6 +3126,275 @@
             }
         }
         renderHabitChecklist();
+    }
+
+    // ============================================================
+    // MEAL & CALORIE HISTORY
+    // ============================================================
+    let dayLogDate = todayKey(); // date currently shown in the History per-day log
+
+    // Total calories logged for a given YYYY-MM-DD (0 if nothing logged).
+    function dayCaloriesFor(dateStr) {
+        const tracked = safeParse(pGet(`tracked_${dateStr}`), []);
+        if (!Array.isArray(tracked)) return 0;
+        return tracked.reduce((sum, m) => sum + (Number(m.cal) || 0), 0);
+    }
+
+    function dayMacrosFor(dateStr) {
+        const tracked = safeParse(pGet(`tracked_${dateStr}`), []);
+        const totals = { cal: 0, protein: 0, carbs: 0, fat: 0, count: 0 };
+        if (Array.isArray(tracked)) {
+            tracked.forEach(m => {
+                totals.cal += Number(m.cal) || 0;
+                totals.protein += Number(m.protein) || 0;
+                totals.carbs += Number(m.carbs) || 0;
+                totals.fat += Number(m.fat) || 0;
+                totals.count++;
+            });
+        }
+        return totals;
+    }
+
+    function renderMealHistory() {
+        // Clamp the viewed day to today if it somehow drifted into the future.
+        if (dayLogDate > todayKey()) dayLogDate = todayKey();
+        renderCalorieHeatmap();
+        renderDayLog(dayLogDate);
+        // Canvas needs a layout pass after the view becomes visible to size correctly.
+        setTimeout(renderCalorieTrendChart, 40);
+    }
+
+    // Calorie heatmap: 7 weeks x 7 days. Green = at/under goal, amber = over, dim = no log.
+    function renderCalorieHeatmap() {
+        const container = document.getElementById('calHeatmapGrid');
+        if (!container) return;
+
+        const goal = getMacroGoals().calories || 2200;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayStr = isoDate(today);
+
+        const dayOfWeek = today.getDay();
+        const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+        const thisMonday = new Date(today);
+        thisMonday.setDate(today.getDate() - daysToMonday);
+        const startDate = new Date(thisMonday);
+        startDate.setDate(thisMonday.getDate() - 42); // 6 weeks back + current = 7 weeks
+
+        const dayLabels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+        let html = dayLabels.map(d => `<div class="heatmap-day-label">${d}</div>`).join('');
+
+        for (let col = 0; col < 7; col++) {
+            for (let row = 0; row < 7; row++) {
+                const date = new Date(startDate);
+                date.setDate(startDate.getDate() + col * 7 + row);
+                const dateStr = isoDate(date);
+                const isFuture = date > today;
+                const isSelected = dateStr === dayLogDate;
+                const cals = isFuture ? 0 : dayCaloriesFor(dateStr);
+
+                let bg, border;
+                if (isFuture) { bg = '#0d0d0d'; border = '#0f0f1a'; }
+                else if (cals <= 0) { bg = '#1f1f1f'; border = '#1e1e2c'; }
+                else if (cals <= goal) { bg = 'var(--success)'; border = 'var(--success)'; }
+                else { bg = 'var(--steps)'; border = 'var(--steps)'; }
+
+                const cls = `heatmap-cell${isFuture ? '' : ' clickable'}${isSelected ? ' cal-selected' : ''}`;
+                const title = isFuture ? dateStr : `${dateStr} · ${cals} cal`;
+                const click = isFuture ? '' : ` onclick="openDayLog('${dateStr}')"`;
+                html += `<div class="${cls}" title="${title}" style="background:${bg}; border:1px solid ${border};"${click}></div>`;
+            }
+        }
+        container.innerHTML = html;
+    }
+
+    function openDayLog(dateStr) {
+        dayLogDate = dateStr;
+        renderCalorieHeatmap(); // refresh selection outline
+        renderDayLog(dateStr);
+    }
+
+    function shiftDayLog(delta) {
+        const d = parseDateStr(dayLogDate);
+        d.setDate(d.getDate() + delta);
+        const next = isoDate(d);
+        if (next > todayKey()) return; // don't navigate into the future
+        openDayLog(next);
+    }
+
+    function renderDayLog(dateStr) {
+        const labelEl = document.getElementById('dayLogLabel');
+        const contentEl = document.getElementById('dayLogContent');
+        const nextBtn = document.getElementById('dayLogNextBtn');
+        if (!contentEl) return;
+
+        const isToday = dateStr === todayKey();
+        const d = parseDateStr(dateStr);
+        const pretty = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        if (labelEl) labelEl.textContent = isToday ? `Today · ${pretty}` : pretty;
+        if (nextBtn) {
+            const atToday = dateStr >= todayKey();
+            nextBtn.disabled = atToday;
+            nextBtn.style.opacity = atToday ? '0.4' : '1';
+        }
+
+        const tracked = safeParse(pGet(`tracked_${dateStr}`), []);
+        const list = Array.isArray(tracked) ? tracked : [];
+        const totals = dayMacrosFor(dateStr);
+        const goal = getMacroGoals().calories || 2200;
+
+        let html = '';
+        if (list.length) {
+            const over = totals.cal > goal;
+            const totalColor = over ? 'var(--steps)' : 'var(--success)';
+            html += `<div class="daylog-total" style="background:var(--bg); color:${totalColor};">
+                <span>Day total</span><span>${totals.cal} / ${goal} cal</span>
+            </div>`;
+            html += `<div style="font-size:0.72rem; color:var(--dim); margin:-4px 0 10px;">P: ${totals.protein}g · C: ${totals.carbs}g · F: ${totals.fat}g · ${totals.count} item${totals.count !== 1 ? 's' : ''}</div>`;
+            html += list.map(m => `
+                <div class="daylog-meal">
+                    <div>
+                        <div class="dl-name">${m.name}</div>
+                        <div class="dl-macros">${m.cal} cal · P ${m.protein || 0} · C ${m.carbs || 0} · F ${m.fat || 0}</div>
+                    </div>
+                    <button class="clear-day-btn" onclick="removeMealTracking(${m.id}, '${dateStr}')">✕</button>
+                </div>`).join('');
+        } else {
+            html += `<p style="color:var(--dim); font-size:0.85rem;">No meals logged for ${isToday ? 'today' : 'this day'} yet.</p>`;
+        }
+        contentEl.innerHTML = html;
+    }
+
+    function toggleDayLogAdd() {
+        const form = document.getElementById('dayLogAddForm');
+        const toggle = document.getElementById('dayLogAddToggle');
+        const isOpen = form.style.display === 'block';
+        form.style.display = isOpen ? 'none' : 'block';
+        toggle.innerText = isOpen ? '+' : '−';
+    }
+
+    function fillDayLogPreset(name, cal) {
+        document.getElementById('dlName').value = name;
+        document.getElementById('dlCal').value = cal;
+        ['dlPro', 'dlCarb', 'dlFat'].forEach(id => { document.getElementById(id).value = ''; });
+    }
+
+    function logDayLogFood() {
+        const name = document.getElementById('dlName').value.trim();
+        const cal  = parseInt(document.getElementById('dlCal').value)  || 0;
+        const pro  = parseInt(document.getElementById('dlPro').value)  || 0;
+        const carb = parseInt(document.getElementById('dlCarb').value) || 0;
+        const fat  = parseInt(document.getElementById('dlFat').value)  || 0;
+
+        if (!name) { document.getElementById('dlName').focus(); return; }
+        if (cal === 0) { document.getElementById('dlCal').focus(); return; }
+
+        addMealToTracking(name, cal, pro, carb, fat, dayLogDate);
+        ['dlName', 'dlCal', 'dlPro', 'dlCarb', 'dlFat'].forEach(id => { document.getElementById(id).value = ''; });
+        // refreshTrackingViews (called by addMealToTracking) re-renders the history view.
+    }
+
+    // Daily calories vs goal over the last 21 days.
+    function renderCalorieTrendChart() {
+        const canvas = document.getElementById('calTrendCanvas');
+        if (!canvas || canvas.offsetWidth === 0) return;
+
+        const DAYS = 21;
+        const goal = getMacroGoals().calories || 2200;
+
+        // Build oldest -> newest series of daily totals.
+        const series = [];
+        for (let i = DAYS - 1; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            const dateStr = isoDate(d);
+            series.push({ dateStr, cal: dayCaloriesFor(dateStr) });
+        }
+
+        const dpr = window.devicePixelRatio || 1;
+        const w = canvas.offsetWidth;
+        const h = 160;
+        canvas.width = w * dpr;
+        canvas.height = h * dpr;
+        canvas.style.width = w + 'px';
+        canvas.style.height = h + 'px';
+        const ctx = canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
+        ctx.clearRect(0, 0, w, h);
+
+        const logged = series.filter(s => s.cal > 0);
+        if (logged.length < 2) {
+            ctx.fillStyle = '#2e2e3e';
+            ctx.font = '11px -apple-system, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Log meals for 2+ days to see your calorie trend', w / 2, h / 2);
+            return;
+        }
+
+        const padL = 38, padR = 10, padT = 14, padB = 20;
+        const plotW = w - padL - padR;
+        const plotH = h - padT - padB;
+
+        const maxCal = Math.max(goal, ...series.map(s => s.cal)) * 1.1;
+        const minCal = 0;
+        const xAt = i => padL + (plotW * (i / (DAYS - 1)));
+        const yAt = v => padT + plotH - (plotH * ((v - minCal) / (maxCal - minCal)));
+
+        // Goal line
+        ctx.strokeStyle = 'rgba(167,139,250,0.5)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(padL, yAt(goal));
+        ctx.lineTo(w - padR, yAt(goal));
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = 'var(--primary)';
+        ctx.fillStyle = '#a78bfa';
+        ctx.font = '9px -apple-system, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(`Goal ${goal}`, padL + 2, yAt(goal) - 3);
+
+        // Average of logged days
+        const avg = Math.round(logged.reduce((s, d) => s + d.cal, 0) / logged.length);
+        ctx.strokeStyle = 'rgba(74,222,128,0.5)';
+        ctx.setLineDash([2, 3]);
+        ctx.beginPath();
+        ctx.moveTo(padL, yAt(avg));
+        ctx.lineTo(w - padR, yAt(avg));
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Daily calorie line (skip gaps where nothing was logged)
+        ctx.strokeStyle = '#4ade80';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        let started = false;
+        series.forEach((s, i) => {
+            if (s.cal <= 0) { started = false; return; }
+            const x = xAt(i), y = yAt(s.cal);
+            if (!started) { ctx.moveTo(x, y); started = true; }
+            else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+
+        // Dots: green under goal, amber over goal
+        series.forEach((s, i) => {
+            if (s.cal <= 0) return;
+            ctx.fillStyle = s.cal <= goal ? '#4ade80' : '#fb923c';
+            ctx.beginPath();
+            ctx.arc(xAt(i), yAt(s.cal), 2.5, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        // Axis labels (oldest / newest)
+        ctx.fillStyle = '#2e2e3e';
+        ctx.font = '9px -apple-system, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(series[0].dateStr.slice(5), padL, h - 6);
+        ctx.textAlign = 'right';
+        ctx.fillText('today', w - padR, h - 6);
+        ctx.fillText(`avg ${avg}`, w - padR, padT + 8);
     }
 
     function clearDayTracking() {
@@ -3354,6 +3703,26 @@
     // ============================================================
     // DEFICIT & GOAL DATE CALCULATOR
     // ============================================================
+    // Navy body-fat estimate from stored measurements (no form dependency).
+    // Returns a rounded BF% or null if measurements are incomplete.
+    function estimateBodyFat() {
+        const waist  = parseFloat(pGet('currentWaist')) || 0;
+        const neck   = parseFloat(pGet('bf_neck'))   || 0;
+        const height = parseFloat(pGet('bf_height')) || 0;
+        const hip    = parseFloat(pGet('bf_hip'))    || 0;
+        const sex    = getProfileSex();
+        let bf = null;
+        if (sex === 'female') {
+            if (waist > 0 && hip > 0 && neck > 0 && height > 0 && (waist + hip) > neck) {
+                bf = 495 / (1.29579 - 0.35004 * Math.log10(waist + hip - neck) + 0.22100 * Math.log10(height)) - 450;
+            }
+        } else if (waist > neck && neck > 0 && height > 0) {
+            bf = 495 / (1.0324 - 0.19077 * Math.log10(waist - neck) + 0.15456 * Math.log10(height)) - 450;
+        }
+        if (bf === null || !isFinite(bf)) return null;
+        return Math.max(3, Math.round(bf * 10) / 10);
+    }
+
     function updateDeficitCard() {
         const container = document.getElementById('deficitContent');
         if (!container) return;
@@ -3385,22 +3754,73 @@
             return;
         }
 
-        const avgCals    = Math.round(totalCals / loggedDays);
-        const calGoal    = getMacroGoals().calories;
-        const avgDeficit = calGoal - avgCals;
+        const avgCals = Math.round(totalCals / loggedDays);
+
+        // Real maintenance from TDEE (Mifflin-St Jeor). Fall back to the old
+        // calorie-target-as-maintenance behavior only when inputs are missing.
+        const tdeeInfo = (typeof getTDEE === 'function') ? getTDEE() : null;
+        const calGoal = g.calories;
+        let maintenance, usingTDEE;
+        if (tdeeInfo && tdeeInfo.tdee > 0) {
+            maintenance = tdeeInfo.tdee;
+            usingTDEE = true;
+        } else {
+            maintenance = calGoal;
+            usingTDEE = false;
+        }
+
+        const avgDeficit = maintenance - avgCals;
         const weeklyLoss = (avgDeficit * 7) / 3500;
 
+        const setupNote = usingTDEE ? '' :
+            `<div class="deficit-setup-note">⚙️ Add your <strong>age &amp; height</strong> in profile settings for an accurate maintenance &amp; goal-date estimate. Showing a rough projection using your calorie target as maintenance.</div>`;
+
+        // BF context line (weight vs. visible abs).
+        const bf = estimateBodyFat();
+        const bfNote = bf !== null
+            ? `<div class="deficit-bf-note">📏 Est. body fat <strong>${bf}%</strong> — “visible abs” is typically ~10–12%. Scale weight and body fat track together but aren't the same; keep an eye on the BF estimate on the Progress tab.</div>`
+            : `<div class="deficit-bf-note">📏 Add neck/waist measurements on the Progress tab to estimate body fat — “visible abs” is typically ~10–12%, which matters more than scale weight.</div>`;
+
         if (avgDeficit <= 50) {
-            container.innerHTML = `<div style="color:var(--primary); font-size:0.85rem;">⚠️ Avg <strong>${avgCals}</strong> cal/day — barely in a deficit. Hit the ${calGoal} cal goal and push cardio to accelerate.</div>`;
+            container.innerHTML = `
+                ${setupNote}
+                <div class="deficit-row"><span class="deficit-lbl">Maintenance (TDEE)</span><span class="deficit-val">${maintenance} cal</span></div>
+                <div class="deficit-row"><span class="deficit-lbl">Avg Calories (${loggedDays}-day)</span><span class="deficit-val">${avgCals} cal</span></div>
+                <div style="color:var(--primary); font-size:0.85rem; margin-top:10px;">⚠️ You're eating at or above maintenance — no deficit yet. Drop intake below <strong>${maintenance}</strong> cal/day (and push cardio) to start losing.</div>
+                ${bfNote}`;
             return;
         }
 
         const daysToGoal = Math.round((weightToLose / Math.max(0.05, weeklyLoss)) * 7);
         const goalDate   = new Date();
+        goalDate.setHours(0, 0, 0, 0);
         goalDate.setDate(goalDate.getDate() + daysToGoal);
-        const goalDateStr = goalDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const fmtDate = d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const goalDateStr = fmtDate(goalDate);
+
+        // On-track / behind vs the 26-week challenge end date.
+        let statusHtml = '';
+        const startStr = pGet('challenge_start');
+        if (startStr) {
+            const endDate = parseDateStr(startStr);
+            endDate.setHours(0, 0, 0, 0);
+            endDate.setDate(endDate.getDate() + 26 * 7);
+            const weeksDiff = (endDate - goalDate) / (7 * 86400000);
+            if (weeksDiff >= 0.5) {
+                statusHtml = `<div class="deficit-status on-track">✅ On track — projected to hit ${g.goalWeight} lbs about <strong>${Math.round(weeksDiff)} week${Math.round(weeksDiff) !== 1 ? 's' : ''} ahead</strong> of your ${fmtDate(endDate)} target.</div>`;
+            } else if (weeksDiff <= -0.5) {
+                statusHtml = `<div class="deficit-status behind">⚠️ Behind pace — about <strong>${Math.round(Math.abs(weeksDiff))} week${Math.round(Math.abs(weeksDiff)) !== 1 ? 's' : ''} past</strong> your ${fmtDate(endDate)} target. Tighten the deficit or add cardio to catch up.</div>`;
+            } else {
+                statusHtml = `<div class="deficit-status on-track">🎯 Right on pace to hit ${g.goalWeight} lbs by your ${fmtDate(endDate)} target.</div>`;
+            }
+        }
+
+        const multNote = (usingTDEE && tdeeInfo.workoutDays > 0)
+            ? `<span style="color:var(--dim); font-weight:400;"> · ${tdeeInfo.workoutDays} active day${tdeeInfo.workoutDays !== 1 ? 's' : ''}/7</span>` : '';
 
         container.innerHTML = `
+            ${setupNote}
+            <div class="deficit-row"><span class="deficit-lbl">Maintenance (TDEE)${multNote}</span><span class="deficit-val">${maintenance} cal</span></div>
             <div class="deficit-row"><span class="deficit-lbl">Avg Calories (${loggedDays}-day)</span><span class="deficit-val">${avgCals} cal</span></div>
             <div class="deficit-row"><span class="deficit-lbl">Avg Daily Deficit</span><span class="deficit-val">−${avgDeficit} cal</span></div>
             <div class="deficit-row"><span class="deficit-lbl">Projected Weekly Loss</span><span class="deficit-val">~${weeklyLoss.toFixed(1)} lbs/wk</span></div>
@@ -3408,7 +3828,9 @@
             <div class="goal-date-block">
                 <div class="goal-date-lbl">ESTIMATED GOAL DATE</div>
                 <div class="goal-date-val">${goalDateStr}</div>
-            </div>`;
+            </div>
+            ${statusHtml}
+            ${bfNote}`;
     }
 
     // ============================================================

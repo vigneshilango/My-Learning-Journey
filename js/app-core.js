@@ -12,9 +12,20 @@
         waistIn: 0,
         hipIn: 0,
         sex: 'male',
+        age: 0,
+        activityLevel: 'moderate',
         macros: { calories: 2200, protein: 210, carbs: 180, fat: 70 },
         useProteinPerLbGoal: true,
         cardioEquipment: 'peloton'
+    };
+
+    // Mifflin-St Jeor activity multipliers (the base before workout-based auto-bump).
+    const ACTIVITY_MULTIPLIERS = {
+        sedentary: 1.2,
+        light: 1.375,
+        moderate: 1.55,
+        active: 1.725,
+        very_active: 1.9
     };
 
     const BARBELL_EXERCISE_SUBS = {
@@ -241,6 +252,62 @@
         const p = getActiveProfile();
         const sex = p && p.settings && p.settings.sex;
         return sex === 'female' ? 'female' : 'male';
+    }
+
+    // Counts distinct calendar days in the last 7 with at least one completed workout/sport.
+    function completedWorkoutDaysLast7() {
+        const weekdayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        let days = 0;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        for (let i = 0; i < 7; i++) {
+            const d = new Date(today);
+            d.setDate(today.getDate() - i);
+            const dateStr = toDateStr(d);
+            // d.getDay(): 0=Sun..6=Sat; map to our Mon-first weekday names.
+            const dow = d.getDay();
+            const dayName = weekdayNames[dow === 0 ? 6 : dow - 1];
+            let done = false;
+            for (const wk of ['1', '2', '3', '4', '5', '6']) {
+                if (pGet(`wo_complete_${dateStr}_${wk}_${dayName}`) === '1') { done = true; break; }
+            }
+            if (done) days++;
+        }
+        return days;
+    }
+
+    // Estimated Total Daily Energy Expenditure via Mifflin-St Jeor + activity multiplier.
+    // The base multiplier comes from the profile's activityLevel, and is nudged upward on
+    // weeks with more logged workouts (manual level acts as the floor).
+    // Returns null when required inputs (height/age/weight) are missing.
+    function getTDEE() {
+        const p = getActiveProfile();
+        const s = Object.assign({}, DEFAULT_SETTINGS, (p && p.settings) || {});
+        const heightIn = parseFloat(s.heightIn) || 0;
+        const age = parseInt(s.age, 10) || 0;
+        const storedWeight = parseFloat(pGet('currentWeight'));
+        const weightLb = !isNaN(storedWeight) && storedWeight > 0 ? storedWeight : (parseFloat(s.startWeight) || 0);
+        if (heightIn <= 0 || age <= 0 || weightLb <= 0) return null;
+
+        const kg = weightLb * 0.45359237;
+        const cm = heightIn * 2.54;
+        const sexAdj = s.sex === 'female' ? -161 : 5;
+        const bmr = 10 * kg + 6.25 * cm - 5 * age + sexAdj;
+
+        const baseMult = ACTIVITY_MULTIPLIERS[s.activityLevel] || ACTIVITY_MULTIPLIERS.moderate;
+        // Auto-bump: each completed workout day in the last 7 adds a small amount, capped.
+        const workoutDays = completedWorkoutDaysLast7();
+        const bump = Math.min(0.15, workoutDays * 0.025); // up to +0.15 at ~6 sessions
+        const multiplier = Math.min(2.0, baseMult + bump);
+
+        return {
+            bmr: Math.round(bmr),
+            tdee: Math.round(bmr * multiplier),
+            multiplier: Math.round(multiplier * 1000) / 1000,
+            baseMultiplier: baseMult,
+            workoutDays,
+            weightLb: Math.round(weightLb)
+        };
     }
 
     function getExerciseBase(exerciseStr) {
@@ -633,6 +700,18 @@
                 <p class="measure-hint">Widest part of hips/buttocks — tape parallel to the floor.</p>
                 <input type="number" step="0.1" id="${p}Hip" class="checkin-input" value="${s.hipIn || ''}" placeholder="e.g. 40">
             </div>
+            <label class="checkin-modal-label">Age (years)</label>
+            <p class="measure-hint">Used with height, weight &amp; sex to estimate your maintenance calories (TDEE) and a realistic goal date.</p>
+            <input type="number" id="${p}Age" class="checkin-input" value="${s.age || ''}" placeholder="e.g. 32">
+            <label class="checkin-modal-label">Typical activity level</label>
+            <p class="measure-hint">Baseline for TDEE. The app nudges this up automatically on weeks with more logged workouts/sports.</p>
+            <select id="${p}Activity" class="checkin-input">
+                <option value="sedentary" ${s.activityLevel === 'sedentary' ? 'selected' : ''}>Sedentary (desk job, little exercise)</option>
+                <option value="light" ${s.activityLevel === 'light' ? 'selected' : ''}>Light (1-2 workouts/week)</option>
+                <option value="moderate" ${(!s.activityLevel || s.activityLevel === 'moderate') ? 'selected' : ''}>Moderate (3-4 workouts/week)</option>
+                <option value="active" ${s.activityLevel === 'active' ? 'selected' : ''}>Active (5-6 workouts/week)</option>
+                <option value="very_active" ${s.activityLevel === 'very_active' ? 'selected' : ''}>Very active (daily training + sport)</option>
+            </select>
             <div class="cf-grid" style="margin-top:10px;">
                 <div><label class="checkin-modal-label">Calories</label><input type="number" id="${p}Cal" class="checkin-input" value="${s.macros.calories}"></div>
                 <div><label class="checkin-modal-label">Protein (g)</label><input type="number" id="${p}Pro" class="checkin-input" value="${s.macros.protein}"></div>
@@ -716,6 +795,10 @@
         if (waistEl && waistEl.value) p.settings.waistIn = parseFloat(waistEl.value) || 0;
         if (hipEl && hipEl.value) p.settings.hipIn = parseFloat(hipEl.value) || 0;
         if (sexEl) p.settings.sex = sexEl.value === 'female' ? 'female' : 'male';
+        const ageEl = document.getElementById(prefix + 'Age');
+        const activityEl = document.getElementById(prefix + 'Activity');
+        if (ageEl && ageEl.value) p.settings.age = parseInt(ageEl.value, 10) || 0;
+        if (activityEl) p.settings.activityLevel = activityEl.value || 'moderate';
         syncBodyMetricsToWorkoutInputs(p.settings);
         p.settings.macros.calories = parseInt(document.getElementById(prefix + 'Cal').value, 10) || 2200;
         p.settings.macros.protein = parseInt(document.getElementById(prefix + 'Pro').value, 10) || 210;
@@ -949,6 +1032,7 @@
     global.getPhaseTargetWeights = getPhaseTargetWeights;
     global.getCardioEquipment = getCardioEquipment;
     global.getProfileSex = getProfileSex;
+    global.getTDEE = getTDEE;
     global.getExerciseBase = getExerciseBase;
     global.hasBarbellSub = hasBarbellSub;
     global.isExerciseDumbbellMode = isExerciseDumbbellMode;
