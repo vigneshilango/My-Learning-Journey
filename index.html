@@ -2734,8 +2734,9 @@
             portionEl.style.display = 'none';
         }
 
+        const batchTotal = portion ? portion.total : null;
         let body = `<p style="color:var(--dim); font-size:0.85rem; margin-bottom:12px;">${slotDef.slot} · ${slotDef.time} · ${viewDay}</p>`;
-        if (item.desc) body += `<p style="font-style:italic; color:var(--dim); margin-bottom:12px;">${item.desc}</p>`;
+        if (item.desc) body += `<p style="font-style:italic; color:var(--dim); margin-bottom:12px;">${MealPlanner.reconcileBatchText(item.desc, batchTotal)}</p>`;
         body += `<div style="font-size:0.82rem; margin-bottom:14px;">🔥 ${item.cal} cal · P ${item.protein}g · C ${item.carbs}g · F ${item.fat}g</div>`;
         if (item.ingredients && item.ingredients.length) {
             body += `<div style="font-weight:800; margin-bottom:8px;">📋 Ingredients <span style="font-weight:600; color:var(--dim);">(one plated serving)</span></div>`;
@@ -2745,7 +2746,7 @@
         }
         if (item.steps && item.steps.length) {
             body += `<div style="font-weight:800; margin:14px 0 8px;">Steps</div>`;
-            item.steps.forEach(step => { body += `<div style="font-size:0.85rem; color:var(--dim); margin-bottom:6px;">• ${step}</div>`; });
+            item.steps.forEach(step => { body += `<div style="font-size:0.85rem; color:var(--dim); margin-bottom:6px;">• ${MealPlanner.reconcileBatchText(step, batchTotal)}</div>`; });
         }
         document.getElementById('mealPreviewBody').innerHTML = body;
         document.getElementById('mealPreviewLogBtn').onclick = () => {
@@ -2929,7 +2930,7 @@
             const servings = poolKey === 'mains' ? (mainServMap[item.name] || MealPlanner.getServingsPerBatch(item, poolKey)) : MealPlanner.getServingsPerBatch(item, poolKey);
             const batchIngs = MealPlanner.getBatchIngredients(item, poolKey, poolKey === 'mains' ? servings : undefined);
             const prepNote = item.batchPrepNote
-                ? `<div class="meal-batch-yields-note">${item.batchPrepNote}</div>`
+                ? `<div class="meal-batch-yields-note">${MealPlanner.reconcileBatchText(item.batchPrepNote, servings)}</div>`
                 : `<div class="meal-batch-yields-note">Shop &amp; cook the batch totals below. Daily menu = one container per meal.</div>`;
             const yieldsHtml = servings
                 ? `<div class="meal-batch-yields">📦 Makes ${servings} servings — cook once, split into ${servings} containers</div>${prepNote}`
@@ -2939,7 +2940,7 @@
                 s += `<div class="recipe-card"><div class="recipe-header">📋 Full batch — shop &amp; cook (${servings} servings)</div>`;
                 batchIngs.forEach(ing => s += `<div class="ingredient-row"><span>${ing.item}</span><span style="color:var(--dim);">${ing.qty}</span></div>`);
                 s += `<div class="recipe-steps" style="margin-top:10px;"><div class="recipe-header">Steps</div>`;
-                item.steps.forEach(step => s += `<div class="recipe-step">${step}</div>`);
+                item.steps.forEach(step => s += `<div class="recipe-step">${MealPlanner.reconcileBatchText(step, servings)}</div>`);
                 s += `</div></div>`;
             }
             return s + `</div>`;

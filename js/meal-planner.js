@@ -261,6 +261,39 @@
         return formatScaledQty(p, mult);
     }
 
+    /**
+     * Rewrites hardcoded batch counts in step/desc/note text so they always match the
+     * actual batch size shown in the UI. Recipe data hardcodes phrases like
+     * "portion into 6 containers" / "(6 servings)" / "(typically 6 containers)", but the
+     * real batch size is dynamic (weekly usage), so those numbers would otherwise contradict
+     * the header. When `servings` is known we substitute it; otherwise we drop the number.
+     */
+    function reconcileBatchText(text, servings) {
+        if (!text) return text;
+        const n = servings && servings > 0 ? Math.round(servings) : null;
+        let out = String(text);
+        const containerWord = n === 1 ? 'container' : 'containers';
+        const servingWord = n === 1 ? 'serving' : 'servings';
+        if (n) {
+            out = out
+                .replace(/\b\d+\s+equal\s+containers\b/gi, n + ' equal ' + containerWord)
+                .replace(/\b\d+\s+containers\b/gi, n + ' ' + containerWord)
+                .replace(/\(\s*typically\s+\d+\s+containers\s*\)/gi, '(' + n + ' ' + containerWord + ')')
+                .replace(/\(\s*\d+\s+servings\s*\)/gi, '(' + n + ' ' + servingWord + ')')
+                .replace(/\bfor\s+\d+\s+containers\b/gi, 'for ' + n + ' ' + containerWord)
+                .replace(/\bBatch\s+for\s+\d+\s+containers\b/gi, 'Batch for ' + n + ' ' + containerWord);
+        } else {
+            out = out
+                .replace(/\b\d+\s+equal\s+containers\b/gi, 'equal containers')
+                .replace(/portion into \d+ containers/gi, 'portion into your weekly containers')
+                .replace(/divide into \d+ containers/gi, 'divide into your weekly containers')
+                .replace(/\b\d+\s+containers\b/gi, 'containers')
+                .replace(/\s*\(\s*typically\s+\d+\s+containers\s*\)/gi, '')
+                .replace(/\s*\(\s*\d+\s+servings\s*\)/gi, '');
+        }
+        return out;
+    }
+
     /** Full-batch shopping/cook list for Weekly Bulk Prep. Optional servingsOverride bypasses DEFAULT_SERVINGS. */
     function getBatchIngredients(recipe, poolKey, servingsOverride) {
         const servings = servingsOverride !== undefined ? servingsOverride : getServingsPerBatch(recipe, poolKey);
@@ -324,6 +357,7 @@
         black_beans: 'Black beans (cooked)',
         pinto_beans: 'Pinto beans (cooked)',
         chickpeas: 'Chickpeas (cooked)',
+        roasted_chana: 'Roasted chana / roasted chickpeas (snack)',
         brown_rice: 'Brown rice (cooked)',
         pasta: 'Whole wheat pasta (dry)',
         spinach: 'Spinach',
@@ -341,7 +375,7 @@
         urad_dal: 'Whole urad dal (dry)',
         dosa_rice: 'Dosa / idli rice (dry)',
         lentils_mixed: 'Lentils (dry)',
-        tortillas: 'Corn / whole wheat tortillas',
+        tortillas: 'Rotis / tortillas (corn or whole wheat)',
         salsa: 'Salsa',
         enchilada_sauce: 'Enchilada sauce',
         almond_milk: 'Almond milk',
@@ -471,10 +505,11 @@
             [/rajma|kidney bean/, 'rajma'],
             [/black bean/, 'black_beans'],
             [/pinto bean/, 'pinto_beans'],
+            [/roasted (chickpea|chana)|crispy chickpea|chana(?!\s*masala)/, 'roasted_chana'],
             [/chickpea/, 'chickpeas'],
             [/brown rice/, 'brown_rice'],
-            [/whole wheat pasta|whole wheat roti|pasta/, 'pasta'],
-            [/corn tortilla|tortilla/, 'tortillas'],
+            [/roti|tortilla/, 'tortillas'],
+            [/whole wheat pasta|pasta/, 'pasta'],
             [/spinach/, 'spinach'],
             [/beyond beef/, 'beyond_beef'],
             [/seitan/, 'seitan'],
@@ -524,7 +559,7 @@
         if (/^spice_/.test(key) || isSpiceItem(item)) return 'pantry';
         if (/kaged|pre-workout|whey|cosmic|huel|protein powder|multivitamin/.test(s)) return 'shakes';
         if (/paneer|yogurt|milk|butter|ghee|cream/.test(s)) return 'dairy';
-        if (/chickpea|rajma|bean|lentil|dal|urad|moong|masoor|beyond|seitan|soy|egg|beef/.test(s)) return 'protein_legumes';
+        if (/chickpea|chana|rajma|bean|lentil|dal|urad|moong|masoor|beyond|seitan|soy|egg|beef/.test(s)) return 'protein_legumes';
         if (/rice|oats|pasta|tortilla|roti|poha|besan|flour|cake|bread|murmura|puffed/.test(s)) return 'grains';
         if (/cumin|turmeric|masala|paprika|sauce|salsa|oil|honey|chia|peanut|almond|cashew|capser|olive|pesto|yeast|stock|vinegar|spice|salt|mustard|curry|fenugreek|chipotle|oregano|nutritional|to taste/.test(s)) return 'pantry';
         if (/onion|garlic|ginger|spinach|lime|lemon|cilantro|coriander|jalape|mango|berr|banana|date|cucumber|carrot|celery|green pea|frozen pea|sweet potato|potato|mint|herb|corn\b|tomato|capsicum|bell pepper/.test(s)) return 'produce';
@@ -668,6 +703,7 @@
         getServingsPerBatch,
         scaleIngredientQty,
         getBatchIngredients,
+        reconcileBatchText,
         buildWeeklyGroceryPlan,
         buildAggregatedWeeklyGrocery,
         buildWeeklyDailyMenu,
