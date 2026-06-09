@@ -2133,6 +2133,29 @@
     // ============================================================
     // TREND CHART
     // ============================================================
+    // Removes a stale default-start (e.g. 250) weight point that was seeded before the user set
+    // their real start weight. Such a phantom point makes the trend line slope down from 250 even
+    // when the real logged weights went up. Safe because a point exactly equal to the app default
+    // start can only exist if it was auto-seeded (the user's real start differs from the default).
+    // Returns true if it modified storage.
+    function scrubStaleStartSeed() {
+        const defaultStart = (typeof DEFAULT_SETTINGS !== 'undefined' && DEFAULT_SETTINGS.startWeight) || 250;
+        const realStart = getMacroGoals().startWeight;
+        // Only scrub when the user's real start differs from the app default.
+        if (Math.abs(realStart - defaultStart) < 0.05) return false;
+
+        let history = safeParse(pGet('weight_history'), []);
+        if (!Array.isArray(history) || history.length < 2) return false;
+
+        const isDefaultSeed = e => e && Math.abs((parseFloat(e.weight) || 0) - defaultStart) < 0.05;
+        // Keep any point that has a real (non-default) weight or a logged waist; drop default-only seeds.
+        const cleaned = history.filter(e => !(isDefaultSeed(e) && !(parseFloat(e.waist) > 0)));
+        if (cleaned.length === history.length) return false;
+
+        pSet('weight_history', JSON.stringify(cleaned));
+        return true;
+    }
+
     function pushProgressHistory(weight, waist) {
         const today = todayKey();
         let history = safeParse(pGet('weight_history'), []);
@@ -2297,12 +2320,28 @@
         const PHASE_TARGETS = getPhaseTargetWeights(PHASES);
         const GOAL = getMacroGoals().goalWeight;
 
-        // Weight scale: span across all logged + target + goal weights so lines make sense
+        // Weight scale: driven by the LOGGED weights so real changes are visible, not flattened
+        // by the wide phase-target span. Phase/goal lines are clamped to this window (they self-skip
+        // when off-chart below) instead of stretching the axis to cover the full 244->210 plan.
         const wEntries = history.filter(e => e.weight > 0);
         if (wEntries.length < 2) return;
-        const allWeights = wEntries.map(e => e.weight).concat(PHASE_TARGETS);
-        const dataMin = Math.min(...allWeights) - 2;
-        const dataMax = Math.max(...allWeights) + 4;
+        const loggedWeights = wEntries.map(e => e.weight);
+        let dMin = Math.min(...loggedWeights);
+        let dMax = Math.max(...loggedWeights);
+        // Pull the goal line into view only if it's reasonably close to logged data, so an early
+        // 244 -> 210 goal doesn't flatten a fresh, small trend.
+        if (GOAL < dMin && dMin - GOAL <= 6) dMin = GOAL;
+        if (GOAL > dMax && GOAL - dMax <= 6) dMax = GOAL;
+        // Guarantee a minimum readable span so a ~1 lb change is visible but not wildly exaggerated.
+        const MIN_SPAN = 6;
+        const span = dMax - dMin;
+        if (span < MIN_SPAN) {
+            const mid = (dMax + dMin) / 2;
+            dMin = mid - MIN_SPAN / 2;
+            dMax = mid + MIN_SPAN / 2;
+        }
+        const dataMin = dMin - 2;
+        const dataMax = dMax + 3;
         const dataRange = dataMax - dataMin || 1;
 
         const pad = { t: 14, r: 44, b: 22, l: 10 };
@@ -2906,6 +2945,9 @@
 
         // Restore saved weight/waist and body metrics from profile
         syncLoggedWeightToProfile();
+        // Remove any stale default-start seed (e.g. a 250 point) left from before the user set
+        // their real start weight, so the trend line reflects actual logged progress.
+        scrubStaleStartSeed();
         const activeProf = getActiveProfile();
         if (activeProf && activeProf.settings) syncBodyMetricsToWorkoutInputs(activeProf.settings);
         const savedWaist = pGet('currentWaist');
