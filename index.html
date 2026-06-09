@@ -2156,6 +2156,46 @@
         return true;
     }
 
+    // Seeds the profile start weight as the first dated history point so the trend chart can draw a
+    // start -> current line immediately, instead of waiting for a second day's weigh-in. The start
+    // weight is only a profile setting (not a logged day), so without this the chart sees a single
+    // point and shows the "log weight" placeholder. Idempotent: only seeds when there are 0/1 real
+    // points and no point already matches the start weight. The seed is dated one day before the
+    // earliest existing entry (or yesterday) so it sorts/plots to the left of today's weight.
+    function seedStartWeightHistory() {
+        const start = getMacroGoals().startWeight;
+        if (!(start > 0)) return false;
+
+        let history = safeParse(pGet('weight_history'), []);
+        if (!Array.isArray(history)) history = [];
+
+        // Already enough data, or a start-matching point exists: don't interfere with real logs.
+        if (history.length >= 2) return false;
+        if (history.some(e => Math.abs((parseFloat(e.weight) || 0) - start) < 0.05)) return false;
+
+        // Date the seed before the earliest existing entry (or yesterday) so it plots first.
+        let seedDate;
+        if (history.length === 1 && history[0].date) {
+            const earliest = parseDateStr(history[0].date) || new Date();
+            earliest.setDate(earliest.getDate() - 1);
+            seedDate = isoDate(earliest);
+        } else {
+            const y = new Date();
+            y.setDate(y.getDate() - 1);
+            seedDate = isoDate(y);
+        }
+        // Guard: if today's entry somehow shares this date, step back one more day.
+        if (history.some(e => e.date === seedDate)) {
+            const d = parseDateStr(seedDate) || new Date();
+            d.setDate(d.getDate() - 1);
+            seedDate = isoDate(d);
+        }
+
+        history.unshift({ date: seedDate, weight: start, waist: 0, _seededStart: true });
+        pSet('weight_history', JSON.stringify(history));
+        return true;
+    }
+
     function pushProgressHistory(weight, waist) {
         const today = todayKey();
         let history = safeParse(pGet('weight_history'), []);
@@ -2948,6 +2988,9 @@
         // Remove any stale default-start seed (e.g. a 250 point) left from before the user set
         // their real start weight, so the trend line reflects actual logged progress.
         scrubStaleStartSeed();
+        // Seed the profile start weight as the first dated point so the trend chart can draw a
+        // start -> current line right away (run AFTER the scrub so we don't seed then remove it).
+        seedStartWeightHistory();
         const activeProf = getActiveProfile();
         if (activeProf && activeProf.settings) syncBodyMetricsToWorkoutInputs(activeProf.settings);
         const savedWaist = pGet('currentWaist');
