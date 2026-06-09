@@ -65,6 +65,8 @@
         .day-selector::-webkit-scrollbar { display: none; }
         .day-pill { padding: 10px 16px; border-radius: 20px; background: var(--card); border: 1px solid #252534; color: var(--dim); font-size: 0.9rem; font-weight: 600; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
         .day-pill.active { background: var(--primary); color: #000; border-color: var(--primary); box-shadow: 0 0 10px rgba(167, 139, 250, 0.3); }
+        .day-pill-sport { color: var(--steps); font-size: 0.55rem; vertical-align: super; margin-left: 3px; }
+        .day-pill.active .day-pill-sport { color: #000; }
 
         /* --- SPORT PLANNER --- */
         .sport-planner { background: var(--card); border: 1px solid #252534; border-radius: var(--border-radius); padding: 14px; margin-bottom: 20px; }
@@ -78,6 +80,9 @@
         .sport-day select { padding: 8px 6px; font-size: 0.78rem; border-radius: 8px; }
         .sport-day select.has-sport { border-color: var(--primary); color: var(--primary); font-weight: 700; }
         .sport-planner-hint { font-size: 0.72rem; color: var(--dim); margin-top: 10px; line-height: 1.4; }
+        .sport-planner-summary { font-size: 0.74rem; color: var(--text); margin-top: 10px; line-height: 1.5; background: rgba(167,139,250,0.08); border: 1px solid rgba(167,139,250,0.25); border-radius: 8px; padding: 9px 12px; }
+        .sport-planner-summary strong { color: var(--primary); }
+        .sport-planner-summary .recov { color: var(--steps); }
 
         .workout-hero { background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1a 100%); padding: 20px; border-radius: var(--border-radius); margin-bottom: 20px; border-left: 4px solid var(--primary); box-shadow: 0 2px 16px rgba(167,139,250,0.08); }
         .workout-hero-title { font-size: 1.4rem; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; }
@@ -86,6 +91,10 @@
         .exercise-item { display: flex; align-items: flex-start; background: var(--card); padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #1e1e2c; transition: all 0.2s; }
         .exercise-item.completed { opacity: 0.6; }
         .exercise-item.completed .ex-name { text-decoration: line-through; color: var(--dim); }
+        .session-divider { display: flex; align-items: center; gap: 10px; margin: 6px 0 12px; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--dim); }
+        .session-divider::before, .session-divider::after { content: ''; flex: 1; height: 1px; background: #1e1e2c; }
+        .session-divider.evening { color: var(--primary); }
+        .session-divider.evening::before, .session-divider.evening::after { background: rgba(167,139,250,0.3); }
 
         .check-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--dim); margin-right: 15px; margin-top: 2px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: all 0.2s; }
         .exercise-item.completed .check-circle { background: var(--success); border-color: var(--success); }
@@ -804,7 +813,8 @@
                 <button type="button" class="sport-add-btn" onclick="openAddSportPrompt()">+ Add activity</button>
             </div>
             <div class="sport-planner-grid" id="sportPlannerGrid"></div>
-            <div class="sport-planner-hint">Pick a sport on any day(s). High-impact sports auto-soften the day before/after; light recovery is scheduled around them.</div>
+            <div class="sport-planner-hint">Pick a sport on any day(s). Sports are added as an <strong>evening session on top of your AM workout</strong> — the rest of your week stays put. On game days the morning lift stays leg-friendly and heavy leg day is kept off game days.</div>
+            <div class="sport-planner-summary" id="sportPlannerSummary" style="display:none;"></div>
         </div>
 
         <!-- Week navigation + Day Pills (rendered dynamically) -->
@@ -1373,6 +1383,42 @@
                 <select class="${hasSport ? 'has-sport' : ''}" onchange="onSportDayChange('${day}', this.value)">${options(day)}</select>
             </div>`;
         }).join('');
+        renderSportPlannerSummary();
+    }
+
+    // Transparent summary of the auto-arrangement: which day is heavy legs and which
+    // mornings became active recovery, derived straight from the built schedule so it
+    // always matches what the workout tab shows.
+    function renderSportPlannerSummary() {
+        const el = document.getElementById('sportPlannerSummary');
+        if (!el) return;
+        const cfg = getEffectiveWeekConfig();
+        const hasSports = Object.keys(cfg.sports || {}).some(d => getSportByKey(cfg.sports[d]));
+        if (!hasSports) { el.style.display = 'none'; el.innerHTML = ''; return; }
+
+        const p = workoutPlans[cfg.phase];
+        const lowerName = p && p.lowerStrength ? p.lowerStrength.name : null;
+        const schedule = buildSchedule(cfg.sports, cfg.phase);
+
+        let legDay = null;
+        const recoveryDays = [];
+        SPORT_DAYS.forEach(day => {
+            const d = schedule[day];
+            if (!d) return;
+            const amName = d._twoADay ? d._amName : d.name;
+            if (lowerName && amName === lowerName) legDay = day;
+            if (/Active recovery/.test(d._note || '')) recoveryDays.push(day);
+        });
+
+        const parts = [];
+        if (legDay) parts.push(`Heavy leg day is on <strong>${legDay}</strong> (kept away from game-day legs).`);
+        if (recoveryDays.length) {
+            const list = recoveryDays.join(', ');
+            parts.push(`<span class="recov">Active-recovery mornings:</span> ${list} — easy cardio + mobility after a game.`);
+        }
+        if (!parts.length) { el.style.display = 'none'; el.innerHTML = ''; return; }
+        el.innerHTML = parts.join('<br>');
+        el.style.display = 'block';
     }
 
     function onSportDayChange(day, sportKey) {
@@ -1390,9 +1436,9 @@
         if (!trimmed) return;
         const impactInput = prompt(
             'Impact level for "' + trimmed + '"?\n\n' +
-            'high   = hard on legs (jumping/sprinting) — softens day before & after\n' +
-            'medium = moderate — eases the next day only\n' +
-            'low    = easy — no schedule changes around it\n\n' +
+            'high   = hard on legs (jumping/sprinting) — game-day AM stays leg-friendly, next morning is active recovery, heavy legs kept off game days\n' +
+            'medium = moderate — added as an evening session, no schedule changes\n' +
+            'low    = easy — added as an evening session, no schedule changes\n\n' +
             'Type high, medium, or low:', 'medium');
         if (impactInput === null) return;
         const impact = impactInput.trim().toLowerCase();
@@ -1465,6 +1511,7 @@
         workoutWeekOffset += delta;
         renderWorkoutWeekNav();
         renderWorkoutDayPills();
+        renderSportPlannerSummary();
         renderWorkoutDay();
     }
 
@@ -1492,12 +1539,16 @@
         if (!el) return;
         const todayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
         const todayName = todayNames[new Date().getDay()];
+        const effectiveSports = getEffectiveWeekConfig().sports || {};
         el.innerHTML = WORKOUT_DAYS.map(d => {
             const short = d.substring(0, 3);
             // Show · only when viewing the current week and the pill matches today
             const isToday = workoutWeekOffset === 0 && d === todayName;
             const active = d === currentSelectedDay;
-            return `<div class="day-pill${active ? ' active' : ''}" onclick="selectDay('${d}')">${short}${isToday ? ' ·' : ''}</div>`;
+            // Mark days that have an evening sport (two-a-day) with a small dot.
+            const hasSport = !!getSportByKey(effectiveSports[d]);
+            const sportMark = hasSport ? `<span class="day-pill-sport" title="Evening sport">●</span>` : '';
+            return `<div class="day-pill${active ? ' active' : ''}" onclick="selectDay('${d}')">${short}${isToday ? ' ·' : ''}${sportMark}</div>`;
         }).join('');
     }
 
@@ -1508,15 +1559,11 @@
 
     // Builds a Mon–Sun schedule from a per-day sports map.
     // sportsMap: { Monday: 'volleyball', Tuesday: 'basketball', ... } (any subset of Mon–Sat).
-    // Auto-arrange rules per sport, by impact flag:
-    //   high   → light day before, active recovery day after, lower strength 2 days after
-    //   medium → active recovery day after only
-    //   low    → no surrounding rules
-    // Uses a full 7-day ring (Mon..Sun) so weekend boundaries don't wrap incorrectly.
-    // Conflict resolution: a real sport day is never overwritten; when two soft rules
-    // collide on one day, the safer (lighter) one wins (recovery/light beats lower-strength).
+    // Two-a-day model: an evening sport is ADDED on top of that day's normal AM workout,
+    // never replacing it, and a sport never rearranges other days. Lifts are placed so that
+    // high-impact sport mornings stay leg-friendly (upper/cardio-core, so you're fresh for the
+    // game) and heavy lower-body anchors on a non-sport day (preferring Friday) after the games.
     function buildSchedule(sportsMap, phase) {
-        const ring = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
         const p = workoutPlans[phase];
         const schedule = {};
         sportsMap = sportsMap && typeof sportsMap === 'object' ? sportsMap : {};
@@ -1528,78 +1575,104 @@
             const sport = getSportByKey(sportsMap[day]);
             if (sport) sportDays[day] = sport;
         });
-
         const sportDayNames = Object.keys(sportDays);
+        const ring = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+        const isHighImpactSportDay = day => !!sportDays[day] && (sportDays[day].impact || 'medium') === 'high';
+        const prevDay = d => ring[(ring.indexOf(d) + 6) % 7];
+        const isPostGameMorning = d => isHighImpactSportDay(prevDay(d));
 
-        // No sports → balanced default week.
-        if (sportDayNames.length === 0) {
-            schedule.Monday    = p.upperStrength;
-            schedule.Tuesday   = p.cardioA;
-            schedule.Wednesday = p.lowerStrength;
-            schedule.Thursday  = p.cardioCore;
-            schedule.Friday    = p.upperStrength;
-            schedule.Saturday  = p.cardioB;
-            schedule.Sunday    = p.rest;
-            return schedule;
-        }
-
-        // 1) Place sport days first — these are locked and never overwritten.
-        sportDayNames.forEach(day => {
-            schedule[day] = sportDayData(sportDays[day], phase);
-        });
-
-        // Priority for soft rules so the safer option wins on collisions.
-        const PRIORITY = { before: 3, after: 3, lower: 1 };
-        const pending = {}; // day -> { kind, build }
-
-        const proposeRule = (day, kind, build) => {
-            if (schedule[day]) return;                 // never touch a locked sport day
-            const existing = pending[day];
-            if (existing && PRIORITY[existing.kind] >= PRIORITY[kind]) return; // keep safer rule
-            pending[day] = { kind, build };
+        // Days (excluding Sunday rest) until the next high-impact game after `d`, wrapping the week.
+        // Used to give the heavy leg day the most recovery runway in crowded sport weeks.
+        const daysUntilNextGame = d => {
+            const start = ring.indexOf(d);
+            for (let step = 1; step <= 7; step++) {
+                const cand = ring[(start + step) % 7];
+                if (cand === 'Sunday') continue;
+                if (isHighImpactSportDay(cand)) return step;
+            }
+            return 99; // no upcoming game
         };
 
-        const dayAt = (idx, delta) => ring[(idx + delta + 7) % 7];
-
-        // 2) Apply per-sport surrounding rules.
-        sportDayNames.forEach(day => {
-            const idx = ring.indexOf(day);
-            const impact = sportDays[day].impact || 'medium';
-            if (impact === 'high') {
-                proposeRule(dayAt(idx, -1), 'before', () => Object.assign({}, p.cardioCore, {
-                    _note: '⚡ Light day — protecting legs for tomorrow\'s game'
-                }));
-                proposeRule(dayAt(idx, 1), 'after', () => Object.assign({}, p.cardioA, {
-                    _note: '🔄 Active recovery — legs still tired from the game'
-                }));
-                proposeRule(dayAt(idx, 2), 'lower', () => p.lowerStrength);
-            } else if (impact === 'medium') {
-                proposeRule(dayAt(idx, 1), 'after', () => Object.assign({}, p.cardioA, {
-                    _note: '🔄 Active recovery — eased load after yesterday\'s activity'
-                }));
+        // 1) Pick the heavy LOWER-body day, in priority order:
+        //    Tier 1 — a free (non-sport) day that is NOT the morning after a high-impact game.
+        //    Tier 2 — any free non-sport day.
+        //    Tier 3 — (crowded weeks) a morning-after day with the most recovery runway before
+        //             the next game, so legs are loaded as far from games as possible.
+        const lowerCandidates = ['Friday', 'Saturday', 'Thursday', 'Wednesday', 'Monday', 'Tuesday'];
+        let legDay =
+            lowerCandidates.find(d => !sportDays[d] && !isPostGameMorning(d))
+            || lowerCandidates.find(d => !sportDays[d]);
+        if (!legDay) {
+            const freeDays = SPORT_DAYS.filter(d => !sportDays[d]);
+            if (freeDays.length) {
+                legDay = freeDays.slice().sort((a, b) => daysUntilNextGame(b) - daysUntilNextGame(a))[0];
+            } else {
+                legDay = lowerCandidates.find(d => !isHighImpactSportDay(d)) || 'Friday';
             }
-            // low impact: no surrounding rules
-        });
+        }
 
-        // 3) Commit pending soft rules (skip any day that became a sport day — already guarded).
-        Object.keys(pending).forEach(day => {
-            if (!schedule[day]) schedule[day] = pending[day].build();
-        });
-
-        // 4) Fill remaining Mon–Sat days with a balanced strength/cardio rotation.
-        const fillers = [p.upperStrength, p.lowerStrength, p.cardioB, p.cardioCore, p.upperStrength, p.cardioA];
-        let fi = 0;
+        // 2) Balanced AM base for every Mon–Sat day:
+        //    - legDay gets the heavy lower lift.
+        //    - high-impact game mornings get a leg-friendly session (upper/core), fresh for tonight.
+        //    - the morning AFTER a high-impact game (and not the leg day) is active recovery:
+        //      low-impact easy cardio + mobility so already-pounded legs aren't loaded again.
+        //    - everything else follows the balanced rotation.
+        const rotation = [p.upperStrength, p.cardioA, p.cardioCore, p.upperStrength, p.cardioB, p.cardioCore];
+        let ri = 0;
         SPORT_DAYS.forEach(day => {
-            if (schedule[day]) return;
-            schedule[day] = fillers[fi % fillers.length];
-            fi++;
+            let am;
+            if (day === legDay) {
+                am = Object.assign({}, p.lowerStrength);
+            } else if (isHighImpactSportDay(day)) {
+                am = Object.assign({}, p.upperStrength || p.cardioCore);
+            } else if (isPostGameMorning(day)) {
+                am = Object.assign({}, p.cardioCore, {
+                    _note: '🔄 Active recovery — easy cardio + mobility. Legs took a pounding last night; keep it light.'
+                });
+            } else {
+                am = Object.assign({}, rotation[ri % rotation.length]);
+                ri++;
+            }
+            schedule[day] = am;
         });
 
-        // 5) Sunday: rest unless a sport was explicitly placed there (sports are Mon–Sat only),
-        //    but a recovery/light rule may have landed on Sunday — honor it; otherwise rest.
-        if (!schedule.Sunday) schedule.Sunday = p.rest;
+        // 3) Overlay each sport as an evening block on top of that day's AM workout.
+        sportDayNames.forEach(day => {
+            schedule[day] = combineTwoADay(schedule[day], sportDays[day], phase);
+        });
+
+        // 4) Sunday rest (sports are Mon–Sat only).
+        schedule.Sunday = p.rest;
 
         return schedule;
+    }
+
+    // Merges an AM workout-day object with an evening sport into a single two-a-day entry.
+    // The exercise list stays one flat array (so per-index completion keys keep working),
+    // with the sport's exercises appended after the AM block.
+    function combineTwoADay(amDay, sport, phase) {
+        const sportData = sportDayData(sport, phase);
+        if (!amDay) return sportData;            // safety: no AM block → just the sport
+        if (!sportData) return amDay;
+        const amExercises = (amDay.exercises || []).slice();
+        const sportExercises = (sportData.exercises || []).slice();
+        const sportLabel = sportData.name || (sport && sport.name) || 'Evening sport';
+        const impact = sport && sport.impact === 'high'
+            ? `Keep the AM lift lighter on legs so you're fresh for tonight's ${sport.name}.`
+            : `Train in the AM, then play in the evening.`;
+        return {
+            name: `${amDay.name} + ${sportLabel}`,
+            time: `${amDay.time || ''}${amDay.time ? ' AM' : ''} · evening ${sportData.time || 'session'}`.trim(),
+            details: `Two-a-day: AM ${amDay.name} + evening ${sportLabel}`,
+            exercises: amExercises.concat(sportExercises),
+            _twoADay: true,
+            _amName: amDay.name,
+            _amCount: amExercises.length,
+            _sportName: sportLabel,
+            _sportKey: sportData._sportKey || (sport && sport.key),
+            _impact: sportData._impact || (sport && sport.impact),
+            _note: `🌙 Two-a-day: 5am ${amDay.name} + evening ${sportLabel}. ${impact}`
+        };
     }
 
     function selectDay(dayName) {
@@ -1691,6 +1764,15 @@
         }
 
         dayData.exercises.forEach((ex, idx) => {
+            // Two-a-day session dividers: label the AM strength block and the evening sport block.
+            if (dayData._twoADay) {
+                if (idx === 0) {
+                    html += `<div class="session-divider">🌅 AM · ${dayData._amName || 'Strength'}</div>`;
+                }
+                if (idx === dayData._amCount) {
+                    html += `<div class="session-divider evening">🌙 Evening · ${dayData._sportName || 'Sport'}</div>`;
+                }
+            }
             const isCompleted = savedState[idx];
             const planBase = getExerciseBase(ex);
             const resolved = resolveExercise(ex);
