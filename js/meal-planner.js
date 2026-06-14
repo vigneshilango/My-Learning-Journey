@@ -264,7 +264,10 @@
     function isCountBasedQty(qty) {
         const q = String(qty || '').toLowerCase();
         if (/\([\d.]+\s*g\b/.test(q)) return false;
-        return /to taste|handful|optional|pinch|as needed|each\)| each|small each|medium each|large each|\d+\s+(small|medium|large)\b/.test(q);
+        // Compound-line per-item weights/sizes (e.g. "30g each, finely diced", "1 medium each")
+        if (/[\d.]+\s*g\s+each\b/.test(q)) return false;
+        if (/[\d.]+\s*(small|medium|large)\s+each\b/.test(q)) return false;
+        return /to taste|handful|optional|pinch|as needed|each\)|small each|medium each|large each/.test(q);
     }
 
     function parseScalableQty(qty) {
@@ -443,6 +446,8 @@
         almond_milk: 'Almond milk',
         milk: 'Milk (low-fat)',
         onion: 'Onion',
+        carrot: 'Carrot',
+        celery: 'Celery',
         garlic: 'Garlic',
         ginger: 'Fresh ginger',
         cilantro: 'Fresh cilantro',
@@ -489,7 +494,10 @@
 
     function scaleCountQtyPart(qtyPart, mult, item) {
         if (mult <= 1) return qtyPart;
-        const c = parseCountableQty(qtyPart, item);
+        const qClean = String(qtyPart).replace(/\(×\d+ for batch\)/gi, '').trim();
+        const scaled = parseScalableQty(qClean);
+        if (scaled) return formatScaledQty(scaled, mult);
+        const c = parseCountableQty(qClean, item);
         if (c) return formatSingleCount(c.key, c.n * mult);
         return qtyPart;
     }
@@ -509,7 +517,10 @@
         if (qtyParts.length === parts.length) {
             return parts.map((p, i) => ({ item: p, qty: scaleCountQtyPart(qtyParts[i], mult, p) }));
         }
-        return parts.map(p => ({ item: p, qty: scaleCountQtyPart(qBase, mult, p) }));
+        return parts.map(p => ({
+            item: p.replace(/\s*\([^)]*\)\s*/g, '').trim(),
+            qty: scaleCountQtyPart(qBase, mult, p)
+        }));
     }
 
     function parseCountableQty(qty, item) {
@@ -599,6 +610,8 @@
             [/garlic powder/, 'spice_garlic_powder'],
             [/garlic/, 'garlic'],
             [/ginger paste|ginger/, 'ginger'],
+            [/carrot/, 'carrot'],
+            [/celery/, 'celery'],
             [/onion/, 'onion'],
             [/tomato/, 'tomato']
         ];
@@ -675,6 +688,11 @@
         if (!counted && /\(×\d+ for batch\)/i.test(qty)) {
             const mult = extractBatchMultiplier(qty);
             const qBase = qty.replace(/\(×\d+ for batch\)/gi, '').trim();
+            const baseScaled = parseScalableQty(qBase);
+            if (baseScaled) {
+                b.totals[baseScaled.unit] = (b.totals[baseScaled.unit] || 0) + baseScaled.value * mult;
+                return;
+            }
             const base = parseCountableQty(qBase, item);
             if (base) counted = { key: base.key, n: base.n * mult };
         }
