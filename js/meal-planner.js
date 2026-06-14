@@ -428,6 +428,8 @@
         spinach: 'Spinach',
         beyond_beef: 'Beyond Beef (ground)',
         tomato_passata: 'Tomato passata / crushed tomatoes',
+        tomato_sauce: 'Tomato sauce',
+        tomato: 'Tomato',
         whey: 'Whey protein',
         cosmic_protein: 'Cosmic Protein',
         huel_black: 'Huel Black powder',
@@ -588,6 +590,7 @@
             [/seitan/, 'seitan'],
             [/soy chunk/, 'soy_chunks'],
             [/passata|crushed tomato/, 'tomato_passata'],
+            [/tomato sauce/, 'tomato_sauce'],
             [/enchilada sauce/, 'enchilada_sauce'],
             [/whey protein|whey/, 'whey'],
             [/cosmic protein/, 'cosmic_protein'],
@@ -632,6 +635,12 @@
     function categorizeGroceryItem(key, item) {
         const s = (key + ' ' + item).toLowerCase();
         if (/^spice_/.test(key) || isSpiceItem(item)) return 'pantry';
+        // Fresh produce — resolve before pantry rules that match "sauce" in compound labels
+        const ALWAYS_PRODUCE_KEYS = new Set([
+            'tomato', 'onion', 'garlic', 'ginger', 'carrot', 'celery', 'spinach',
+            'cilantro', 'lime', 'jalapeno', 'cucumber', 'potato', 'banana', 'mint'
+        ]);
+        if (ALWAYS_PRODUCE_KEYS.has(key)) return 'produce';
         if (/kaged|pre-workout|whey|cosmic|huel|protein powder|multivitamin/.test(s)) return 'shakes';
         if (/paneer|yogurt|milk|butter|ghee|cream/.test(s)) return 'dairy';
         if (/chickpea|chana|rajma|bean|lentil|dal|urad|moong|masoor|beyond|seitan|soy|egg|beef/.test(s)) return 'protein_legumes';
