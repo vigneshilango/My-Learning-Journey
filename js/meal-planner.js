@@ -14,6 +14,12 @@
 
     const DEFAULT_SERVINGS = { mains: 6, breakfast: 4, snacks: 8, preworkout: 7, postworkout: 7 };
 
+    /** Legume / distinct protein bases that should not repeat across weekly mains. */
+    const HEAVY_FOCUS_KEYS = new Set([
+        'black_beans', 'rajma', 'pinto_beans', 'chickpeas',
+        'lentils_mixed', 'urad_dal', 'beyond_beef', 'seitan', 'soy_chunks'
+    ]);
+
     function getRecipeFamily(recipe) {
         if (!recipe) return '';
         if (recipe.family) return recipe.family;
@@ -51,6 +57,62 @@
             if (!blockedNames.has(item.name)) return item;
         }
         return rotated[0];
+    }
+
+    function getRecipeFocusIngredients(recipe) {
+        const focus = new Set();
+        if (!recipe || !recipe.ingredients) return focus;
+        recipe.ingredients.forEach(ing => {
+            const key = normalizeIngredientKey(ing.item);
+            if (key && HEAVY_FOCUS_KEYS.has(key)) focus.add(key);
+        });
+        return focus;
+    }
+
+    function shuffleArray(arr) {
+        return [...arr].sort(() => 0.5 - Math.random());
+    }
+
+    function tryPickMains(pool, count, excludeNames, enforceFocusUnique) {
+        const picked = [];
+        const usedFocus = new Set();
+        for (const recipe of pool) {
+            if (picked.length >= count) break;
+            if (excludeNames && excludeNames.has(recipe.name)) continue;
+            if (enforceFocusUnique) {
+                const focus = getRecipeFocusIngredients(recipe);
+                let clash = false;
+                for (const f of focus) {
+                    if (usedFocus.has(f)) { clash = true; break; }
+                }
+                if (clash) continue;
+                focus.forEach(f => usedFocus.add(f));
+            }
+            picked.push(recipe);
+        }
+        return picked;
+    }
+
+    /**
+     * Pick weekly mains avoiding last week's dishes and duplicate heavy legume/protein bases.
+     * Progressively relaxes rules if the pool is too small.
+     */
+    function pickSmartWeeklyMains(pool, count, options) {
+        if (!pool || !pool.length) return [];
+        const n = Math.min(count, pool.length);
+        const excludeNames = options && options.excludeNames ? options.excludeNames : new Set();
+        const shuffled = shuffleArray(pool);
+
+        let picked = tryPickMains(shuffled, n, excludeNames, true);
+        if (picked.length >= n) return picked;
+
+        picked = tryPickMains(shuffled, n, new Set(), true);
+        if (picked.length >= n) return picked;
+
+        picked = tryPickMains(shuffled, n, excludeNames, false);
+        if (picked.length >= n) return picked;
+
+        return shuffleArray(pool).slice(0, n);
     }
 
     function assignMainsAcrossWeek(mainsPool) {
@@ -712,6 +774,8 @@
         ensureDailyMenu,
         getPortionInfo,
         getTodayWeekdayName,
-        computeMainServingsMap
+        computeMainServingsMap,
+        getRecipeFocusIngredients,
+        pickSmartWeeklyMains
     };
 })(window);

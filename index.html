@@ -2784,12 +2784,13 @@
         let html = '';
         let totalCal = 0, totalPro = 0, totalCarb = 0, totalFat = 0;
 
-        // Logging only applies to the actual current day on the current calendar week.
-        const isLoggableToday = viewDay === today && wk === getCalendarWeekKey();
-        let loggedNames = [];
-        if (isLoggableToday) {
-            try { loggedNames = JSON.parse(pGet(`tracked_${todayKey()}`) || '[]').map(m => m.name); }
-            catch (e) { loggedNames = []; }
+        // Load tracked entries for the viewed calendar day (today or past).
+        const viewDateStr = getMealDateForDay(wk, viewDay);
+        const canLogMeals = viewDateStr <= todayKey();
+        let trackedEntries = [];
+        if (canLogMeals) {
+            trackedEntries = safeParse(pGet(`tracked_${viewDateStr}`), []);
+            if (!Array.isArray(trackedEntries)) trackedEntries = [];
         }
 
         MealPlanner.SLOT_DEFS.forEach(slotDef => {
@@ -2811,13 +2812,16 @@
                 <div style="display:flex; align-items:center; gap:8px; margin:5px 0 2px;">
                     <div style="font-weight:bold; font-size:1.05rem; flex:1;">${item.name}</div>
                     ${(() => {
-                        const alreadyLogged = isLoggableToday && loggedNames.includes(item.name);
+                        if (!canLogMeals) return '';
+                        const entry = trackedEntries.find(m => m.name === item.name);
+                        const alreadyLogged = !!entry;
                         const logged = alreadyLogged ? '1' : '0';
                         const bg = alreadyLogged ? 'var(--success)' : 'transparent';
                         const bc = alreadyLogged ? 'var(--success)' : 'var(--dim)';
                         const fc = alreadyLogged ? '#000' : 'var(--dim)';
                         const sym = alreadyLogged ? '✓' : '+';
-                        return `<button data-logged="${logged}" onclick="event.stopPropagation(); toggleMealLog(this, '${safeItemName}', ${item.cal}, ${item.protein}, ${item.carbs}, ${item.fat})"
+                        const mealIdAttr = entry ? ` data-meal-id="${entry.id}"` : '';
+                        return `<button data-logged="${logged}" data-log-date="${viewDateStr}"${mealIdAttr} onclick="event.stopPropagation(); toggleMealLog(this, '${safeItemName}', ${item.cal}, ${item.protein}, ${item.carbs}, ${item.fat})"
                         style="width:26px; height:26px; border-radius:50%; border:2px solid ${bc}; background:${bg}; color:${fc}; font-size:1rem; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.2s; padding:0;">${sym}</button>`;
                     })()}
                 </div>
@@ -2910,10 +2914,19 @@
             item.steps.forEach(step => { body += `<div style="font-size:0.85rem; color:var(--dim); margin-bottom:6px;">• ${MealPlanner.reconcileBatchText(step, batchTotal)}</div>`; });
         }
         document.getElementById('mealPreviewBody').innerHTML = body;
-        document.getElementById('mealPreviewLogBtn').onclick = () => {
-            addMealToTracking(item.name, item.cal, item.protein, item.carbs, item.fat);
-            closeMealPreview(null, true);
-        };
+        const previewDateStr = getMealDateForDay(wk, viewDay);
+        const previewCanLog = previewDateStr <= todayKey();
+        const logBtn = document.getElementById('mealPreviewLogBtn');
+        if (previewCanLog) {
+            logBtn.style.display = '';
+            logBtn.onclick = () => {
+                addMealToTracking(item.name, item.cal, item.protein, item.carbs, item.fat, previewDateStr);
+                closeMealPreview(null, true);
+                renderDailyMenuView();
+            };
+        } else {
+            logBtn.style.display = 'none';
+        }
         const modal = document.getElementById('mealPreviewModal');
         modal.style.display = 'flex';
         setTimeout(() => modal.classList.add('show'), 10);
@@ -3067,7 +3080,12 @@
         }
         const getRandom = (arr, n) => [...arr].sort(() => 0.5 - Math.random()).slice(0, n);
         activeWeeklyPrep.breakfast  = getRandom(mealDatabase.prepRecipes.breakfast, 1);
-        activeWeeklyPrep.mains      = getRandom(mealDatabase.prepRecipes.mains, 3);
+        const prevWeekKey = toDateStr(addDays(parseDateStr(wk), -7));
+        const prevPrep = loadWeeklyPrepForKey(prevWeekKey);
+        const excludeNames = new Set((prevPrep && prevPrep.mains || []).map(m => m.name));
+        activeWeeklyPrep.mains = MealPlanner.pickSmartWeeklyMains(
+            mealDatabase.prepRecipes.mains, 3, { excludeNames }
+        );
         activeWeeklyPrep.snacks     = getRandom(mealDatabase.prepRecipes.snacks, 1);
         activeWeeklyPrep.preworkout = getRandom(mealDatabase.prepRecipes.preworkout, 1);
         activeWeeklyPrep.postworkout= getRandom(mealDatabase.prepRecipes.postworkout, 1);
@@ -3141,15 +3159,15 @@
     }
 
     function toggleMealLog(btn, name, cal, pro, carb, fat) {
+        const dateStr = btn.dataset.logDate || todayKey();
         const isLogged = btn.dataset.logged === '1';
         if (!isLogged) {
-            const id = addMealToTracking(name, cal, pro, carb, fat);
+            const id = addMealToTracking(name, cal, pro, carb, fat, dateStr);
             btn.dataset.mealId = String(id);
             setMealLogBtnState(btn, true);
         } else {
-            // Remove the exact entry we logged (by id); fall back to first matching name.
             const id = btn.dataset.mealId ? Number(btn.dataset.mealId) : null;
-            removeTrackedEntry(id, name);
+            removeTrackedEntry(id, name, dateStr);
             setMealLogBtnState(btn, false);
         }
     }
@@ -3160,6 +3178,8 @@
         if (trackView && trackView.style.display === 'block' && dateStr === todayKey()) updateTracking();
         const historyView = document.getElementById('history-view');
         if (historyView && historyView.style.display === 'block') renderMealHistory();
+        const dailyView = document.getElementById('daily-view');
+        if (dailyView && dailyView.style.display === 'block') renderDailyMenuView();
     }
 
     function addMealToTracking(name, cal, pro, carb, fat, dateStr) {

@@ -501,6 +501,17 @@
         return getMealWeekKey(date || new Date());
     }
 
+    /** Calendar date (YYYY-MM-DD) for a weekday within a meal week (weekKey = Monday). */
+    function getMealDateForDay(weekKey, dayName) {
+        const offsets = {
+            Monday: 0, Tuesday: 1, Wednesday: 2, Thursday: 3,
+            Friday: 4, Saturday: 5, Sunday: 6
+        };
+        const off = offsets[dayName];
+        if (off === undefined) return weekKey;
+        return toDateStr(addDays(parseDateStr(weekKey), off));
+    }
+
     function getPlanningWeekKey() {
         return getActiveMealWeekKey();
     }
@@ -1063,6 +1074,7 @@
     global.toDateStr = toDateStr;
     global.addDays = addDays;
     global.parseDateStr = parseDateStr;
+    global.getMealDateForDay = getMealDateForDay;
     global.syncLoggedWeightToProfile = syncLoggedWeightToProfile;
     global.syncBodyMetricsToWorkoutInputs = syncBodyMetricsToWorkoutInputs;
     global.updateHipFieldVisibility = updateHipFieldVisibility;
